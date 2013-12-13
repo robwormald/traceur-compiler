@@ -582,21 +582,21 @@ export class Parser {
     //     ExportSpecifierSet ("from" ModuleSpecifier(load))?
     var start = this.getTreeStartLocation_();
 
-    var specifierSet, expression;
+    var exportClause, fromClause;
 
     if (this.peek_(OPEN_CURLY)) {
-      specifierSet = this.parseExportSpecifierSet_();
-      expression = this.parseFromModuleSpecifierOpt_(false);
+      exportClause = this.parseExportSpecifierSet_();
+      fromClause = this.parseFromModuleSpecifierOpt_(false);
     } else {
       this.eat_(STAR);
-      specifierSet = new ExportStar(this.getTreeLocation_(start));
-      expression = this.parseFromModuleSpecifierOpt_(true);
+      exportClause = new ExportStar(this.getTreeLocation_(start));
+      fromClause = this.parseFromModuleSpecifierOpt_(true);
     }
 
     this.eatPossibleImplicitSemiColon_();
 
-    return new NamedExport(this.getTreeLocation_(start), expression,
-                             specifierSet);
+    return new NamedExport(this.getTreeLocation_(start), fromClause,
+                           exportClause);
   }
 
   parseFromModuleSpecifierOpt_(required) {

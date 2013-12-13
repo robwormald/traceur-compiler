@@ -13,18 +13,14 @@
 // limitations under the License.
 
 import {ModuleDescription} from '../../semantics/ModuleSymbol';
-import {ParseTree} from '../../syntax/trees/ParseTree';
-import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
-import {
-  MODULE_DECLARATION,
-  EXPORT_DECLARATION,
-  IMPORT_DECLARATION
-} from '../../syntax/trees/ParseTreeType';
+import {ModuleVisitor as ModuleVisitorBase} from
+    '../../staticsemantics/ModuleVisitor';
+
 
 /**
  * A specialized parse tree visitor for use with modules.
  */
-export class ModuleVisitor extends ParseTreeVisitor {
+export class ModuleVisitor extends ModuleVisitorBase {
   /**
    * @param {traceur.util.ErrorReporter} reporter
    * @param {Loader} loader
@@ -77,31 +73,6 @@ export class ModuleVisitor extends ParseTreeVisitor {
       }
       return moduleDescription;
     });
-  }
-
-  // Limit the trees to visit.
-  visitFunctionDeclaration(tree) {}
-  visitFunctionExpression(tree) {}
-  visitFunctionBody(tree) {}
-  visitBlock(tree) {}
-  visitClassDeclaration(tree) {}
-  visitClassExpression(tree) {}
-
-  visitModuleElement_(element) {
-    switch (element.type) {
-      case MODULE_DECLARATION:
-      case EXPORT_DECLARATION:
-      case IMPORT_DECLARATION:
-        this.visitAny(element);
-    }
-  }
-
-  visitScript(tree) {
-    tree.scriptItemList.forEach(this.visitModuleElement_, this);
-  }
-
-  visitModule(tree) {
-    tree.scriptItemList.forEach(this.visitModuleElement_, this);
   }
 
   /**
