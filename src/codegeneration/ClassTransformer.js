@@ -18,11 +18,13 @@ import {
 import {
   AnonBlock,
   ExportDeclaration,
-  FunctionExpression,
   GetAccessor,
   PropertyMethodAssignment,
   SetAccessor
 } from '../syntax/trees/ParseTrees';
+import {
+  FunctionExpression
+} from '../syntax/trees/NewTrees';
 import {
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,

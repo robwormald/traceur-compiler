@@ -145,6 +145,15 @@ export class ParseTree {
     this.location = location;
   }
 
+  // TODO(arv): Maybe make the constructor do this and have a static for the
+  // non children case.
+  static fromChildren(location, children) {
+    var self = Object.create(this.prototype);
+    self.location = location;
+    self.children = children;
+    return self;
+  }
+
   /** @return {boolean} */
   isPattern() {
     switch (this.type) {

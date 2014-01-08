@@ -20,6 +20,10 @@ import {
   PropertyMethodAssignment,
   VariableDeclaration
 } from '../syntax/trees/ParseTrees';
+import {
+  FunctionDeclaration,
+  FunctionExpression
+} from '../syntax/trees/NewTrees';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 
 /**

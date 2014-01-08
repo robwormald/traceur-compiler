@@ -216,8 +216,6 @@ import {
   FormalParameter,
   FormalParameterList,
   FunctionBody,
-  FunctionDeclaration,
-  FunctionExpression,
   GeneratorComprehension,
   GetAccessor,
   IdentifierExpression,
@@ -269,6 +267,10 @@ import {
   WithStatement,
   YieldExpression
 }  from './trees/ParseTrees';
+import {
+  FunctionDeclaration,
+  FunctionExpression
+}  from './trees/NewTrees';
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'
@@ -817,29 +819,7 @@ export class Parser {
    * @private
    */
   parseFunctionDeclaration_() {
-    var start = this.getTreeStartLocation_();
-    this.nextToken_(); // function or #
-    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
-    return this.parseFunctionDeclarationTail_(start, isGenerator,
-                                              this.parseBindingIdentifier_());
-  }
-
-  /**
-   * @param {SourcePosition} start
-   * @param {IdentifierToken} name
-   * @return {ParseTree}
-   * @private
-   */
-  parseFunctionDeclarationTail_(start, isGenerator, name) {
-    this.eat_(OPEN_PAREN);
-    var formalParameterList = this.parseFormalParameterList_();
-    this.eat_(CLOSE_PAREN);
-    var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var functionBody = this.parseFunctionBody_(isGenerator,
-                                               formalParameterList);
-    return new FunctionDeclaration(this.getTreeLocation_(start), name,
-                                   isGenerator, formalParameterList, typeAnnotation,
-                                   functionBody);
+    return this.parseFuntion_(FunctionDeclaration);
   }
 
   /**
@@ -847,22 +827,35 @@ export class Parser {
    * @private
    */
   parseFunctionExpression_() {
+    return this.parseFuntion_(FunctionExpression);
+  }
+
+  parseFuntion_(ctor) {
     var start = this.getTreeStartLocation_();
-    this.nextToken_(); // function or #
-    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
+
+    var children = [this.eat_(FUNCTION)];
+
+    var star = null;
+    if (parseOptions.generators && this.peek_(STAR))
+      star = this.eat_(STAR);
+    children.push(star);
+
     var name = null;
-    if (this.peekBindingIdentifier_(this.peekType_())) {
+    if (ctor === FunctionDeclaration ||
+        this.peekBindingIdentifier_(this.peekType_())) {
       name = this.parseBindingIdentifier_();
     }
-    this.eat_(OPEN_PAREN);
+
+    children.push(name, this.eat_(OPEN_PAREN));
+
     var formalParameterList = this.parseFormalParameterList_();
-    this.eat_(CLOSE_PAREN);
-    var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var functionBody = this.parseFunctionBody_(isGenerator,
-                                               formalParameterList);
-    return new FunctionExpression(this.getTreeLocation_(start), name,
-                                  isGenerator, formalParameterList, typeAnnotation,
-                                  functionBody);
+    children.push(
+        formalParameterList,
+        this.eat_(CLOSE_PAREN),
+        this.parseTypeAnnotationOpt_(),
+        this.parseFunctionBody_(star, formalParameterList));
+
+    return ctor.fromChildren(this.getTreeLocation_(start), children);
   }
 
   peekRest_(type) {

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
-import {FunctionExpression} from '../syntax/trees/ParseTrees';
+import {FunctionExpression} from '../syntax/trees/NewTrees';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   LET,

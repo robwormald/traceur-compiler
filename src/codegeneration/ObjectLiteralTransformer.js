@@ -15,10 +15,12 @@
 import {FindVisitor} from './FindVisitor';
 import {
   FormalParameterList,
-  FunctionExpression,
   IdentifierExpression,
   LiteralExpression
 } from '../syntax/trees/ParseTrees';
+import {
+  FunctionExpression
+} from '../syntax/trees/NewTrees';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   IDENTIFIER,

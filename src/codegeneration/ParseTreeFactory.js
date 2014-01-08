@@ -83,8 +83,6 @@ import {
   FormalParameter,
   FormalParameterList,
   FunctionBody,
-  FunctionDeclaration,
-  FunctionExpression,
   GeneratorComprehension,
   GetAccessor,
   IdentifierExpression,
@@ -135,6 +133,10 @@ import {
   WithStatement,
   YieldExpression
 } from '../syntax/trees/ParseTrees';
+import {
+  FunctionDeclaration,
+  FunctionExpression
+} from '../syntax/trees/NewTrees';
 
 // Helpers so we can use these on Arguments objects.
 var slice = Array.prototype.slice.call.bind(Array.prototype.slice);

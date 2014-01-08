@@ -21,7 +21,7 @@ import {
 import {
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/NewTrees';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   CONST,
