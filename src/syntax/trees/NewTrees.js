@@ -20,6 +20,26 @@ import {ParseTree} from './ParseTree';
 import {Token} from '../Token';
 module ParseTreeType from './ParseTreeType';
 
+/*
+
+Possible trees.json format. Any key wich isn't all \w would just be in the
+children.
+
+"FunctionDeclaration": {
+  "0 function": "Token",
+  "isGenerator": "Token",
+  "name": "BindingIdentifier",
+  "3 (": "Token",
+  "formalParameterList": "FormalParameterList",
+  "4 )": "Token",
+  "functionBody": "FunctionBody"
+},
+"FormalParameterList": {
+  "parameters": "Array.<FormalParameters>"
+}
+*/
+
+
 var FUNCTION_DECLARATION = ParseTreeType.FUNCTION_DECLARATION;
 export class FunctionDeclaration extends ParseTree {
   /**
