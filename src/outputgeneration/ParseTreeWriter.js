@@ -194,7 +194,16 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
     this.currentLocation = tree.location;
 
-    super.visitAny(tree);
+    if (tree.children) {
+      for (var i = 0; i < tree.children.length; i++) {
+        if (tree.children[i] instanceof Token)
+          this.write_(tree.children[i]);
+        else
+          this.visitAny(tree.children[i]);
+      }
+    } else {
+      super.visitAny(tree);
+    }
 
     // set background color to normal
     if (tree === this.highlighted_) {
@@ -615,16 +624,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitFunction_(tree) {
-    this.write_(FUNCTION);
-    if (tree.isGenerator) {
-      this.write_(STAR);
-    }
-    this.visitAny(tree.name);
-    this.write_(OPEN_PAREN);
-    this.visitAny(tree.formalParameterList);
-    this.write_(CLOSE_PAREN);
-    this.writeTypeAnnotation_(tree.typeAnnotation);
-    this.visitAny(tree.functionBody);
+    throw new Error('Not reachable');
   }
 
   visitGeneratorComprehension(tree) {

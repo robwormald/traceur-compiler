@@ -14,9 +14,11 @@
 
 // TODO(arv): This should be automatically generated just like we generate ParseTrees today.
 
+import {KeywordToken} from '../KeywordToken';
+import {NORMAL_KEYWORD} from '../Keywords';
 import {ParseTree} from './ParseTree';
+import {Token} from '../Token';
 module ParseTreeType from './ParseTreeType';
-
 
 var FUNCTION_DECLARATION = ParseTreeType.FUNCTION_DECLARATION;
 export class FunctionDeclaration extends ParseTree {
@@ -31,12 +33,12 @@ export class FunctionDeclaration extends ParseTree {
   constructor(location, name, isGenerator, formalParameterList, typeAnnotation, functionBody) {
     this.location = location;
     this.children = [
-      null,  // Token "function"
+      new KeywordToken('function', NORMAL_KEYWORD, null),
       isGenerator,
       name,
-      null,  // Token "("
+      new Token('(', null),
       formalParameterList,
-      null,  // Token ")"
+      new Token(')', null),
       typeAnnotation,
       functionBody
     ];
