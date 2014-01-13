@@ -280,6 +280,10 @@ addBoolOption('freeVariableChecker');
 addBoolOption('validate');
 addBoolOption('unstarredGenerators');
 
+addBoolOption('attachComments');
+addBoolOption('outputComments');
+addBoolOption('closureTypeAnnotations');
+
 defaultValues.referrer = '';
 options.referrer = null;
 

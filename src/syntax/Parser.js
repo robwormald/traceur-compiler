@@ -53,6 +53,7 @@ import {
   STRING
 } from './PredefinedName';
 import {Scanner} from './Scanner';
+import {SourcePosition} from '../util/SourcePosition';
 import {SourceRange} from '../util/SourceRange';
 import {StrictParams} from '../staticsemantics/StrictParams';
 import {
@@ -343,6 +344,8 @@ export class Parser {
    */
   constructor(errorReporter, file) {
     this.errorReporter_ = errorReporter;
+    this.file_ = file;
+
     this.scanner_ = new Scanner(errorReporter, file, this);
 
     /**
@@ -359,6 +362,8 @@ export class Parser {
     this.strictMode_ = false;
 
     this.coverInitialisedName_ = null;
+
+    this.comments_ = null;
   }
 
   // 14 Script
@@ -422,14 +427,16 @@ export class Parser {
   }
 
   parseModule() {
+    // TODO(arv): Refactor to share code with parseScript once we remove support
+    // for ImportDeclaration in Script.
+    this.strictMode_ = true;
     var start = this.getTreeStartLocation_();
     var scriptItemList = this.parseModuleItemList_();
     this.eat_(END_OF_FILE);
-    return new Module(this.getTreeLocation_(start), scriptItemList);
+    return new Module(this.getTreeLocation_(start), scriptItemList, null);
   }
 
   parseModuleItemList_() {
-    this.strictMode_ = true;
     var result = [];
     var type;
 
@@ -829,23 +836,24 @@ export class Parser {
   }
 
   parseFunction_(ctor) {
-    var start = this.getTreeStartLocation_();
+    var tree = this.startTree_(ctor);
+    // var start = this.getTreeStartLocation_();
     this.eat_(FUNCTION);
-    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
-    var name = null;
+    tree.name = null;
+    tree.isGenerator = parseOptions.generators && this.eatIf_(STAR);
     if (ctor === FunctionDeclaration ||
         this.peekBindingIdentifier_(this.peekType_())) {
-      name = this.parseBindingIdentifier_();
+      tree.name = this.parseBindingIdentifier_();
     }
 
     this.eat_(OPEN_PAREN);
-    var formalParameterList = this.parseFormalParameterList_();
+    tree.formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
-    var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var functionBody = this.parseFunctionBody_(isGenerator,
-                                               formalParameterList);
-    return new ctor(this.getTreeLocation_(start), name, isGenerator,
-                    formalParameterList, typeAnnotation, functionBody);
+    tree.typeAnnotation = this.parseTypeAnnotationOpt_();
+    tree.functionBody = this.parseFunctionBody_(tree.isGenerator,
+                                                tree.formalParameterList);
+
+    return this.finishTree_(tree);
   }
 
   peekRest_(type) {
@@ -1009,11 +1017,24 @@ export class Parser {
    * @private
    */
   parseVariableStatement_() {
-    var start = this.getTreeStartLocation_();
-    var declarations = this.parseVariableDeclarationList_();
-    this.checkInitialisers_(declarations);
+    var tree = this.startTree_(VariableStatement);
+    tree.declarations = this.parseVariableDeclarationList_();
+    this.checkInitialisers_(tree.declarations);
     this.eatPossibleImplicitSemiColon_();
-    return new VariableStatement(this.getTreeLocation_(start), declarations);
+    return this.finishTree_(tree);
+  }
+
+  startTree_(ctor) {
+    var tree = new ctor(this.getTreeStartLocation_());
+    tree.comments = this.comments_;
+    this.comments_ = null;
+    return tree
+  }
+
+  finishTree_(tree) {
+    // We store the start location in the tree up until now.
+    tree.location = this.getTreeLocation_(tree.location);
+    return tree;
   }
 
   /**
@@ -3671,6 +3692,15 @@ export class Parser {
    */
   getTreeLocation_(start) {
     return new SourceRange(start, this.getTreeEndLocation_());
+  }
+
+  handleComment(start, end) {
+    if (!this.comments_)
+      this.comments_ = [];
+
+    this.comments_.push(new SourceRange(
+        new SourcePosition(this.file_, start),
+        new SourcePosition(this.file_, end)));
   }
 
   /**

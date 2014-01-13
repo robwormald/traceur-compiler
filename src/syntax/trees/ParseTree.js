@@ -142,7 +142,18 @@ export class ParseTree {
   constructor(type, location) {
     throw new Error("Don't use for now. 'super' is currently very slow.");
     this.type = type;
+    this.metadata = null;
     this.location = location;
+  }
+
+  set comments(comments) {
+    if (this.metadata === null)
+      this.metadata = {};
+    this.metadata.comments = comments;
+  }
+
+  get comments() {
+    return this.metadata && this.metadata.comments;
   }
 
   /** @return {boolean} */

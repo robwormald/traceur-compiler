@@ -23,7 +23,7 @@ import {
 } from '../syntax/PredefinedName';
 import {Token} from '../syntax/Token';
 import {getKeywordType} from '../syntax/Keywords';
-
+import {options} from '../options';
 import {
   AMPERSAND,
   AMPERSAND_EQUAL,
@@ -193,6 +193,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     }
 
     this.currentLocation = tree.location;
+
+    if (options.outputComments && tree.comments) {
+      for (var i = 0; i < tree.comments.length; i++) {
+        this.write_(tree.comments[i]);
+      }
+    }
 
     super.visitAny(tree);
 

@@ -17,6 +17,7 @@ import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {ClassTransformer} from './ClassTransformer';
+import {ClosureTypeTransformer} from './ClosureTypeTransformer';
 import {CommonJsModuleTransformer} from './CommonJsModuleTransformer';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
@@ -62,8 +63,11 @@ export class FromOptionsTransformer extends MultiTransformer {
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
 
-    if (transformOptions.types)
+    if (transformOptions.types) {
+      if (options.closureTypeAnnotations)
+        append(ClosureTypeTransformer);
       append(TypeTransformer);
+    }
     if (transformOptions.numericLiterals)
       append(NumericLiteralTransformer);
 
