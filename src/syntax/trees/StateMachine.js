@@ -80,7 +80,7 @@ export class StateMachine extends ParseTree {
    * @param {Array.<TryState>} exceptionBlocks
    */
   constructor(startState, fallThroughState, states, exceptionBlocks) {
-    this.location = null;
+    this.metadata = {location: null};
 
     this.startState = startState;
     this.fallThroughState = fallThroughState;

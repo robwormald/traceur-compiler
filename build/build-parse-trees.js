@@ -58,8 +58,8 @@ names.forEach(function(name) {
   });
   print('   */');
   print('  constructor(%s) {', paramNames.join(', '));
-  print('    this.metadata = null;');
-  paramNames.forEach(printInitialiser);
+  print('    this.metadata = {location: location};');
+  paramNames.slice(1).forEach(printInitialiser);
   print('  }');
   print();
   print('  /**');

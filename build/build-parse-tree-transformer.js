@@ -65,7 +65,7 @@ function printTransformTree(name, tree, trees) {
 
 function printTransformBody(name, tree, trees) {
   var test = null;
-  var args = 'tree.location';
+  var args = 'tree.metadata';
   function addTest(fieldName) {
     var nextTest = fieldName + ' === tree.' + fieldName;
     if (test) {

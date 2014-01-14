@@ -3791,12 +3791,17 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTree", function() {
     this.location = location;
   };
   ParseTree = ($traceurRuntime.createClass)(ParseTree, {
+    set location(location) {
+      this.metadata.location = location;
+    },
+    get location() {
+      return this.metadata.location;
+    },
     set comments(comments) {
-      if (this.metadata === null) this.metadata = {};
       this.metadata.comments = comments;
     },
     get comments() {
-      return this.metadata && this.metadata.comments;
+      return this.metadata.comments;
     },
     isPattern: function() {
       switch (this.type) {
@@ -4017,8 +4022,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   var ParseTreeType = System.get("traceur@0.0.Y/src/syntax/trees/ParseTreeType");
   var ANON_BLOCK = ParseTreeType.ANON_BLOCK;
   var AnonBlock = function(location, statements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.statements = statements;
   };
   AnonBlock = ($traceurRuntime.createClass)(AnonBlock, {
@@ -4034,8 +4038,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var ARGUMENT_LIST = ParseTreeType.ARGUMENT_LIST;
   var ArgumentList = function(location, args) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.args = args;
   };
   ArgumentList = ($traceurRuntime.createClass)(ArgumentList, {
@@ -4051,8 +4054,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var ARRAY_COMPREHENSION = ParseTreeType.ARRAY_COMPREHENSION;
   var ArrayComprehension = function(location, comprehensionList, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.comprehensionList = comprehensionList;
     this.expression = expression;
   };
@@ -4069,8 +4071,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var ARRAY_LITERAL_EXPRESSION = ParseTreeType.ARRAY_LITERAL_EXPRESSION;
   var ArrayLiteralExpression = function(location, elements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.elements = elements;
   };
   ArrayLiteralExpression = ($traceurRuntime.createClass)(ArrayLiteralExpression, {
@@ -4086,8 +4087,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var ARRAY_PATTERN = ParseTreeType.ARRAY_PATTERN;
   var ArrayPattern = function(location, elements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.elements = elements;
   };
   ArrayPattern = ($traceurRuntime.createClass)(ArrayPattern, {
@@ -4103,8 +4103,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var ARROW_FUNCTION_EXPRESSION = ParseTreeType.ARROW_FUNCTION_EXPRESSION;
   var ArrowFunctionExpression = function(location, formalParameters, functionBody) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.formalParameters = formalParameters;
     this.functionBody = functionBody;
   };
@@ -4121,8 +4120,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var AWAIT_STATEMENT = ParseTreeType.AWAIT_STATEMENT;
   var AwaitStatement = function(location, identifier, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.identifier = identifier;
     this.expression = expression;
   };
@@ -4139,8 +4137,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var BINARY_OPERATOR = ParseTreeType.BINARY_OPERATOR;
   var BinaryOperator = function(location, left, operator, right) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.left = left;
     this.operator = operator;
     this.right = right;
@@ -4158,8 +4155,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var BINDING_ELEMENT = ParseTreeType.BINDING_ELEMENT;
   var BindingElement = function(location, binding, initialiser) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.binding = binding;
     this.initialiser = initialiser;
   };
@@ -4176,8 +4172,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var BINDING_IDENTIFIER = ParseTreeType.BINDING_IDENTIFIER;
   var BindingIdentifier = function(location, identifierToken) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.identifierToken = identifierToken;
   };
   BindingIdentifier = ($traceurRuntime.createClass)(BindingIdentifier, {
@@ -4193,8 +4188,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var BLOCK = ParseTreeType.BLOCK;
   var Block = function(location, statements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.statements = statements;
   };
   Block = ($traceurRuntime.createClass)(Block, {
@@ -4210,8 +4204,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var BREAK_STATEMENT = ParseTreeType.BREAK_STATEMENT;
   var BreakStatement = function(location, name) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
   };
   BreakStatement = ($traceurRuntime.createClass)(BreakStatement, {
@@ -4227,8 +4220,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var CALL_EXPRESSION = ParseTreeType.CALL_EXPRESSION;
   var CallExpression = function(location, operand, args) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.operand = operand;
     this.args = args;
   };
@@ -4245,8 +4237,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var CASE_CLAUSE = ParseTreeType.CASE_CLAUSE;
   var CaseClause = function(location, expression, statements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
     this.statements = statements;
   };
@@ -4263,8 +4254,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var CATCH = ParseTreeType.CATCH;
   var Catch = function(location, binding, catchBody) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.binding = binding;
     this.catchBody = catchBody;
   };
@@ -4281,8 +4271,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var CLASS_DECLARATION = ParseTreeType.CLASS_DECLARATION;
   var ClassDeclaration = function(location, name, superClass, elements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
     this.superClass = superClass;
     this.elements = elements;
@@ -4300,8 +4289,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var CLASS_EXPRESSION = ParseTreeType.CLASS_EXPRESSION;
   var ClassExpression = function(location, name, superClass, elements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
     this.superClass = superClass;
     this.elements = elements;
@@ -4319,8 +4307,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var COMMA_EXPRESSION = ParseTreeType.COMMA_EXPRESSION;
   var CommaExpression = function(location, expressions) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expressions = expressions;
   };
   CommaExpression = ($traceurRuntime.createClass)(CommaExpression, {
@@ -4336,8 +4323,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var COMPREHENSION_FOR = ParseTreeType.COMPREHENSION_FOR;
   var ComprehensionFor = function(location, left, iterator) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.left = left;
     this.iterator = iterator;
   };
@@ -4354,8 +4340,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var COMPREHENSION_IF = ParseTreeType.COMPREHENSION_IF;
   var ComprehensionIf = function(location, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
   };
   ComprehensionIf = ($traceurRuntime.createClass)(ComprehensionIf, {
@@ -4371,8 +4356,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var COMPUTED_PROPERTY_NAME = ParseTreeType.COMPUTED_PROPERTY_NAME;
   var ComputedPropertyName = function(location, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
   };
   ComputedPropertyName = ($traceurRuntime.createClass)(ComputedPropertyName, {
@@ -4388,8 +4372,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var CONDITIONAL_EXPRESSION = ParseTreeType.CONDITIONAL_EXPRESSION;
   var ConditionalExpression = function(location, condition, left, right) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.condition = condition;
     this.left = left;
     this.right = right;
@@ -4407,8 +4390,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var CONTINUE_STATEMENT = ParseTreeType.CONTINUE_STATEMENT;
   var ContinueStatement = function(location, name) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
   };
   ContinueStatement = ($traceurRuntime.createClass)(ContinueStatement, {
@@ -4424,8 +4406,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var COVER_FORMALS = ParseTreeType.COVER_FORMALS;
   var CoverFormals = function(location, expressions) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expressions = expressions;
   };
   CoverFormals = ($traceurRuntime.createClass)(CoverFormals, {
@@ -4441,8 +4422,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var COVER_INITIALISED_NAME = ParseTreeType.COVER_INITIALISED_NAME;
   var CoverInitialisedName = function(location, name, equalToken, initialiser) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
     this.equalToken = equalToken;
     this.initialiser = initialiser;
@@ -4460,8 +4440,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var DEBUGGER_STATEMENT = ParseTreeType.DEBUGGER_STATEMENT;
   var DebuggerStatement = function(location) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
   };
   DebuggerStatement = ($traceurRuntime.createClass)(DebuggerStatement, {
     transform: function(transformer) {
@@ -4476,8 +4455,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var DEFAULT_CLAUSE = ParseTreeType.DEFAULT_CLAUSE;
   var DefaultClause = function(location, statements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.statements = statements;
   };
   DefaultClause = ($traceurRuntime.createClass)(DefaultClause, {
@@ -4493,8 +4471,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var DO_WHILE_STATEMENT = ParseTreeType.DO_WHILE_STATEMENT;
   var DoWhileStatement = function(location, body, condition) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.body = body;
     this.condition = condition;
   };
@@ -4511,8 +4488,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var EMPTY_STATEMENT = ParseTreeType.EMPTY_STATEMENT;
   var EmptyStatement = function(location) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
   };
   EmptyStatement = ($traceurRuntime.createClass)(EmptyStatement, {
     transform: function(transformer) {
@@ -4527,8 +4503,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var EXPORT_DECLARATION = ParseTreeType.EXPORT_DECLARATION;
   var ExportDeclaration = function(location, declaration) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.declaration = declaration;
   };
   ExportDeclaration = ($traceurRuntime.createClass)(ExportDeclaration, {
@@ -4544,8 +4519,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var EXPORT_DEFAULT = ParseTreeType.EXPORT_DEFAULT;
   var ExportDefault = function(location, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
   };
   ExportDefault = ($traceurRuntime.createClass)(ExportDefault, {
@@ -4561,8 +4535,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var EXPORT_SPECIFIER = ParseTreeType.EXPORT_SPECIFIER;
   var ExportSpecifier = function(location, lhs, rhs) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.lhs = lhs;
     this.rhs = rhs;
   };
@@ -4579,8 +4552,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var EXPORT_SPECIFIER_SET = ParseTreeType.EXPORT_SPECIFIER_SET;
   var ExportSpecifierSet = function(location, specifiers) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.specifiers = specifiers;
   };
   ExportSpecifierSet = ($traceurRuntime.createClass)(ExportSpecifierSet, {
@@ -4596,8 +4568,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var EXPORT_STAR = ParseTreeType.EXPORT_STAR;
   var ExportStar = function(location) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
   };
   ExportStar = ($traceurRuntime.createClass)(ExportStar, {
     transform: function(transformer) {
@@ -4612,8 +4583,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var EXPRESSION_STATEMENT = ParseTreeType.EXPRESSION_STATEMENT;
   var ExpressionStatement = function(location, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
   };
   ExpressionStatement = ($traceurRuntime.createClass)(ExpressionStatement, {
@@ -4629,8 +4599,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FINALLY = ParseTreeType.FINALLY;
   var Finally = function(location, block) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.block = block;
   };
   Finally = ($traceurRuntime.createClass)(Finally, {
@@ -4646,8 +4615,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FOR_IN_STATEMENT = ParseTreeType.FOR_IN_STATEMENT;
   var ForInStatement = function(location, initialiser, collection, body) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.initialiser = initialiser;
     this.collection = collection;
     this.body = body;
@@ -4665,8 +4633,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FOR_OF_STATEMENT = ParseTreeType.FOR_OF_STATEMENT;
   var ForOfStatement = function(location, initialiser, collection, body) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.initialiser = initialiser;
     this.collection = collection;
     this.body = body;
@@ -4684,8 +4651,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FOR_STATEMENT = ParseTreeType.FOR_STATEMENT;
   var ForStatement = function(location, initialiser, condition, increment, body) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.initialiser = initialiser;
     this.condition = condition;
     this.increment = increment;
@@ -4704,8 +4670,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FORMAL_PARAMETER = ParseTreeType.FORMAL_PARAMETER;
   var FormalParameter = function(location, parameter, typeAnnotation) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.parameter = parameter;
     this.typeAnnotation = typeAnnotation;
   };
@@ -4722,8 +4687,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FORMAL_PARAMETER_LIST = ParseTreeType.FORMAL_PARAMETER_LIST;
   var FormalParameterList = function(location, parameters) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.parameters = parameters;
   };
   FormalParameterList = ($traceurRuntime.createClass)(FormalParameterList, {
@@ -4739,8 +4703,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FUNCTION_BODY = ParseTreeType.FUNCTION_BODY;
   var FunctionBody = function(location, statements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.statements = statements;
   };
   FunctionBody = ($traceurRuntime.createClass)(FunctionBody, {
@@ -4756,8 +4719,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FUNCTION_DECLARATION = ParseTreeType.FUNCTION_DECLARATION;
   var FunctionDeclaration = function(location, name, isGenerator, formalParameterList, typeAnnotation, functionBody) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
     this.isGenerator = isGenerator;
     this.formalParameterList = formalParameterList;
@@ -4777,8 +4739,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var FUNCTION_EXPRESSION = ParseTreeType.FUNCTION_EXPRESSION;
   var FunctionExpression = function(location, name, isGenerator, formalParameterList, typeAnnotation, functionBody) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
     this.isGenerator = isGenerator;
     this.formalParameterList = formalParameterList;
@@ -4798,8 +4759,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var GENERATOR_COMPREHENSION = ParseTreeType.GENERATOR_COMPREHENSION;
   var GeneratorComprehension = function(location, comprehensionList, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.comprehensionList = comprehensionList;
     this.expression = expression;
   };
@@ -4816,8 +4776,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var GET_ACCESSOR = ParseTreeType.GET_ACCESSOR;
   var GetAccessor = function(location, isStatic, name, typeAnnotation, body) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.isStatic = isStatic;
     this.name = name;
     this.typeAnnotation = typeAnnotation;
@@ -4836,8 +4795,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
   var IdentifierExpression = function(location, identifierToken) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.identifierToken = identifierToken;
   };
   IdentifierExpression = ($traceurRuntime.createClass)(IdentifierExpression, {
@@ -4853,8 +4811,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var IF_STATEMENT = ParseTreeType.IF_STATEMENT;
   var IfStatement = function(location, condition, ifClause, elseClause) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.condition = condition;
     this.ifClause = ifClause;
     this.elseClause = elseClause;
@@ -4872,8 +4829,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var IMPORTED_BINDING = ParseTreeType.IMPORTED_BINDING;
   var ImportedBinding = function(location, binding) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.binding = binding;
   };
   ImportedBinding = ($traceurRuntime.createClass)(ImportedBinding, {
@@ -4889,8 +4845,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var IMPORT_DECLARATION = ParseTreeType.IMPORT_DECLARATION;
   var ImportDeclaration = function(location, importClause, moduleSpecifier) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.importClause = importClause;
     this.moduleSpecifier = moduleSpecifier;
   };
@@ -4907,8 +4862,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var IMPORT_SPECIFIER = ParseTreeType.IMPORT_SPECIFIER;
   var ImportSpecifier = function(location, lhs, rhs) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.lhs = lhs;
     this.rhs = rhs;
   };
@@ -4925,8 +4879,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var IMPORT_SPECIFIER_SET = ParseTreeType.IMPORT_SPECIFIER_SET;
   var ImportSpecifierSet = function(location, specifiers) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.specifiers = specifiers;
   };
   ImportSpecifierSet = ($traceurRuntime.createClass)(ImportSpecifierSet, {
@@ -4942,8 +4895,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var LABELLED_STATEMENT = ParseTreeType.LABELLED_STATEMENT;
   var LabelledStatement = function(location, name, statement) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
     this.statement = statement;
   };
@@ -4960,8 +4912,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var LITERAL_EXPRESSION = ParseTreeType.LITERAL_EXPRESSION;
   var LiteralExpression = function(location, literalToken) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.literalToken = literalToken;
   };
   LiteralExpression = ($traceurRuntime.createClass)(LiteralExpression, {
@@ -4977,8 +4928,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var LITERAL_PROPERTY_NAME = ParseTreeType.LITERAL_PROPERTY_NAME;
   var LiteralPropertyName = function(location, literalToken) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.literalToken = literalToken;
   };
   LiteralPropertyName = ($traceurRuntime.createClass)(LiteralPropertyName, {
@@ -4994,8 +4944,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var MEMBER_EXPRESSION = ParseTreeType.MEMBER_EXPRESSION;
   var MemberExpression = function(location, operand, memberName) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.operand = operand;
     this.memberName = memberName;
   };
@@ -5012,8 +4961,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var MEMBER_LOOKUP_EXPRESSION = ParseTreeType.MEMBER_LOOKUP_EXPRESSION;
   var MemberLookupExpression = function(location, operand, memberExpression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.operand = operand;
     this.memberExpression = memberExpression;
   };
@@ -5030,8 +4978,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var MODULE = ParseTreeType.MODULE;
   var Module = function(location, scriptItemList, moduleName) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.scriptItemList = scriptItemList;
     this.moduleName = moduleName;
   };
@@ -5048,8 +4995,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var MODULE_DECLARATION = ParseTreeType.MODULE_DECLARATION;
   var ModuleDeclaration = function(location, identifier, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.identifier = identifier;
     this.expression = expression;
   };
@@ -5066,8 +5012,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var MODULE_SPECIFIER = ParseTreeType.MODULE_SPECIFIER;
   var ModuleSpecifier = function(location, token) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.token = token;
   };
   ModuleSpecifier = ($traceurRuntime.createClass)(ModuleSpecifier, {
@@ -5083,8 +5028,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var NAMED_EXPORT = ParseTreeType.NAMED_EXPORT;
   var NamedExport = function(location, moduleSpecifier, specifierSet) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.moduleSpecifier = moduleSpecifier;
     this.specifierSet = specifierSet;
   };
@@ -5101,8 +5045,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var NEW_EXPRESSION = ParseTreeType.NEW_EXPRESSION;
   var NewExpression = function(location, operand, args) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.operand = operand;
     this.args = args;
   };
@@ -5119,8 +5062,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var OBJECT_LITERAL_EXPRESSION = ParseTreeType.OBJECT_LITERAL_EXPRESSION;
   var ObjectLiteralExpression = function(location, propertyNameAndValues) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.propertyNameAndValues = propertyNameAndValues;
   };
   ObjectLiteralExpression = ($traceurRuntime.createClass)(ObjectLiteralExpression, {
@@ -5136,8 +5078,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var OBJECT_PATTERN = ParseTreeType.OBJECT_PATTERN;
   var ObjectPattern = function(location, fields) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.fields = fields;
   };
   ObjectPattern = ($traceurRuntime.createClass)(ObjectPattern, {
@@ -5153,8 +5094,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var OBJECT_PATTERN_FIELD = ParseTreeType.OBJECT_PATTERN_FIELD;
   var ObjectPatternField = function(location, name, element) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
     this.element = element;
   };
@@ -5171,8 +5111,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var PAREN_EXPRESSION = ParseTreeType.PAREN_EXPRESSION;
   var ParenExpression = function(location, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
   };
   ParenExpression = ($traceurRuntime.createClass)(ParenExpression, {
@@ -5188,8 +5127,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var POSTFIX_EXPRESSION = ParseTreeType.POSTFIX_EXPRESSION;
   var PostfixExpression = function(location, operand, operator) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.operand = operand;
     this.operator = operator;
   };
@@ -5206,8 +5144,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var PREDEFINED_TYPE = ParseTreeType.PREDEFINED_TYPE;
   var PredefinedType = function(location, typeToken) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.typeToken = typeToken;
   };
   PredefinedType = ($traceurRuntime.createClass)(PredefinedType, {
@@ -5223,8 +5160,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var SCRIPT = ParseTreeType.SCRIPT;
   var Script = function(location, scriptItemList, moduleName) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.scriptItemList = scriptItemList;
     this.moduleName = moduleName;
   };
@@ -5241,8 +5177,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var PROPERTY_METHOD_ASSIGNMENT = ParseTreeType.PROPERTY_METHOD_ASSIGNMENT;
   var PropertyMethodAssignment = function(location, isStatic, isGenerator, name, formalParameterList, typeAnnotation, functionBody) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.isStatic = isStatic;
     this.isGenerator = isGenerator;
     this.name = name;
@@ -5263,8 +5198,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var PROPERTY_NAME_ASSIGNMENT = ParseTreeType.PROPERTY_NAME_ASSIGNMENT;
   var PropertyNameAssignment = function(location, name, value) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
     this.value = value;
   };
@@ -5281,8 +5215,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var PROPERTY_NAME_SHORTHAND = ParseTreeType.PROPERTY_NAME_SHORTHAND;
   var PropertyNameShorthand = function(location, name) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.name = name;
   };
   PropertyNameShorthand = ($traceurRuntime.createClass)(PropertyNameShorthand, {
@@ -5298,8 +5231,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var REST_PARAMETER = ParseTreeType.REST_PARAMETER;
   var RestParameter = function(location, identifier) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.identifier = identifier;
   };
   RestParameter = ($traceurRuntime.createClass)(RestParameter, {
@@ -5315,8 +5247,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var RETURN_STATEMENT = ParseTreeType.RETURN_STATEMENT;
   var ReturnStatement = function(location, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
   };
   ReturnStatement = ($traceurRuntime.createClass)(ReturnStatement, {
@@ -5332,8 +5263,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var SET_ACCESSOR = ParseTreeType.SET_ACCESSOR;
   var SetAccessor = function(location, isStatic, name, parameter, body) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.isStatic = isStatic;
     this.name = name;
     this.parameter = parameter;
@@ -5352,8 +5282,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var SPREAD_EXPRESSION = ParseTreeType.SPREAD_EXPRESSION;
   var SpreadExpression = function(location, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
   };
   SpreadExpression = ($traceurRuntime.createClass)(SpreadExpression, {
@@ -5369,8 +5298,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var SPREAD_PATTERN_ELEMENT = ParseTreeType.SPREAD_PATTERN_ELEMENT;
   var SpreadPatternElement = function(location, lvalue) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.lvalue = lvalue;
   };
   SpreadPatternElement = ($traceurRuntime.createClass)(SpreadPatternElement, {
@@ -5386,8 +5314,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var SUPER_EXPRESSION = ParseTreeType.SUPER_EXPRESSION;
   var SuperExpression = function(location) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
   };
   SuperExpression = ($traceurRuntime.createClass)(SuperExpression, {
     transform: function(transformer) {
@@ -5402,8 +5329,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var SWITCH_STATEMENT = ParseTreeType.SWITCH_STATEMENT;
   var SwitchStatement = function(location, expression, caseClauses) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
     this.caseClauses = caseClauses;
   };
@@ -5420,8 +5346,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var SYNTAX_ERROR_TREE = ParseTreeType.SYNTAX_ERROR_TREE;
   var SyntaxErrorTree = function(location, nextToken, message) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.nextToken = nextToken;
     this.message = message;
   };
@@ -5438,8 +5363,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var TEMPLATE_LITERAL_EXPRESSION = ParseTreeType.TEMPLATE_LITERAL_EXPRESSION;
   var TemplateLiteralExpression = function(location, operand, elements) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.operand = operand;
     this.elements = elements;
   };
@@ -5456,8 +5380,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var TEMPLATE_LITERAL_PORTION = ParseTreeType.TEMPLATE_LITERAL_PORTION;
   var TemplateLiteralPortion = function(location, value) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.value = value;
   };
   TemplateLiteralPortion = ($traceurRuntime.createClass)(TemplateLiteralPortion, {
@@ -5473,8 +5396,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var TEMPLATE_SUBSTITUTION = ParseTreeType.TEMPLATE_SUBSTITUTION;
   var TemplateSubstitution = function(location, expression) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
   };
   TemplateSubstitution = ($traceurRuntime.createClass)(TemplateSubstitution, {
@@ -5490,8 +5412,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var THIS_EXPRESSION = ParseTreeType.THIS_EXPRESSION;
   var ThisExpression = function(location) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
   };
   ThisExpression = ($traceurRuntime.createClass)(ThisExpression, {
     transform: function(transformer) {
@@ -5506,8 +5427,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var THROW_STATEMENT = ParseTreeType.THROW_STATEMENT;
   var ThrowStatement = function(location, value) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.value = value;
   };
   ThrowStatement = ($traceurRuntime.createClass)(ThrowStatement, {
@@ -5523,8 +5443,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var TRY_STATEMENT = ParseTreeType.TRY_STATEMENT;
   var TryStatement = function(location, body, catchBlock, finallyBlock) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.body = body;
     this.catchBlock = catchBlock;
     this.finallyBlock = finallyBlock;
@@ -5542,8 +5461,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var TYPE_NAME = ParseTreeType.TYPE_NAME;
   var TypeName = function(location, moduleName, name) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.moduleName = moduleName;
     this.name = name;
   };
@@ -5560,8 +5478,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var UNARY_EXPRESSION = ParseTreeType.UNARY_EXPRESSION;
   var UnaryExpression = function(location, operator, operand) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.operator = operator;
     this.operand = operand;
   };
@@ -5578,8 +5495,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var VARIABLE_DECLARATION = ParseTreeType.VARIABLE_DECLARATION;
   var VariableDeclaration = function(location, lvalue, typeAnnotation, initialiser) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.lvalue = lvalue;
     this.typeAnnotation = typeAnnotation;
     this.initialiser = initialiser;
@@ -5597,8 +5513,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var VARIABLE_DECLARATION_LIST = ParseTreeType.VARIABLE_DECLARATION_LIST;
   var VariableDeclarationList = function(location, declarationType, declarations) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.declarationType = declarationType;
     this.declarations = declarations;
   };
@@ -5615,8 +5530,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
   var VariableStatement = function(location, declarations) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.declarations = declarations;
   };
   VariableStatement = ($traceurRuntime.createClass)(VariableStatement, {
@@ -5632,8 +5546,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var WHILE_STATEMENT = ParseTreeType.WHILE_STATEMENT;
   var WhileStatement = function(location, condition, body) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.condition = condition;
     this.body = body;
   };
@@ -5650,8 +5563,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var WITH_STATEMENT = ParseTreeType.WITH_STATEMENT;
   var WithStatement = function(location, expression, body) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
     this.body = body;
   };
@@ -5668,8 +5580,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTrees", function() {
   }, {}, ParseTree);
   var YIELD_EXPRESSION = ParseTreeType.YIELD_EXPRESSION;
   var YieldExpression = function(location, expression, isYieldFor) {
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
     this.expression = expression;
     this.isYieldFor = isYieldFor;
   };
@@ -8822,14 +8733,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (statements === tree.statements) {
         return tree;
       }
-      return new AnonBlock(tree.location, statements);
+      return new AnonBlock(tree.metadata, statements);
     },
     transformArgumentList: function(tree) {
       var args = this.transformList(tree.args);
       if (args === tree.args) {
         return tree;
       }
-      return new ArgumentList(tree.location, args);
+      return new ArgumentList(tree.metadata, args);
     },
     transformArrayComprehension: function(tree) {
       var comprehensionList = this.transformList(tree.comprehensionList);
@@ -8837,21 +8748,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (comprehensionList === tree.comprehensionList && expression === tree.expression) {
         return tree;
       }
-      return new ArrayComprehension(tree.location, comprehensionList, expression);
+      return new ArrayComprehension(tree.metadata, comprehensionList, expression);
     },
     transformArrayLiteralExpression: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements === tree.elements) {
         return tree;
       }
-      return new ArrayLiteralExpression(tree.location, elements);
+      return new ArrayLiteralExpression(tree.metadata, elements);
     },
     transformArrayPattern: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements === tree.elements) {
         return tree;
       }
-      return new ArrayPattern(tree.location, elements);
+      return new ArrayPattern(tree.metadata, elements);
     },
     transformArrowFunctionExpression: function(tree) {
       var formalParameters = this.transformAny(tree.formalParameters);
@@ -8859,14 +8770,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (formalParameters === tree.formalParameters && functionBody === tree.functionBody) {
         return tree;
       }
-      return new ArrowFunctionExpression(tree.location, formalParameters, functionBody);
+      return new ArrowFunctionExpression(tree.metadata, formalParameters, functionBody);
     },
     transformAwaitStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new AwaitStatement(tree.location, tree.identifier, expression);
+      return new AwaitStatement(tree.metadata, tree.identifier, expression);
     },
     transformBinaryOperator: function(tree) {
       var left = this.transformAny(tree.left);
@@ -8874,7 +8785,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (left === tree.left && right === tree.right) {
         return tree;
       }
-      return new BinaryOperator(tree.location, left, tree.operator, right);
+      return new BinaryOperator(tree.metadata, left, tree.operator, right);
     },
     transformBindingElement: function(tree) {
       var binding = this.transformAny(tree.binding);
@@ -8882,7 +8793,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (binding === tree.binding && initialiser === tree.initialiser) {
         return tree;
       }
-      return new BindingElement(tree.location, binding, initialiser);
+      return new BindingElement(tree.metadata, binding, initialiser);
     },
     transformBindingIdentifier: function(tree) {
       return tree;
@@ -8892,7 +8803,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (statements === tree.statements) {
         return tree;
       }
-      return new Block(tree.location, statements);
+      return new Block(tree.metadata, statements);
     },
     transformBreakStatement: function(tree) {
       return tree;
@@ -8903,7 +8814,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (operand === tree.operand && args === tree.args) {
         return tree;
       }
-      return new CallExpression(tree.location, operand, args);
+      return new CallExpression(tree.metadata, operand, args);
     },
     transformCaseClause: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -8911,7 +8822,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (expression === tree.expression && statements === tree.statements) {
         return tree;
       }
-      return new CaseClause(tree.location, expression, statements);
+      return new CaseClause(tree.metadata, expression, statements);
     },
     transformCatch: function(tree) {
       var binding = this.transformAny(tree.binding);
@@ -8919,7 +8830,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (binding === tree.binding && catchBody === tree.catchBody) {
         return tree;
       }
-      return new Catch(tree.location, binding, catchBody);
+      return new Catch(tree.metadata, binding, catchBody);
     },
     transformClassDeclaration: function(tree) {
       var name = this.transformAny(tree.name);
@@ -8928,7 +8839,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && superClass === tree.superClass && elements === tree.elements) {
         return tree;
       }
-      return new ClassDeclaration(tree.location, name, superClass, elements);
+      return new ClassDeclaration(tree.metadata, name, superClass, elements);
     },
     transformClassExpression: function(tree) {
       var name = this.transformAny(tree.name);
@@ -8937,14 +8848,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && superClass === tree.superClass && elements === tree.elements) {
         return tree;
       }
-      return new ClassExpression(tree.location, name, superClass, elements);
+      return new ClassExpression(tree.metadata, name, superClass, elements);
     },
     transformCommaExpression: function(tree) {
       var expressions = this.transformList(tree.expressions);
       if (expressions === tree.expressions) {
         return tree;
       }
-      return new CommaExpression(tree.location, expressions);
+      return new CommaExpression(tree.metadata, expressions);
     },
     transformComprehensionFor: function(tree) {
       var left = this.transformAny(tree.left);
@@ -8952,21 +8863,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (left === tree.left && iterator === tree.iterator) {
         return tree;
       }
-      return new ComprehensionFor(tree.location, left, iterator);
+      return new ComprehensionFor(tree.metadata, left, iterator);
     },
     transformComprehensionIf: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ComprehensionIf(tree.location, expression);
+      return new ComprehensionIf(tree.metadata, expression);
     },
     transformComputedPropertyName: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ComputedPropertyName(tree.location, expression);
+      return new ComputedPropertyName(tree.metadata, expression);
     },
     transformConditionalExpression: function(tree) {
       var condition = this.transformAny(tree.condition);
@@ -8975,7 +8886,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (condition === tree.condition && left === tree.left && right === tree.right) {
         return tree;
       }
-      return new ConditionalExpression(tree.location, condition, left, right);
+      return new ConditionalExpression(tree.metadata, condition, left, right);
     },
     transformContinueStatement: function(tree) {
       return tree;
@@ -8985,14 +8896,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (expressions === tree.expressions) {
         return tree;
       }
-      return new CoverFormals(tree.location, expressions);
+      return new CoverFormals(tree.metadata, expressions);
     },
     transformCoverInitialisedName: function(tree) {
       var initialiser = this.transformAny(tree.initialiser);
       if (initialiser === tree.initialiser) {
         return tree;
       }
-      return new CoverInitialisedName(tree.location, tree.name, tree.equalToken, initialiser);
+      return new CoverInitialisedName(tree.metadata, tree.name, tree.equalToken, initialiser);
     },
     transformDebuggerStatement: function(tree) {
       return tree;
@@ -9002,7 +8913,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (statements === tree.statements) {
         return tree;
       }
-      return new DefaultClause(tree.location, statements);
+      return new DefaultClause(tree.metadata, statements);
     },
     transformDoWhileStatement: function(tree) {
       var body = this.transformAny(tree.body);
@@ -9010,7 +8921,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (body === tree.body && condition === tree.condition) {
         return tree;
       }
-      return new DoWhileStatement(tree.location, body, condition);
+      return new DoWhileStatement(tree.metadata, body, condition);
     },
     transformEmptyStatement: function(tree) {
       return tree;
@@ -9020,14 +8931,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (declaration === tree.declaration) {
         return tree;
       }
-      return new ExportDeclaration(tree.location, declaration);
+      return new ExportDeclaration(tree.metadata, declaration);
     },
     transformExportDefault: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ExportDefault(tree.location, expression);
+      return new ExportDefault(tree.metadata, expression);
     },
     transformExportSpecifier: function(tree) {
       return tree;
@@ -9037,7 +8948,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (specifiers === tree.specifiers) {
         return tree;
       }
-      return new ExportSpecifierSet(tree.location, specifiers);
+      return new ExportSpecifierSet(tree.metadata, specifiers);
     },
     transformExportStar: function(tree) {
       return tree;
@@ -9047,14 +8958,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (expression === tree.expression) {
         return tree;
       }
-      return new ExpressionStatement(tree.location, expression);
+      return new ExpressionStatement(tree.metadata, expression);
     },
     transformFinally: function(tree) {
       var block = this.transformAny(tree.block);
       if (block === tree.block) {
         return tree;
       }
-      return new Finally(tree.location, block);
+      return new Finally(tree.metadata, block);
     },
     transformForInStatement: function(tree) {
       var initialiser = this.transformAny(tree.initialiser);
@@ -9063,7 +8974,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (initialiser === tree.initialiser && collection === tree.collection && body === tree.body) {
         return tree;
       }
-      return new ForInStatement(tree.location, initialiser, collection, body);
+      return new ForInStatement(tree.metadata, initialiser, collection, body);
     },
     transformForOfStatement: function(tree) {
       var initialiser = this.transformAny(tree.initialiser);
@@ -9072,7 +8983,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (initialiser === tree.initialiser && collection === tree.collection && body === tree.body) {
         return tree;
       }
-      return new ForOfStatement(tree.location, initialiser, collection, body);
+      return new ForOfStatement(tree.metadata, initialiser, collection, body);
     },
     transformForStatement: function(tree) {
       var initialiser = this.transformAny(tree.initialiser);
@@ -9082,7 +8993,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (initialiser === tree.initialiser && condition === tree.condition && increment === tree.increment && body === tree.body) {
         return tree;
       }
-      return new ForStatement(tree.location, initialiser, condition, increment, body);
+      return new ForStatement(tree.metadata, initialiser, condition, increment, body);
     },
     transformFormalParameter: function(tree) {
       var parameter = this.transformAny(tree.parameter);
@@ -9090,21 +9001,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (parameter === tree.parameter && typeAnnotation === tree.typeAnnotation) {
         return tree;
       }
-      return new FormalParameter(tree.location, parameter, typeAnnotation);
+      return new FormalParameter(tree.metadata, parameter, typeAnnotation);
     },
     transformFormalParameterList: function(tree) {
       var parameters = this.transformList(tree.parameters);
       if (parameters === tree.parameters) {
         return tree;
       }
-      return new FormalParameterList(tree.location, parameters);
+      return new FormalParameterList(tree.metadata, parameters);
     },
     transformFunctionBody: function(tree) {
       var statements = this.transformList(tree.statements);
       if (statements === tree.statements) {
         return tree;
       }
-      return new FunctionBody(tree.location, statements);
+      return new FunctionBody(tree.metadata, statements);
     },
     transformFunctionDeclaration: function(tree) {
       var name = this.transformAny(tree.name);
@@ -9114,7 +9025,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && formalParameterList === tree.formalParameterList && typeAnnotation === tree.typeAnnotation && functionBody === tree.functionBody) {
         return tree;
       }
-      return new FunctionDeclaration(tree.location, name, tree.isGenerator, formalParameterList, typeAnnotation, functionBody);
+      return new FunctionDeclaration(tree.metadata, name, tree.isGenerator, formalParameterList, typeAnnotation, functionBody);
     },
     transformFunctionExpression: function(tree) {
       var name = this.transformAny(tree.name);
@@ -9124,7 +9035,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && formalParameterList === tree.formalParameterList && typeAnnotation === tree.typeAnnotation && functionBody === tree.functionBody) {
         return tree;
       }
-      return new FunctionExpression(tree.location, name, tree.isGenerator, formalParameterList, typeAnnotation, functionBody);
+      return new FunctionExpression(tree.metadata, name, tree.isGenerator, formalParameterList, typeAnnotation, functionBody);
     },
     transformGeneratorComprehension: function(tree) {
       var comprehensionList = this.transformList(tree.comprehensionList);
@@ -9132,7 +9043,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (comprehensionList === tree.comprehensionList && expression === tree.expression) {
         return tree;
       }
-      return new GeneratorComprehension(tree.location, comprehensionList, expression);
+      return new GeneratorComprehension(tree.metadata, comprehensionList, expression);
     },
     transformGetAccessor: function(tree) {
       var name = this.transformAny(tree.name);
@@ -9141,7 +9052,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && typeAnnotation === tree.typeAnnotation && body === tree.body) {
         return tree;
       }
-      return new GetAccessor(tree.location, tree.isStatic, name, typeAnnotation, body);
+      return new GetAccessor(tree.metadata, tree.isStatic, name, typeAnnotation, body);
     },
     transformIdentifierExpression: function(tree) {
       return tree;
@@ -9153,14 +9064,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (condition === tree.condition && ifClause === tree.ifClause && elseClause === tree.elseClause) {
         return tree;
       }
-      return new IfStatement(tree.location, condition, ifClause, elseClause);
+      return new IfStatement(tree.metadata, condition, ifClause, elseClause);
     },
     transformImportedBinding: function(tree) {
       var binding = this.transformAny(tree.binding);
       if (binding === tree.binding) {
         return tree;
       }
-      return new ImportedBinding(tree.location, binding);
+      return new ImportedBinding(tree.metadata, binding);
     },
     transformImportDeclaration: function(tree) {
       var importClause = this.transformAny(tree.importClause);
@@ -9168,7 +9079,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (importClause === tree.importClause && moduleSpecifier === tree.moduleSpecifier) {
         return tree;
       }
-      return new ImportDeclaration(tree.location, importClause, moduleSpecifier);
+      return new ImportDeclaration(tree.metadata, importClause, moduleSpecifier);
     },
     transformImportSpecifier: function(tree) {
       return tree;
@@ -9178,14 +9089,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (specifiers === tree.specifiers) {
         return tree;
       }
-      return new ImportSpecifierSet(tree.location, specifiers);
+      return new ImportSpecifierSet(tree.metadata, specifiers);
     },
     transformLabelledStatement: function(tree) {
       var statement = this.transformAny(tree.statement);
       if (statement === tree.statement) {
         return tree;
       }
-      return new LabelledStatement(tree.location, tree.name, statement);
+      return new LabelledStatement(tree.metadata, tree.name, statement);
     },
     transformLiteralExpression: function(tree) {
       return tree;
@@ -9198,7 +9109,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (operand === tree.operand) {
         return tree;
       }
-      return new MemberExpression(tree.location, operand, tree.memberName);
+      return new MemberExpression(tree.metadata, operand, tree.memberName);
     },
     transformMemberLookupExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
@@ -9206,21 +9117,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (operand === tree.operand && memberExpression === tree.memberExpression) {
         return tree;
       }
-      return new MemberLookupExpression(tree.location, operand, memberExpression);
+      return new MemberLookupExpression(tree.metadata, operand, memberExpression);
     },
     transformModule: function(tree) {
       var scriptItemList = this.transformList(tree.scriptItemList);
       if (scriptItemList === tree.scriptItemList) {
         return tree;
       }
-      return new Module(tree.location, scriptItemList, tree.moduleName);
+      return new Module(tree.metadata, scriptItemList, tree.moduleName);
     },
     transformModuleDeclaration: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ModuleDeclaration(tree.location, tree.identifier, expression);
+      return new ModuleDeclaration(tree.metadata, tree.identifier, expression);
     },
     transformModuleSpecifier: function(tree) {
       return tree;
@@ -9231,7 +9142,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (moduleSpecifier === tree.moduleSpecifier && specifierSet === tree.specifierSet) {
         return tree;
       }
-      return new NamedExport(tree.location, moduleSpecifier, specifierSet);
+      return new NamedExport(tree.metadata, moduleSpecifier, specifierSet);
     },
     transformNewExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
@@ -9239,21 +9150,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (operand === tree.operand && args === tree.args) {
         return tree;
       }
-      return new NewExpression(tree.location, operand, args);
+      return new NewExpression(tree.metadata, operand, args);
     },
     transformObjectLiteralExpression: function(tree) {
       var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
       if (propertyNameAndValues === tree.propertyNameAndValues) {
         return tree;
       }
-      return new ObjectLiteralExpression(tree.location, propertyNameAndValues);
+      return new ObjectLiteralExpression(tree.metadata, propertyNameAndValues);
     },
     transformObjectPattern: function(tree) {
       var fields = this.transformList(tree.fields);
       if (fields === tree.fields) {
         return tree;
       }
-      return new ObjectPattern(tree.location, fields);
+      return new ObjectPattern(tree.metadata, fields);
     },
     transformObjectPatternField: function(tree) {
       var name = this.transformAny(tree.name);
@@ -9261,21 +9172,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && element === tree.element) {
         return tree;
       }
-      return new ObjectPatternField(tree.location, name, element);
+      return new ObjectPatternField(tree.metadata, name, element);
     },
     transformParenExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ParenExpression(tree.location, expression);
+      return new ParenExpression(tree.metadata, expression);
     },
     transformPostfixExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       if (operand === tree.operand) {
         return tree;
       }
-      return new PostfixExpression(tree.location, operand, tree.operator);
+      return new PostfixExpression(tree.metadata, operand, tree.operator);
     },
     transformPredefinedType: function(tree) {
       return tree;
@@ -9285,7 +9196,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (scriptItemList === tree.scriptItemList) {
         return tree;
       }
-      return new Script(tree.location, scriptItemList, tree.moduleName);
+      return new Script(tree.metadata, scriptItemList, tree.moduleName);
     },
     transformPropertyMethodAssignment: function(tree) {
       var name = this.transformAny(tree.name);
@@ -9295,7 +9206,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && formalParameterList === tree.formalParameterList && typeAnnotation === tree.typeAnnotation && functionBody === tree.functionBody) {
         return tree;
       }
-      return new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, name, formalParameterList, typeAnnotation, functionBody);
+      return new PropertyMethodAssignment(tree.metadata, tree.isStatic, tree.isGenerator, name, formalParameterList, typeAnnotation, functionBody);
     },
     transformPropertyNameAssignment: function(tree) {
       var name = this.transformAny(tree.name);
@@ -9303,7 +9214,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && value === tree.value) {
         return tree;
       }
-      return new PropertyNameAssignment(tree.location, name, value);
+      return new PropertyNameAssignment(tree.metadata, name, value);
     },
     transformPropertyNameShorthand: function(tree) {
       return tree;
@@ -9313,14 +9224,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (identifier === tree.identifier) {
         return tree;
       }
-      return new RestParameter(tree.location, identifier);
+      return new RestParameter(tree.metadata, identifier);
     },
     transformReturnStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ReturnStatement(tree.location, expression);
+      return new ReturnStatement(tree.metadata, expression);
     },
     transformSetAccessor: function(tree) {
       var name = this.transformAny(tree.name);
@@ -9329,21 +9240,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (name === tree.name && parameter === tree.parameter && body === tree.body) {
         return tree;
       }
-      return new SetAccessor(tree.location, tree.isStatic, name, parameter, body);
+      return new SetAccessor(tree.metadata, tree.isStatic, name, parameter, body);
     },
     transformSpreadExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new SpreadExpression(tree.location, expression);
+      return new SpreadExpression(tree.metadata, expression);
     },
     transformSpreadPatternElement: function(tree) {
       var lvalue = this.transformAny(tree.lvalue);
       if (lvalue === tree.lvalue) {
         return tree;
       }
-      return new SpreadPatternElement(tree.location, lvalue);
+      return new SpreadPatternElement(tree.metadata, lvalue);
     },
     transformSuperExpression: function(tree) {
       return tree;
@@ -9354,7 +9265,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (expression === tree.expression && caseClauses === tree.caseClauses) {
         return tree;
       }
-      return new SwitchStatement(tree.location, expression, caseClauses);
+      return new SwitchStatement(tree.metadata, expression, caseClauses);
     },
     transformSyntaxErrorTree: function(tree) {
       return tree;
@@ -9365,7 +9276,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (operand === tree.operand && elements === tree.elements) {
         return tree;
       }
-      return new TemplateLiteralExpression(tree.location, operand, elements);
+      return new TemplateLiteralExpression(tree.metadata, operand, elements);
     },
     transformTemplateLiteralPortion: function(tree) {
       return tree;
@@ -9375,7 +9286,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (expression === tree.expression) {
         return tree;
       }
-      return new TemplateSubstitution(tree.location, expression);
+      return new TemplateSubstitution(tree.metadata, expression);
     },
     transformThisExpression: function(tree) {
       return tree;
@@ -9385,7 +9296,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (value === tree.value) {
         return tree;
       }
-      return new ThrowStatement(tree.location, value);
+      return new ThrowStatement(tree.metadata, value);
     },
     transformTryStatement: function(tree) {
       var body = this.transformAny(tree.body);
@@ -9394,21 +9305,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (body === tree.body && catchBlock === tree.catchBlock && finallyBlock === tree.finallyBlock) {
         return tree;
       }
-      return new TryStatement(tree.location, body, catchBlock, finallyBlock);
+      return new TryStatement(tree.metadata, body, catchBlock, finallyBlock);
     },
     transformTypeName: function(tree) {
       var moduleName = this.transformAny(tree.moduleName);
       if (moduleName === tree.moduleName) {
         return tree;
       }
-      return new TypeName(tree.location, moduleName, tree.name);
+      return new TypeName(tree.metadata, moduleName, tree.name);
     },
     transformUnaryExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       if (operand === tree.operand) {
         return tree;
       }
-      return new UnaryExpression(tree.location, tree.operator, operand);
+      return new UnaryExpression(tree.metadata, tree.operator, operand);
     },
     transformVariableDeclaration: function(tree) {
       var lvalue = this.transformAny(tree.lvalue);
@@ -9417,21 +9328,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (lvalue === tree.lvalue && typeAnnotation === tree.typeAnnotation && initialiser === tree.initialiser) {
         return tree;
       }
-      return new VariableDeclaration(tree.location, lvalue, typeAnnotation, initialiser);
+      return new VariableDeclaration(tree.metadata, lvalue, typeAnnotation, initialiser);
     },
     transformVariableDeclarationList: function(tree) {
       var declarations = this.transformList(tree.declarations);
       if (declarations === tree.declarations) {
         return tree;
       }
-      return new VariableDeclarationList(tree.location, tree.declarationType, declarations);
+      return new VariableDeclarationList(tree.metadata, tree.declarationType, declarations);
     },
     transformVariableStatement: function(tree) {
       var declarations = this.transformAny(tree.declarations);
       if (declarations === tree.declarations) {
         return tree;
       }
-      return new VariableStatement(tree.location, declarations);
+      return new VariableStatement(tree.metadata, declarations);
     },
     transformWhileStatement: function(tree) {
       var condition = this.transformAny(tree.condition);
@@ -9439,7 +9350,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (condition === tree.condition && body === tree.body) {
         return tree;
       }
-      return new WhileStatement(tree.location, condition, body);
+      return new WhileStatement(tree.metadata, condition, body);
     },
     transformWithStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -9447,14 +9358,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer", f
       if (expression === tree.expression && body === tree.body) {
         return tree;
       }
-      return new WithStatement(tree.location, expression, body);
+      return new WithStatement(tree.metadata, expression, body);
     },
     transformYieldExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new YieldExpression(tree.location, expression, tree.isYieldFor);
+      return new YieldExpression(tree.metadata, expression, tree.isYieldFor);
     }
   }, {});
   return {get ParseTreeTransformer() {
@@ -15952,7 +15863,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/StateMachine", function() 
     }
   }
   var StateMachine = function(startState, fallThroughState, states, exceptionBlocks) {
-    this.location = null;
+    this.metadata = {location: null};
     this.startState = startState;
     this.fallThroughState = fallThroughState;
     this.states = states;
@@ -19057,14 +18968,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (statements === tree.statements) {
         return tree;
       }
-      return new AnonBlock(tree.location, statements);
+      return new AnonBlock(tree.metadata, statements);
     },
     transformArgumentList: function(tree) {
       var args = this.transformList(tree.args);
       if (args === tree.args) {
         return tree;
       }
-      return new ArgumentList(tree.location, args);
+      return new ArgumentList(tree.metadata, args);
     },
     transformArrayComprehension: function(tree) {
       var comprehensionList = this.transformList(tree.comprehensionList);
@@ -19072,21 +18983,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (comprehensionList === tree.comprehensionList && expression === tree.expression) {
         return tree;
       }
-      return new ArrayComprehension(tree.location, comprehensionList, expression);
+      return new ArrayComprehension(tree.metadata, comprehensionList, expression);
     },
     transformArrayLiteralExpression: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements === tree.elements) {
         return tree;
       }
-      return new ArrayLiteralExpression(tree.location, elements);
+      return new ArrayLiteralExpression(tree.metadata, elements);
     },
     transformArrayPattern: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements === tree.elements) {
         return tree;
       }
-      return new ArrayPattern(tree.location, elements);
+      return new ArrayPattern(tree.metadata, elements);
     },
     transformArrowFunctionExpression: function(tree) {
       var formalParameters = this.transformAny(tree.formalParameters);
@@ -19094,14 +19005,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (formalParameters === tree.formalParameters && functionBody === tree.functionBody) {
         return tree;
       }
-      return new ArrowFunctionExpression(tree.location, formalParameters, functionBody);
+      return new ArrowFunctionExpression(tree.metadata, formalParameters, functionBody);
     },
     transformAwaitStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new AwaitStatement(tree.location, tree.identifier, expression);
+      return new AwaitStatement(tree.metadata, tree.identifier, expression);
     },
     transformBinaryOperator: function(tree) {
       var left = this.transformAny(tree.left);
@@ -19109,7 +19020,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (left === tree.left && right === tree.right) {
         return tree;
       }
-      return new BinaryOperator(tree.location, left, tree.operator, right);
+      return new BinaryOperator(tree.metadata, left, tree.operator, right);
     },
     transformBindingElement: function(tree) {
       var binding = this.transformAny(tree.binding);
@@ -19117,7 +19028,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (binding === tree.binding && initialiser === tree.initialiser) {
         return tree;
       }
-      return new BindingElement(tree.location, binding, initialiser);
+      return new BindingElement(tree.metadata, binding, initialiser);
     },
     transformBindingIdentifier: function(tree) {
       return tree;
@@ -19127,7 +19038,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (statements === tree.statements) {
         return tree;
       }
-      return new Block(tree.location, statements);
+      return new Block(tree.metadata, statements);
     },
     transformBreakStatement: function(tree) {
       return tree;
@@ -19138,7 +19049,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (operand === tree.operand && args === tree.args) {
         return tree;
       }
-      return new CallExpression(tree.location, operand, args);
+      return new CallExpression(tree.metadata, operand, args);
     },
     transformCaseClause: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -19146,7 +19057,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (expression === tree.expression && statements === tree.statements) {
         return tree;
       }
-      return new CaseClause(tree.location, expression, statements);
+      return new CaseClause(tree.metadata, expression, statements);
     },
     transformCatch: function(tree) {
       var binding = this.transformAny(tree.binding);
@@ -19154,7 +19065,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (binding === tree.binding && catchBody === tree.catchBody) {
         return tree;
       }
-      return new Catch(tree.location, binding, catchBody);
+      return new Catch(tree.metadata, binding, catchBody);
     },
     transformClassDeclaration: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19163,7 +19074,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && superClass === tree.superClass && elements === tree.elements) {
         return tree;
       }
-      return new ClassDeclaration(tree.location, name, superClass, elements);
+      return new ClassDeclaration(tree.metadata, name, superClass, elements);
     },
     transformClassExpression: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19172,14 +19083,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && superClass === tree.superClass && elements === tree.elements) {
         return tree;
       }
-      return new ClassExpression(tree.location, name, superClass, elements);
+      return new ClassExpression(tree.metadata, name, superClass, elements);
     },
     transformCommaExpression: function(tree) {
       var expressions = this.transformList(tree.expressions);
       if (expressions === tree.expressions) {
         return tree;
       }
-      return new CommaExpression(tree.location, expressions);
+      return new CommaExpression(tree.metadata, expressions);
     },
     transformComprehensionFor: function(tree) {
       var left = this.transformAny(tree.left);
@@ -19187,21 +19098,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (left === tree.left && iterator === tree.iterator) {
         return tree;
       }
-      return new ComprehensionFor(tree.location, left, iterator);
+      return new ComprehensionFor(tree.metadata, left, iterator);
     },
     transformComprehensionIf: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ComprehensionIf(tree.location, expression);
+      return new ComprehensionIf(tree.metadata, expression);
     },
     transformComputedPropertyName: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ComputedPropertyName(tree.location, expression);
+      return new ComputedPropertyName(tree.metadata, expression);
     },
     transformConditionalExpression: function(tree) {
       var condition = this.transformAny(tree.condition);
@@ -19210,7 +19121,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (condition === tree.condition && left === tree.left && right === tree.right) {
         return tree;
       }
-      return new ConditionalExpression(tree.location, condition, left, right);
+      return new ConditionalExpression(tree.metadata, condition, left, right);
     },
     transformContinueStatement: function(tree) {
       return tree;
@@ -19220,14 +19131,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (expressions === tree.expressions) {
         return tree;
       }
-      return new CoverFormals(tree.location, expressions);
+      return new CoverFormals(tree.metadata, expressions);
     },
     transformCoverInitialisedName: function(tree) {
       var initialiser = this.transformAny(tree.initialiser);
       if (initialiser === tree.initialiser) {
         return tree;
       }
-      return new CoverInitialisedName(tree.location, tree.name, tree.equalToken, initialiser);
+      return new CoverInitialisedName(tree.metadata, tree.name, tree.equalToken, initialiser);
     },
     transformDebuggerStatement: function(tree) {
       return tree;
@@ -19237,7 +19148,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (statements === tree.statements) {
         return tree;
       }
-      return new DefaultClause(tree.location, statements);
+      return new DefaultClause(tree.metadata, statements);
     },
     transformDoWhileStatement: function(tree) {
       var body = this.transformAny(tree.body);
@@ -19245,7 +19156,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (body === tree.body && condition === tree.condition) {
         return tree;
       }
-      return new DoWhileStatement(tree.location, body, condition);
+      return new DoWhileStatement(tree.metadata, body, condition);
     },
     transformEmptyStatement: function(tree) {
       return tree;
@@ -19255,14 +19166,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (declaration === tree.declaration) {
         return tree;
       }
-      return new ExportDeclaration(tree.location, declaration);
+      return new ExportDeclaration(tree.metadata, declaration);
     },
     transformExportDefault: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ExportDefault(tree.location, expression);
+      return new ExportDefault(tree.metadata, expression);
     },
     transformExportSpecifier: function(tree) {
       return tree;
@@ -19272,7 +19183,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (specifiers === tree.specifiers) {
         return tree;
       }
-      return new ExportSpecifierSet(tree.location, specifiers);
+      return new ExportSpecifierSet(tree.metadata, specifiers);
     },
     transformExportStar: function(tree) {
       return tree;
@@ -19282,14 +19193,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (expression === tree.expression) {
         return tree;
       }
-      return new ExpressionStatement(tree.location, expression);
+      return new ExpressionStatement(tree.metadata, expression);
     },
     transformFinally: function(tree) {
       var block = this.transformAny(tree.block);
       if (block === tree.block) {
         return tree;
       }
-      return new Finally(tree.location, block);
+      return new Finally(tree.metadata, block);
     },
     transformForInStatement: function(tree) {
       var initialiser = this.transformAny(tree.initialiser);
@@ -19298,7 +19209,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (initialiser === tree.initialiser && collection === tree.collection && body === tree.body) {
         return tree;
       }
-      return new ForInStatement(tree.location, initialiser, collection, body);
+      return new ForInStatement(tree.metadata, initialiser, collection, body);
     },
     transformForOfStatement: function(tree) {
       var initialiser = this.transformAny(tree.initialiser);
@@ -19307,7 +19218,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (initialiser === tree.initialiser && collection === tree.collection && body === tree.body) {
         return tree;
       }
-      return new ForOfStatement(tree.location, initialiser, collection, body);
+      return new ForOfStatement(tree.metadata, initialiser, collection, body);
     },
     transformForStatement: function(tree) {
       var initialiser = this.transformAny(tree.initialiser);
@@ -19317,7 +19228,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (initialiser === tree.initialiser && condition === tree.condition && increment === tree.increment && body === tree.body) {
         return tree;
       }
-      return new ForStatement(tree.location, initialiser, condition, increment, body);
+      return new ForStatement(tree.metadata, initialiser, condition, increment, body);
     },
     transformFormalParameter: function(tree) {
       var parameter = this.transformAny(tree.parameter);
@@ -19325,21 +19236,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (parameter === tree.parameter && typeAnnotation === tree.typeAnnotation) {
         return tree;
       }
-      return new FormalParameter(tree.location, parameter, typeAnnotation);
+      return new FormalParameter(tree.metadata, parameter, typeAnnotation);
     },
     transformFormalParameterList: function(tree) {
       var parameters = this.transformList(tree.parameters);
       if (parameters === tree.parameters) {
         return tree;
       }
-      return new FormalParameterList(tree.location, parameters);
+      return new FormalParameterList(tree.metadata, parameters);
     },
     transformFunctionBody: function(tree) {
       var statements = this.transformList(tree.statements);
       if (statements === tree.statements) {
         return tree;
       }
-      return new FunctionBody(tree.location, statements);
+      return new FunctionBody(tree.metadata, statements);
     },
     transformFunctionDeclaration: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19349,7 +19260,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && formalParameterList === tree.formalParameterList && typeAnnotation === tree.typeAnnotation && functionBody === tree.functionBody) {
         return tree;
       }
-      return new FunctionDeclaration(tree.location, name, tree.isGenerator, formalParameterList, typeAnnotation, functionBody);
+      return new FunctionDeclaration(tree.metadata, name, tree.isGenerator, formalParameterList, typeAnnotation, functionBody);
     },
     transformFunctionExpression: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19359,7 +19270,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && formalParameterList === tree.formalParameterList && typeAnnotation === tree.typeAnnotation && functionBody === tree.functionBody) {
         return tree;
       }
-      return new FunctionExpression(tree.location, name, tree.isGenerator, formalParameterList, typeAnnotation, functionBody);
+      return new FunctionExpression(tree.metadata, name, tree.isGenerator, formalParameterList, typeAnnotation, functionBody);
     },
     transformGeneratorComprehension: function(tree) {
       var comprehensionList = this.transformList(tree.comprehensionList);
@@ -19367,7 +19278,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (comprehensionList === tree.comprehensionList && expression === tree.expression) {
         return tree;
       }
-      return new GeneratorComprehension(tree.location, comprehensionList, expression);
+      return new GeneratorComprehension(tree.metadata, comprehensionList, expression);
     },
     transformGetAccessor: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19376,7 +19287,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && typeAnnotation === tree.typeAnnotation && body === tree.body) {
         return tree;
       }
-      return new GetAccessor(tree.location, tree.isStatic, name, typeAnnotation, body);
+      return new GetAccessor(tree.metadata, tree.isStatic, name, typeAnnotation, body);
     },
     transformIdentifierExpression: function(tree) {
       return tree;
@@ -19388,14 +19299,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (condition === tree.condition && ifClause === tree.ifClause && elseClause === tree.elseClause) {
         return tree;
       }
-      return new IfStatement(tree.location, condition, ifClause, elseClause);
+      return new IfStatement(tree.metadata, condition, ifClause, elseClause);
     },
     transformImportedBinding: function(tree) {
       var binding = this.transformAny(tree.binding);
       if (binding === tree.binding) {
         return tree;
       }
-      return new ImportedBinding(tree.location, binding);
+      return new ImportedBinding(tree.metadata, binding);
     },
     transformImportDeclaration: function(tree) {
       var importClause = this.transformAny(tree.importClause);
@@ -19403,7 +19314,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (importClause === tree.importClause && moduleSpecifier === tree.moduleSpecifier) {
         return tree;
       }
-      return new ImportDeclaration(tree.location, importClause, moduleSpecifier);
+      return new ImportDeclaration(tree.metadata, importClause, moduleSpecifier);
     },
     transformImportSpecifier: function(tree) {
       return tree;
@@ -19413,14 +19324,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (specifiers === tree.specifiers) {
         return tree;
       }
-      return new ImportSpecifierSet(tree.location, specifiers);
+      return new ImportSpecifierSet(tree.metadata, specifiers);
     },
     transformLabelledStatement: function(tree) {
       var statement = this.transformAny(tree.statement);
       if (statement === tree.statement) {
         return tree;
       }
-      return new LabelledStatement(tree.location, tree.name, statement);
+      return new LabelledStatement(tree.metadata, tree.name, statement);
     },
     transformLiteralExpression: function(tree) {
       return tree;
@@ -19433,7 +19344,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (operand === tree.operand) {
         return tree;
       }
-      return new MemberExpression(tree.location, operand, tree.memberName);
+      return new MemberExpression(tree.metadata, operand, tree.memberName);
     },
     transformMemberLookupExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
@@ -19441,21 +19352,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (operand === tree.operand && memberExpression === tree.memberExpression) {
         return tree;
       }
-      return new MemberLookupExpression(tree.location, operand, memberExpression);
+      return new MemberLookupExpression(tree.metadata, operand, memberExpression);
     },
     transformModule: function(tree) {
       var scriptItemList = this.transformList(tree.scriptItemList);
       if (scriptItemList === tree.scriptItemList) {
         return tree;
       }
-      return new Module(tree.location, scriptItemList, tree.moduleName);
+      return new Module(tree.metadata, scriptItemList, tree.moduleName);
     },
     transformModuleDeclaration: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ModuleDeclaration(tree.location, tree.identifier, expression);
+      return new ModuleDeclaration(tree.metadata, tree.identifier, expression);
     },
     transformModuleSpecifier: function(tree) {
       return tree;
@@ -19466,7 +19377,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (moduleSpecifier === tree.moduleSpecifier && specifierSet === tree.specifierSet) {
         return tree;
       }
-      return new NamedExport(tree.location, moduleSpecifier, specifierSet);
+      return new NamedExport(tree.metadata, moduleSpecifier, specifierSet);
     },
     transformNewExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
@@ -19474,21 +19385,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (operand === tree.operand && args === tree.args) {
         return tree;
       }
-      return new NewExpression(tree.location, operand, args);
+      return new NewExpression(tree.metadata, operand, args);
     },
     transformObjectLiteralExpression: function(tree) {
       var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
       if (propertyNameAndValues === tree.propertyNameAndValues) {
         return tree;
       }
-      return new ObjectLiteralExpression(tree.location, propertyNameAndValues);
+      return new ObjectLiteralExpression(tree.metadata, propertyNameAndValues);
     },
     transformObjectPattern: function(tree) {
       var fields = this.transformList(tree.fields);
       if (fields === tree.fields) {
         return tree;
       }
-      return new ObjectPattern(tree.location, fields);
+      return new ObjectPattern(tree.metadata, fields);
     },
     transformObjectPatternField: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19496,21 +19407,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && element === tree.element) {
         return tree;
       }
-      return new ObjectPatternField(tree.location, name, element);
+      return new ObjectPatternField(tree.metadata, name, element);
     },
     transformParenExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ParenExpression(tree.location, expression);
+      return new ParenExpression(tree.metadata, expression);
     },
     transformPostfixExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       if (operand === tree.operand) {
         return tree;
       }
-      return new PostfixExpression(tree.location, operand, tree.operator);
+      return new PostfixExpression(tree.metadata, operand, tree.operator);
     },
     transformPredefinedType: function(tree) {
       return tree;
@@ -19520,7 +19431,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (scriptItemList === tree.scriptItemList) {
         return tree;
       }
-      return new Script(tree.location, scriptItemList, tree.moduleName);
+      return new Script(tree.metadata, scriptItemList, tree.moduleName);
     },
     transformPropertyMethodAssignment: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19530,7 +19441,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && formalParameterList === tree.formalParameterList && typeAnnotation === tree.typeAnnotation && functionBody === tree.functionBody) {
         return tree;
       }
-      return new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, name, formalParameterList, typeAnnotation, functionBody);
+      return new PropertyMethodAssignment(tree.metadata, tree.isStatic, tree.isGenerator, name, formalParameterList, typeAnnotation, functionBody);
     },
     transformPropertyNameAssignment: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19538,7 +19449,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && value === tree.value) {
         return tree;
       }
-      return new PropertyNameAssignment(tree.location, name, value);
+      return new PropertyNameAssignment(tree.metadata, name, value);
     },
     transformPropertyNameShorthand: function(tree) {
       return tree;
@@ -19548,14 +19459,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (identifier === tree.identifier) {
         return tree;
       }
-      return new RestParameter(tree.location, identifier);
+      return new RestParameter(tree.metadata, identifier);
     },
     transformReturnStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new ReturnStatement(tree.location, expression);
+      return new ReturnStatement(tree.metadata, expression);
     },
     transformSetAccessor: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19564,21 +19475,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (name === tree.name && parameter === tree.parameter && body === tree.body) {
         return tree;
       }
-      return new SetAccessor(tree.location, tree.isStatic, name, parameter, body);
+      return new SetAccessor(tree.metadata, tree.isStatic, name, parameter, body);
     },
     transformSpreadExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new SpreadExpression(tree.location, expression);
+      return new SpreadExpression(tree.metadata, expression);
     },
     transformSpreadPatternElement: function(tree) {
       var lvalue = this.transformAny(tree.lvalue);
       if (lvalue === tree.lvalue) {
         return tree;
       }
-      return new SpreadPatternElement(tree.location, lvalue);
+      return new SpreadPatternElement(tree.metadata, lvalue);
     },
     transformSuperExpression: function(tree) {
       return tree;
@@ -19589,7 +19500,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (expression === tree.expression && caseClauses === tree.caseClauses) {
         return tree;
       }
-      return new SwitchStatement(tree.location, expression, caseClauses);
+      return new SwitchStatement(tree.metadata, expression, caseClauses);
     },
     transformSyntaxErrorTree: function(tree) {
       return tree;
@@ -19600,7 +19511,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (operand === tree.operand && elements === tree.elements) {
         return tree;
       }
-      return new TemplateLiteralExpression(tree.location, operand, elements);
+      return new TemplateLiteralExpression(tree.metadata, operand, elements);
     },
     transformTemplateLiteralPortion: function(tree) {
       return tree;
@@ -19610,7 +19521,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (expression === tree.expression) {
         return tree;
       }
-      return new TemplateSubstitution(tree.location, expression);
+      return new TemplateSubstitution(tree.metadata, expression);
     },
     transformThisExpression: function(tree) {
       return tree;
@@ -19620,7 +19531,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (value === tree.value) {
         return tree;
       }
-      return new ThrowStatement(tree.location, value);
+      return new ThrowStatement(tree.metadata, value);
     },
     transformTryStatement: function(tree) {
       var body = this.transformAny(tree.body);
@@ -19629,21 +19540,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (body === tree.body && catchBlock === tree.catchBlock && finallyBlock === tree.finallyBlock) {
         return tree;
       }
-      return new TryStatement(tree.location, body, catchBlock, finallyBlock);
+      return new TryStatement(tree.metadata, body, catchBlock, finallyBlock);
     },
     transformTypeName: function(tree) {
       var moduleName = this.transformAny(tree.moduleName);
       if (moduleName === tree.moduleName) {
         return tree;
       }
-      return new TypeName(tree.location, moduleName, tree.name);
+      return new TypeName(tree.metadata, moduleName, tree.name);
     },
     transformUnaryExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       if (operand === tree.operand) {
         return tree;
       }
-      return new UnaryExpression(tree.location, tree.operator, operand);
+      return new UnaryExpression(tree.metadata, tree.operator, operand);
     },
     transformVariableDeclaration: function(tree) {
       var lvalue = this.transformAny(tree.lvalue);
@@ -19652,21 +19563,21 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (lvalue === tree.lvalue && typeAnnotation === tree.typeAnnotation && initialiser === tree.initialiser) {
         return tree;
       }
-      return new VariableDeclaration(tree.location, lvalue, typeAnnotation, initialiser);
+      return new VariableDeclaration(tree.metadata, lvalue, typeAnnotation, initialiser);
     },
     transformVariableDeclarationList: function(tree) {
       var declarations = this.transformList(tree.declarations);
       if (declarations === tree.declarations) {
         return tree;
       }
-      return new VariableDeclarationList(tree.location, tree.declarationType, declarations);
+      return new VariableDeclarationList(tree.metadata, tree.declarationType, declarations);
     },
     transformVariableStatement: function(tree) {
       var declarations = this.transformAny(tree.declarations);
       if (declarations === tree.declarations) {
         return tree;
       }
-      return new VariableStatement(tree.location, declarations);
+      return new VariableStatement(tree.metadata, declarations);
     },
     transformWhileStatement: function(tree) {
       var condition = this.transformAny(tree.condition);
@@ -19674,7 +19585,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (condition === tree.condition && body === tree.body) {
         return tree;
       }
-      return new WhileStatement(tree.location, condition, body);
+      return new WhileStatement(tree.metadata, condition, body);
     },
     transformWithStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -19682,14 +19593,14 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ParseTreeTransformer.js"
       if (expression === tree.expression && body === tree.body) {
         return tree;
       }
-      return new WithStatement(tree.location, expression, body);
+      return new WithStatement(tree.metadata, expression, body);
     },
     transformYieldExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression) {
         return tree;
       }
-      return new YieldExpression(tree.location, expression, tree.isYieldFor);
+      return new YieldExpression(tree.metadata, expression, tree.isYieldFor);
     }
   }, {});
   return {get ParseTreeTransformer() {
