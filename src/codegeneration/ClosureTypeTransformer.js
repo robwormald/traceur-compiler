@@ -56,7 +56,7 @@ export class ClosureTypeTransformer extends ParseTreeTransformer {
   transformVariableDeclaration(tree) {
     if (tree.typeAnnotation) {
       tree = this.addComment_(tree,
-        `/** @type ${this.writeType_(tree.typeAnnotation)} */`);
+        `/** @type ${this.writeType_(tree.typeAnnotation)} */\n`);
     }
     return super(tree);
   }
@@ -78,7 +78,7 @@ export class ClosureTypeTransformer extends ParseTreeTransformer {
   transformFunctionDeclaration(tree) {
     if (tree.typeAnnotation) {
       tree = this.addComment_(tree,
-          `/** @return ${this.writeType_(tree.typeAnnotation)} */`);
+          `/** @return ${this.writeType_(tree.typeAnnotation)} */\n`);
     }
     return super(tree);
   }

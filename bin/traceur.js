@@ -3787,8 +3787,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/trees/ParseTree", function() {
   var ParseTree = function(type, location) {
     throw new Error("Don't use for now. 'super' is currently very slow.");
     this.type = type;
-    this.metadata = null;
-    this.location = location;
+    this.metadata = {location: location};
   };
   ParseTree = ($traceurRuntime.createClass)(ParseTree, {
     set location(location) {
@@ -6203,11 +6202,15 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
       WITH = $__43.WITH,
       YIELD = $__43.YIELD;
   var NEW_LINE = '\n';
-  var PRETTY_PRINT = true;
-  var ParseTreeWriter = function(highlighted, showLineNumbers) {
+  var ParseTreeWriter = function() {
+    var $__43 = arguments[0] !== (void 0) ? arguments[0]: {},
+        highlighted = "highlighted"in $__43 ? $__43.highlighted: false,
+        showLineNumbers = "showLineNumbers"in $__43 ? $__43.showLineNumbers: false,
+        prettyPrint = "prettyPrint"in $__43 ? $__43.prettyPrint: true;
     $traceurRuntime.superCall(this, $ParseTreeWriter.prototype, "constructor", []);
     this.highlighted_ = highlighted;
     this.showLineNumbers_ = showLineNumbers;
+    this.prettyPrint_ = prettyPrint;
     this.result_ = '';
     this.currentLine_ = '';
     this.currentLineComment_ = null;
@@ -6823,7 +6826,7 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
         this.indentDepth_--;
       }
       if (value !== null) {
-        if (PRETTY_PRINT) {
+        if (this.prettyPrint_) {
           if (!this.currentLine_) {
             this.lastToken_ = '';
             for (var i = 0,
@@ -6887,7 +6890,7 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
         case ELSE:
         case FINALLY:
         case WHILE:
-          return PRETTY_PRINT;
+          return this.prettyPrint_;
         case OPEN_CURLY:
           switch (lastValue) {
             case OPEN_CURLY:
@@ -6895,7 +6898,7 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
             case OPEN_SQUARE:
               return false;
           }
-          return PRETTY_PRINT;
+          return this.prettyPrint_;
       }
       switch (lastValue) {
         case OPEN_CURLY:
@@ -6914,7 +6917,7 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
         case TRY:
         case WHILE:
         case WITH:
-          return PRETTY_PRINT;
+          return this.prettyPrint_;
         case CASE:
         case CLASS:
         case CONST:
@@ -6944,14 +6947,14 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
         case FROM:
         case OF:
         case MODULE:
-          return PRETTY_PRINT || this.isIdentifierNameOrNumber_(token);
+          return this.prettyPrint_ || this.isIdentifierNameOrNumber_(token);
       }
       if ((lastValue == PLUS || lastValue == PLUS_PLUS) && (value == PLUS || value == PLUS_PLUS) || (lastValue == MINUS || lastValue == MINUS_MINUS) && (value == MINUS || value == MINUS_MINUS)) {
         return true;
       }
       if (this.spaceArround_(lastValue) || this.spaceArround_(value)) return true;
       if (this.isIdentifierNameOrNumber_(token)) {
-        if (lastValue === CLOSE_PAREN) return PRETTY_PRINT;
+        if (lastValue === CLOSE_PAREN) return this.prettyPrint_;
         return this.isIdentifierNameOrNumber_(this.lastToken_);
       }
       return false;
@@ -6993,7 +6996,7 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
         case STAR_EQUAL:
         case UNSIGNED_RIGHT_SHIFT:
         case UNSIGNED_RIGHT_SHIFT_EQUAL:
-          return PRETTY_PRINT;
+          return this.prettyPrint_;
       }
       return false;
     }
@@ -7005,16 +7008,15 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
 System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeMapWriter", function() {
   "use strict";
   var ParseTreeWriter = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter").ParseTreeWriter;
-  var ParseTreeMapWriter = function(highlighted, showLineNumbers, sourceMapGenerator) {
-    $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "constructor", [highlighted, showLineNumbers]);
+  var ParseTreeMapWriter = function(sourceMapGenerator) {
+    var options = arguments[1];
+    $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "constructor", [options]);
     this.sourceMapGenerator_ = sourceMapGenerator;
     this.outputLineCount_ = 1;
   };
   var $ParseTreeMapWriter = ($traceurRuntime.createClass)(ParseTreeMapWriter, {
     write_: function(value) {
-      if (this.currentLocation) {
-        this.addMapping();
-      }
+      if (this.currentLocation) this.addMapping();
       $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "write_", [value]);
     },
     writeCurrentln_: function() {
@@ -7048,27 +7050,16 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/TreeWriter", function(
   var ParseTreeWriter = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter").ParseTreeWriter;
   function write(tree) {
     var options = arguments[1];
-    var showLineNumbers;
-    var highlighted = null;
-    var sourceMapGenerator;
-    if (options) {
-      showLineNumbers = options.showLineNumbers;
-      highlighted = options.highlighted || null;
-      sourceMapGenerator = options.sourceMapGenerator;
-    }
+    var sourceMapGenerator = options && options.sourceMapGenerator;
     var writer;
     if (sourceMapGenerator) {
-      writer = new ParseTreeMapWriter(highlighted, showLineNumbers, sourceMapGenerator);
+      writer = new ParseTreeMapWriter(sourceMapGenerator, options);
     } else {
-      writer = new ParseTreeWriter(highlighted, showLineNumbers);
+      writer = new ParseTreeWriter(options);
     }
     writer.visitAny(tree);
-    if (writer.currentLine_.length > 0) {
-      writer.writeln_();
-    }
-    if (sourceMapGenerator) {
-      options.sourceMap = sourceMapGenerator.toString();
-    }
+    if (writer.currentLine_.length > 0) writer.writeln_();
+    if (sourceMapGenerator) options.sourceMap = sourceMapGenerator.toString();
     return writer.result_.toString();
   }
   var TreeWriter = function() {};
@@ -15227,13 +15218,13 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ClosureTypeTransformer",
     },
     transformVariableDeclaration: function(tree) {
       if (tree.typeAnnotation) {
-        tree = this.addComment_(tree, ("/** @type " + this.writeType_(tree.typeAnnotation) + " */"));
+        tree = this.addComment_(tree, ("/** @type " + this.writeType_(tree.typeAnnotation) + " */\n"));
       }
       return $traceurRuntime.superCall(this, $ClosureTypeTransformer.prototype, "transformVariableDeclaration", [tree]);
     },
     transformFunctionDeclaration: function(tree) {
       if (tree.typeAnnotation) {
-        tree = this.addComment_(tree, ("/** @return " + this.writeType_(tree.typeAnnotation) + " */"));
+        tree = this.addComment_(tree, ("/** @return " + this.writeType_(tree.typeAnnotation) + " */\n"));
       }
       return $traceurRuntime.superCall(this, $ClosureTypeTransformer.prototype, "transformFunctionDeclaration", [tree]);
     }
@@ -19954,7 +19945,7 @@ System.registerModule("traceur@0.0.Y/src/runtime/LoaderHooks", function() {
   var Parser = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/syntax/Parser").Parser;
   var options = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/options").options;
   var SourceFile = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/syntax/SourceFile").SourceFile;
-  var TreeWriter = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/outputgeneration/TreeWriter").TreeWriter;
+  var write = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/outputgeneration/TreeWriter").write;
   var UniqueIdentifierGenerator = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/codegeneration/UniqueIdentifierGenerator").UniqueIdentifierGenerator;
   var $__301 = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/util/url"),
       isAbsolute = $__301.isAbsolute,
@@ -20069,7 +20060,7 @@ System.registerModule("traceur@0.0.Y/src/runtime/LoaderHooks", function() {
       this.transformDependencies(codeUnit.dependencies);
       codeUnit.data.transformedTree = codeUnit.transform();
       codeUnit.state = TRANSFORMED;
-      codeUnit.data.transcoded = TreeWriter.write(codeUnit.data.transformedTree, this.outputOptions_);
+      codeUnit.data.transcoded = write(codeUnit.data.transformedTree, this.outputOptions_ || undefined);
       if (codeUnit.url && codeUnit.data.transcoded) codeUnit.data.transcoded += '//# sourceURL=' + codeUnit.url;
       codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
     },

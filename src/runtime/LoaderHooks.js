@@ -23,7 +23,7 @@ import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
-import {TreeWriter} from '../outputgeneration/TreeWriter';
+import {write} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
 import {isAbsolute, resolveUrl} from '../util/url';
@@ -177,8 +177,9 @@ export class LoaderHooks {
     this.transformDependencies(codeUnit.dependencies); // depth first
     codeUnit.data.transformedTree = codeUnit.transform();
     codeUnit.state = TRANSFORMED;
-    codeUnit.data.transcoded =  TreeWriter.write(codeUnit.data.transformedTree,
-        this.outputOptions_);
+    // TODO(arv): Fix optional param
+    codeUnit.data.transcoded =  write(codeUnit.data.transformedTree,
+        this.outputOptions_ || undefined);
     if (codeUnit.url && codeUnit.data.transcoded)
       codeUnit.data.transcoded += '//# sourceURL=' + codeUnit.url;
     // TODO(jjb): return sourcemaps not sideeffect

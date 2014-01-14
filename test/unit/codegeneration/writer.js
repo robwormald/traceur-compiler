@@ -71,7 +71,7 @@ suite('writer.js', function() {
     var sourceFile = new traceur.syntax.SourceFile(name, source);
     var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
     var tree = parser.parseScript();
-    var result = TreeWriter.write(tree, false);
+    var result = TreeWriter.write(tree);
     return result;
   }
 
