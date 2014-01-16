@@ -21,29 +21,25 @@ import {ParseTreeWriter} from './ParseTreeWriter';
  * @param {Object=} options:
  *     highlighted: {ParseTree} branch of tree to highlight
  *     showLineNumbers: {boolean} add comments giving input line numbers
- *     prettyPring: {boolean}
+ *     prettyPrint: {boolean}
  *     sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
  * @return source code; optional side-effect options.sourceMap set
  */
 export function write(tree, options = undefined) {
   var sourceMapGenerator = options && options.sourceMapGenerator;
   var writer;
-  if (sourceMapGenerator) {
+  if (sourceMapGenerator)
     writer = new ParseTreeMapWriter(sourceMapGenerator, options);
-  } else {
+  else
     writer = new ParseTreeWriter(options);
-  }
 
   writer.visitAny(tree);
-  if (writer.currentLine_.length > 0)
-    writer.writeln_();
 
   if (sourceMapGenerator)
     options.sourceMap = sourceMapGenerator.toString();
 
-  return writer.result_.toString();
+  return writer.toString();
 }
-
 
 // TODO(arv): This should just export the static function instead.
 export class TreeWriter {}

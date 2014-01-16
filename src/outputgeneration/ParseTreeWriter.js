@@ -134,8 +134,8 @@ import {
   YIELD
 } from '../syntax/TokenType';
 
-// constants
 var NEW_LINE = '\n';
+var LINE_LENGTH = 80;
 
 /**
  * Converts a ParseTree to text.
@@ -146,16 +146,14 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {boolean} showLineNumbers
    */
   constructor({
-      highlighted = false,
-      showLineNumbers = false,
-      prettyPrint = true
-    } = {}) {
+    highlighted = false,
+    showLineNumbers = false,
+    prettyPrint = true
+  } = {}) {
     super();
     this.highlighted_ = highlighted;
     this.showLineNumbers_ = showLineNumbers;
     this.prettyPrint_ = prettyPrint;
-    // this.highlighted_ = highlighted;
-    // this.showLineNumbers_ = showLineNumbers;
     this.result_ = '';
     this.currentLine_ = '';
 
@@ -176,6 +174,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
      * @private
      */
     this.lastToken_ = null;
+  }
+
+  toString() {
+    if (this.currentLine_.length > 0) {
+      this.result_ += this.currentLine_;
+      this.currentLine_ = '';
+    }
+
+    return this.result_;
   }
 
   /**
@@ -1109,7 +1116,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   writeln_() {
     if (this.currentLineComment_) {
-      while (this.currentLine_.length < 80) {
+      while (this.currentLine_.length < LINE_LENGTH) {
         this.currentLine_ += ' ';
       }
       this.currentLine_ += ' // ' + this.currentLineComment_;
