@@ -899,6 +899,8 @@ export class CPSTransformer extends ParseTreeTransformer {
         replaceStateId(machine.fallThroughState, State.END_STATE).
         replaceStateId(machine.startState, State.START_STATE);
 
+    machine = this.mergeStates(machine);
+
     var statements = this.getMachineVariables(tree, machine);
     if (hasArguments)
       statements.push(parseStatement `var $arguments = arguments;`);
@@ -1193,5 +1195,67 @@ export class CPSTransformer extends ParseTreeTransformer {
     }
 
     return this.transformStatementList_(maybeTransformedStatements);
+  }
+
+  mergeStates(machine) {
+    var states = machine.states;
+
+    var statesById = {};
+    var reverseMapping = {};
+
+    states.map((state) => {
+      statesById[state.id] = state;
+      var destinations = state.getDestinations();
+      destinations.forEach((id) => {
+        if (reverseMapping[id] === undefined)
+          reverseMapping[id] = [];
+        reverseMapping[id].push(state);
+      });
+    });
+
+    // console.log(reverseMapping);
+
+    function canMerge(first, second) {
+      if (reverseMapping[second.id].length !== 1)
+        return;
+
+      if (!(first instanceof FallThroughState))
+        return false;
+
+      return second instanceof FallThroughState ||
+          second instanceof ConditionalState;
+    }
+
+    function merge(first, second) {
+      var newState = first.merge(second);
+      var states = [];
+      machine.states.forEach((state) => {
+        if (state === first)
+          states.push(newState);
+        else if (state !== second)
+          states.push(state);
+      });
+      machine = new StateMachine(machine.startState, machine.fallThroughState,
+                                 states, machine.exceptionBlocks);
+      removedStates[second.id] = true;
+    }
+
+    var removedStates = {};
+
+    states.forEach((state) => {
+      if (removedStates[state.id])
+        return;
+
+      var destinations = state.getDestinations();
+      if (destinations.length !== 1)
+        return;
+
+      var destination = statesById[destinations[0]];
+      if (destination && canMerge(state, destination)) {
+        merge(state, destination);
+      }
+    });
+
+    return machine;
   }
 }

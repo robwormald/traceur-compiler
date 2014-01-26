@@ -72,6 +72,14 @@ export class State {
   transformBreakOrContinue(labelSet, breakState, continueState) {
     return this;
   }
+
+  getDestinations() {
+    return [];
+  }
+
+  merge(second) {
+    throw new Error('not implemented');
+  }
 }
 
 State.START_STATE = 0;

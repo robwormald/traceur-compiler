@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {FallThroughState} from './FallThroughState';
 import {State} from './State';
+import {assert} from '../../util/assert';
+
 import {
   createBlock,
   createIfStatement
@@ -24,9 +27,11 @@ export class ConditionalState extends State {
    * @param {number} ifState
    * @param {number} elseState
    * @param {ParseTree} condition
+   * @param {Array.<ParseTree>} statements
    */
-  constructor(id, ifState, elseState, condition) {
+  constructor(id, ifState, elseState, condition, statements = []) {
     super(id);
+    this.statements = statements;
     this.ifState = ifState;
     this.elseState = elseState;
     this.condition = condition;
@@ -45,7 +50,8 @@ export class ConditionalState extends State {
         State.replaceStateId(this.id, oldState, newState),
         State.replaceStateId(this.ifState, oldState, newState),
         State.replaceStateId(this.elseState, oldState, newState),
-        this.condition);
+        this.condition,
+        this.statements);
   }
 
   /**
@@ -56,8 +62,19 @@ export class ConditionalState extends State {
    */
   transform(enclosingFinally, machineEndState, reporter) {
     return [
+      ...this.statements,
       createIfStatement(this.condition,
           createBlock(State.generateJump(enclosingFinally, this.ifState)),
           createBlock(State.generateJump(enclosingFinally, this.elseState)))];
+  }
+
+  getDestinations() {
+    return [this.ifState, this.elseState];
+  }
+
+  reverseMerge(first) {
+    return new ConditionalState(first.id,
+        this.ifState, this.elseState, this.condition,
+        [...first.statements, ...this.statements]);
   }
 }

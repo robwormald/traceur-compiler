@@ -16049,6 +16049,12 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
     },
     transformBreakOrContinue: function(labelSet, breakState, continueState) {
       return this;
+    },
+    getDestinations: function() {
+      return [];
+    },
+    merge: function(second) {
+      throw new Error('not implemented');
     }
   }, {});
   State.START_STATE = 0;
@@ -16204,7 +16210,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/syntax/trees/Stat
         exceptionBlocks.push(tryState.replaceState(nextMachine.startState, this.fallThroughState));
       }
       return new StateMachine(this.startState, nextMachine.fallThroughState, states, exceptionBlocks);
-    }
+    },
+    getIncomingStates: function(state) {}
   }, {}, ParseTree);
   return {get StateMachine() {
       return StateMachine;
@@ -16234,6 +16241,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
     },
     transform: function(enclosingFinally, machineEndState, reporter) {
       return this.statements;
+    },
+    getDestinations: function() {
+      return [this.callbackState, this.errbackState];
     }
   }, {}, State);
   return {get AwaitState() {
@@ -16244,6 +16254,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
   "use strict";
   var __moduleName = "traceur@0.0.16/src/codegeneration/generator/FallThroughState";
   var State = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/codegeneration/generator/State").State;
+  var assert = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/util/assert").assert;
   var FallThroughState = function(id, fallThroughState, statements) {
     $traceurRuntime.superCall(this, $FallThroughState.prototype, "constructor", [id]);
     this.fallThroughState = fallThroughState;
@@ -16255,6 +16266,20 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
     },
     transform: function(enclosingFinally, machineEndState, reporter) {
       return $traceurRuntime.spread(this.statements, State.generateJump(enclosingFinally, this.fallThroughState));
+    },
+    mergeWith: function(nextState) {},
+    canMergeWith: function(nextState) {
+      if (!(nextState instanceof FallThroughState)) return false;
+      return this.fallThroughState === nextState.id;
+    },
+    getDestinations: function() {
+      return [this.fallThroughState];
+    },
+    merge: function(second) {
+      return second.reverveMerge(this);
+    },
+    reverveMerge: function(first) {
+      return new FallThroughState(first.id, this.fallThroughState, $traceurRuntime.spread(first.statements, this.statements));
     }
   }, {}, State);
   return {get FallThroughState() {
@@ -16395,9 +16420,14 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
     this.catchState = catchState;
     this.fallThroughState = fallThroughState;
   };
-  var $CatchState = ($traceurRuntime.createClass)(CatchState, {replaceState: function(oldState, newState) {
+  var $CatchState = ($traceurRuntime.createClass)(CatchState, {
+    replaceState: function(oldState, newState) {
       return new CatchState(this.identifier, State.replaceStateId(this.catchState, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), this.replaceAllStates(oldState, newState), this.replaceNestedTrys(oldState, newState));
-    }}, {}, TryState);
+    },
+    getDestinations: function() {
+      return [this.fallThroughState];
+    }
+  }, {}, TryState);
   return {get CatchState() {
       return CatchState;
     }};
@@ -16405,22 +16435,32 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/generator/ConditionalState", function() {
   "use strict";
   var __moduleName = "traceur@0.0.16/src/codegeneration/generator/ConditionalState";
+  var FallThroughState = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/codegeneration/generator/FallThroughState").FallThroughState;
   var State = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/codegeneration/generator/State").State;
+  var assert = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/util/assert").assert;
   var $__226 = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/codegeneration/ParseTreeFactory"),
       createBlock = $__226.createBlock,
       createIfStatement = $__226.createIfStatement;
   var ConditionalState = function(id, ifState, elseState, condition) {
+    var statements = arguments[4] !== (void 0) ? arguments[4]: [];
     $traceurRuntime.superCall(this, $ConditionalState.prototype, "constructor", [id]);
+    this.statements = statements;
     this.ifState = ifState;
     this.elseState = elseState;
     this.condition = condition;
   };
   var $ConditionalState = ($traceurRuntime.createClass)(ConditionalState, {
     replaceState: function(oldState, newState) {
-      return new ConditionalState(State.replaceStateId(this.id, oldState, newState), State.replaceStateId(this.ifState, oldState, newState), State.replaceStateId(this.elseState, oldState, newState), this.condition);
+      return new ConditionalState(State.replaceStateId(this.id, oldState, newState), State.replaceStateId(this.ifState, oldState, newState), State.replaceStateId(this.elseState, oldState, newState), this.condition, this.statements);
     },
     transform: function(enclosingFinally, machineEndState, reporter) {
-      return [createIfStatement(this.condition, createBlock(State.generateJump(enclosingFinally, this.ifState)), createBlock(State.generateJump(enclosingFinally, this.elseState)))];
+      return $traceurRuntime.spread(this.statements, [createIfStatement(this.condition, createBlock(State.generateJump(enclosingFinally, this.ifState)), createBlock(State.generateJump(enclosingFinally, this.elseState)))]);
+    },
+    getDestinations: function() {
+      return [this.ifState, this.elseState];
+    },
+    reverseMerge: function(first) {
+      return new ConditionalState(first.id, this.ifState, this.elseState, this.condition, $traceurRuntime.spread(first.statements, this.statements));
     }
   }, {}, State);
   return {get ConditionalState() {
@@ -16459,9 +16499,14 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
     this.finallyState = finallyState;
     this.fallThroughState = fallThroughState;
   };
-  var $FinallyState = ($traceurRuntime.createClass)(FinallyState, {replaceState: function(oldState, newState) {
+  var $FinallyState = ($traceurRuntime.createClass)(FinallyState, {
+    replaceState: function(oldState, newState) {
       return new FinallyState(State.replaceStateId(this.finallyState, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), this.replaceAllStates(oldState, newState), this.replaceNestedTrys(oldState, newState));
-    }}, {}, TryState);
+    },
+    getDestinations: function() {
+      return [this.fallThroughState];
+    }
+  }, {}, TryState);
   return {get FinallyState() {
       return FinallyState;
     }};
@@ -16491,9 +16536,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
   var $__234 = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/codegeneration/ParseTreeFactory"),
       createBreakStatement = $__234.createBreakStatement,
       createStatementList = $__234.createStatementList;
-  var SwitchClause = function(first, second) {
-    this.first = first;
-    this.second = second;
+  var SwitchClause = function(expression, state) {
+    this.expression = expression;
+    this.state = state;
   };
   SwitchClause = ($traceurRuntime.createClass)(SwitchClause, {}, {});
   var SwitchState = function(id, expression, clauses) {
@@ -16504,7 +16549,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
   var $SwitchState = ($traceurRuntime.createClass)(SwitchState, {
     replaceState: function(oldState, newState) {
       var clauses = this.clauses.map((function(clause) {
-        return new SwitchClause(clause.first, State.replaceStateId(clause.second, oldState, newState));
+        return new SwitchClause(clause.expression, State.replaceStateId(clause.state, oldState, newState));
       }));
       return new SwitchState(State.replaceStateId(this.id, oldState, newState), this.expression, clauses);
     },
@@ -16512,13 +16557,18 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
       var clauses = [];
       for (var i = 0; i < this.clauses.length; i++) {
         var clause = this.clauses[i];
-        if (clause.first == null) {
-          clauses.push(new DefaultClause(null, State.generateJump(enclosingFinally, clause.second)));
+        if (clause.expression == null) {
+          clauses.push(new DefaultClause(null, State.generateJump(enclosingFinally, clause.state)));
         } else {
-          clauses.push(new CaseClause(null, clause.first, State.generateJump(enclosingFinally, clause.second)));
+          clauses.push(new CaseClause(null, clause.expression, State.generateJump(enclosingFinally, clause.state)));
         }
       }
       return createStatementList(new SwitchStatement(null, this.expression, clauses), createBreakStatement());
+    },
+    getDestinations: function() {
+      return this.clauses.map((function(clause) {
+        return clause.state;
+      }));
     }
   }, {}, State);
   return {
@@ -16964,6 +17014,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
         machine = new StateMachine(machine.startState, machine.fallThroughState, this.removeEmptyStates(machine.states), machine.exceptionBlocks);
       }
       machine = machine.replaceStateId(machine.fallThroughState, State.END_STATE).replaceStateId(machine.startState, State.START_STATE);
+      machine = this.mergeStates(machine);
       var statements = this.getMachineVariables(tree, machine);
       if (hasArguments) statements.push(parseStatement($__240));
       statements.push(parseStatement($__241, runtimeMethod, this.generateMachineInnerFunction(machine)));
@@ -17072,6 +17123,44 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
         return this.statementsToStateMachine_(statements);
       }
       return this.transformStatementList_(maybeTransformedStatements);
+    },
+    mergeStates: function(machine) {
+      var states = machine.states;
+      var statesById = {};
+      var reverseMapping = {};
+      states.map((function(state) {
+        statesById[state.id] = state;
+        var destinations = state.getDestinations();
+        destinations.forEach((function(id) {
+          if (reverseMapping[id] === undefined) reverseMapping[id] = [];
+          reverseMapping[id].push(state);
+        }));
+      }));
+      function canMerge(first, second) {
+        if (reverseMapping[second.id].length !== 1) return;
+        if (!(first instanceof FallThroughState)) return false;
+        return second instanceof FallThroughState || second instanceof ConditionalState;
+      }
+      function merge(first, second) {
+        var newState = first.merge(second);
+        var states = [];
+        machine.states.forEach((function(state) {
+          if (state === first) states.push(newState); else if (state !== second) states.push(state);
+        }));
+        machine = new StateMachine(machine.startState, machine.fallThroughState, states, machine.exceptionBlocks);
+        removedStates[second.id] = true;
+      }
+      var removedStates = {};
+      states.forEach((function(state) {
+        if (removedStates[state.id]) return;
+        var destinations = state.getDestinations();
+        if (destinations.length !== 1) return;
+        var destination = statesById[destinations[0]];
+        if (destination && canMerge(state, destination)) {
+          merge(state, destination);
+        }
+      }));
+      return machine;
     }
   }, {}, ParseTreeTransformer);
   return {get CPSTransformer() {

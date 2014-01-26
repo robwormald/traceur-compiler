@@ -63,5 +63,9 @@ export class AwaitState extends State {
   transform(enclosingFinally, machineEndState, reporter) {
     return this.statements;
   }
+
+  getDestinations() {
+    return [this.callbackState, this.errbackState];
+  }
 }
 

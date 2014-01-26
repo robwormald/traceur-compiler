@@ -20,8 +20,7 @@ var Kind = {
 };
 
 /**
- * TryStates represent try catch/finally blocks which contain a yield. They
- * are stored as a forest of trees hung off of the StateMachine.
+ * TryStates represent try catch/finally blocks which contain a yield.
  *
  * TryStates are immutable.
  */

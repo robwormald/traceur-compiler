@@ -167,4 +167,12 @@ export class StateMachine extends ParseTree {
     return new StateMachine(this.startState, nextMachine.fallThroughState,
                             states, exceptionBlocks);
   }
+
+  /**
+   * The states that jumps to this state.
+   * @return {Array.<number>}
+   */
+  getIncomingStates(state) {
+
+  }
 }

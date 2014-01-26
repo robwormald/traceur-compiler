@@ -25,18 +25,15 @@ import {
 
 /**
  * Represents a pair of ParseTree and integer.
- * Immutable.
- *
- * TODO: this came from Pair. Better member names?
  */
 export class SwitchClause {
   /**
-   * @param {ParseTree} first
-   * @param {number} second
+   * @param {ParseTree} expression
+   * @param {number} state
    */
-  constructor(first, second) {
-    this.first = first;
-    this.second = second;
+  constructor(expression, state) {
+    this.expression = expression;
+    this.state = state;
   }
 }
 
@@ -68,8 +65,8 @@ export class SwitchState extends State {
    */
   replaceState(oldState, newState) {
     var clauses = this.clauses.map((clause) => {
-      return new SwitchClause(clause.first,
-          State.replaceStateId(clause.second, oldState, newState));
+      return new SwitchClause(clause.expression,
+          State.replaceStateId(clause.state, oldState, newState));
     });
     return new SwitchState(
         State.replaceStateId(this.id, oldState, newState),
@@ -87,16 +84,20 @@ export class SwitchState extends State {
     var clauses = [];
     for (var i = 0; i < this.clauses.length; i++) {
       var clause = this.clauses[i];
-      if (clause.first == null) {
+      if (clause.expression == null) {
         clauses.push(new DefaultClause(null,
-            State.generateJump(enclosingFinally, clause.second)));
+            State.generateJump(enclosingFinally, clause.state)));
       } else {
-        clauses.push(new CaseClause(null, clause.first,
-            State.generateJump(enclosingFinally, clause.second)));
+        clauses.push(new CaseClause(null, clause.expression,
+            State.generateJump(enclosingFinally, clause.state)));
       }
     }
     return createStatementList(
         new SwitchStatement(null, this.expression, clauses),
         createBreakStatement());
+  }
+
+  getDestinations() {
+    return this.clauses.map((clause) => clause.state);
   }
 }

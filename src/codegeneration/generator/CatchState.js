@@ -49,4 +49,8 @@ export class CatchState extends TryState {
         this.replaceAllStates(oldState, newState),
         this.replaceNestedTrys(oldState, newState));
   }
+
+  getDestinations() {
+    return [this.fallThroughState];
+  }
 }

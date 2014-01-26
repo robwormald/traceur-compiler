@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {State} from './State';
+import {assert} from '../../util/assert';
 
 export class FallThroughState extends State {
   /**
@@ -49,5 +50,29 @@ export class FallThroughState extends State {
       ...this.statements,
       ...State.generateJump(enclosingFinally, this.fallThroughState)
     ];
+  }
+
+  mergeWith(nextState) {
+
+  }
+
+  canMergeWith(nextState) {
+    if (!(nextState instanceof FallThroughState))
+      return false;
+
+    return this.fallThroughState === nextState.id;
+  }
+
+  getDestinations() {
+    return [this.fallThroughState];
+  }
+
+  merge(second) {
+    return second.reverveMerge(this);
+  }
+
+  reverveMerge(first) {
+    return new FallThroughState(first.id, this.fallThroughState,
+        [...first.statements, ...this.statements]);
   }
 }
