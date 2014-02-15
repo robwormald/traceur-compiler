@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module traceur from './traceur';
+import {
+  ErrorReporter,
+  format as formatter
+} from './ErrorReporter';
 
-// Export traceur as a global property.
-this.traceur = traceur;
+/**
+ * An implementation of the ErrorReporter that throws a SyntaxError on the
+ * first reported error.
+ */
+export class SyntaxErrorReporter extends ErrorReporter {
 
-// TODO(jjb):  import ModuleStore once we merge the static and dynamic modules.
-$traceurRuntime.ModuleStore.set('traceur@', traceur);
+  /**
+   * @param {SourcePosition} location
+   * @param {string} format
+   * @param {Array} args
+   */
+  reportMessageInternal(location, format, args) {
+    var s = formatter(location, format, args);
+    throw new SyntaxError(s);
+  }
+}

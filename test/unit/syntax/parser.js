@@ -19,15 +19,46 @@ suite('parser.js', function() {
     }
   };
 
+  teardown(function() {
+    traceur.options.reset();
+  });
+
   test('Module', function() {
     var program = 'export var x = 42;\n' +
                   'module M from \'url\';\n' +
                   'import {z} from \'x\';\n' +
                   'import {a as b, c} from \'M\';\n';
     var sourceFile = new traceur.syntax.SourceFile('Name', program);
-    var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
+    var parser = new traceur.syntax.Parser(sourceFile, errorReporter);
 
     parser.parseModule();
+  });
+
+  test('handleComment', function() {
+    traceur.options.commentCallback = true;
+
+    var program = '// AAA\n' +
+                  'var b = \'c\';\n' +
+                  '/* DDD */ function e() {}\n';
+    var sourceFile = new traceur.syntax.SourceFile('Name', program);
+    var parser = new traceur.syntax.Parser(sourceFile, errorReporter);
+    var comments = [];
+    parser.handleComment = function(sourceRange) {
+      comments.push(sourceRange);
+    };
+    parser.parseScript();
+
+    assert.equal(comments.length, 2);
+
+    assert.equal(comments[0].start.offset, 0);
+    assert.equal(comments[0].end.offset, 7);
+    assert.equal(comments[0].toString(), '// AAA\n');
+
+    assert.equal(comments[1].start.line, 2);
+    assert.equal(comments[1].start.column, 0);
+    assert.equal(comments[1].end.line, 2);
+    assert.equal(comments[1].end.column, 9);
+    assert.equal(comments[1].toString(), '/* DDD */');
   });
 
 });

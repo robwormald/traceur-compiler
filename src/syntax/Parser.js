@@ -50,6 +50,7 @@ import {
   OF,
   SET
 } from './PredefinedName';
+import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter';
 import {Scanner} from './Scanner';
 import {SourceRange} from '../util/SourceRange';
 import {StrictParams} from '../staticsemantics/StrictParams';
@@ -338,10 +339,10 @@ var Initialiser = {
  */
 export class Parser {
   /**
-   * @param {ErrorReporter} errorReporter
    * @param {SourceFile} file
+   * @param {ErrorReporter} errorReporter
    */
-  constructor(errorReporter, file) {
+  constructor(file, errorReporter = new SyntaxErrorReporter()) {
     this.errorReporter_ = errorReporter;
     this.scanner_ = new Scanner(errorReporter, file, this);
 
@@ -3737,6 +3738,10 @@ export class Parser {
    */
   getTreeLocation_(start) {
     return new SourceRange(start, this.getTreeEndLocation_());
+  }
+
+  handleComment(range) {
+    // TODO(arv): Attach to tree nodes.
   }
 
   /**

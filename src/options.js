@@ -59,7 +59,9 @@ export var options = {
       return true;
     });
     return value;
-  }
+  },
+
+  scripts: []
 };
 
 // TODO: Refactor this so that we can keep all of these in one place.
@@ -157,7 +159,12 @@ function addOptions(flags) {
     (path) => {
       setOption('type-assertion-module', path);
       return path;
-    })
+    });
+  flags.option('--script <fileName>',
+    'Parse as Script (must precede modules)',
+    (fileName) => {
+      options.scripts.push(fileName);
+    });
 }
 
 /**
@@ -283,12 +290,13 @@ addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 addFeatureOption('annotations', EXPERIMENTAL);
 
+addBoolOption('commentCallback');
 addBoolOption('debug');
-addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
-addBoolOption('validate');
-addBoolOption('unstarredGenerators');
+addBoolOption('sourceMaps');
 addBoolOption('typeAssertions');
+addBoolOption('unstarredGenerators');
+addBoolOption('validate');
 
 defaultValues.referrer = '';
 options.referrer = null;

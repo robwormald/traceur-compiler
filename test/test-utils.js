@@ -131,7 +131,7 @@
 
       var reporter = new traceur.util.TestErrorReporter();
       var LoaderHooks = traceur.runtime.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './', undefined, loader);
+      var loaderHooks = new LoaderHooks(reporter, './', loader);
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;
@@ -154,8 +154,6 @@
       }
 
       var moduleLoader = new traceur.runtime.TraceurLoader(loaderHooks);
-      // When tests run against System we'll use the default Loader.
-      global.System = traceur.System;
 
       function handleShouldCompile() {
         if (!options.shouldCompile) {
@@ -193,10 +191,10 @@
       }
 
       if (/\.module\.js$/.test(url)) {
-        moduleLoader.import(url.replace(/\.js$/,''), {},
-            handleSuccess, handleFailure);
+        moduleLoader.import(url.replace(/\.js$/,''), {}).then(handleSuccess,
+            handleFailure);
       } else {
-        moduleLoader.loadAsScript(url, {}, handleSuccess, handleFailure);
+        moduleLoader.loadAsScript(url, {}).then(handleSuccess, handleFailure);
       }
     });
   }
@@ -216,7 +214,7 @@
 
       function parse(source) {
         var file = new traceur.syntax.SourceFile(name, source);
-        var parser = new traceur.syntax.Parser(reporter, file);
+        var parser = new traceur.syntax.Parser(file, reporter);
         var isModule = /\.module\.js$/.test(url);
         if (isModule)
           return parser.parseModule();

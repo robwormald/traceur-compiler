@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ErrorReporter} from '../src/util/ErrorReporter';
-import {options as traceurOptions} from '../src/options';
+import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter';
+import {options as traceurOptions} from 'traceur@0.0/src/options';
 import {transcode, renderSourceMap} from './transcode';
 
 // Do not show source maps by default.
@@ -117,7 +117,7 @@ function compile() {
     output.setValue(metadata.transcoded);
     var sourceMap = metadata.sourceMap;
     if (sourceMap) {
-      var renderedMap = renderSourceMap(transcoded, sourceMap);
+      var renderedMap = renderSourceMap(metadata.transcoded, sourceMap);
       sourceMapElement.textContent = renderedMap;
     } else {
       sourceMapElement.textContent = '';
@@ -182,7 +182,7 @@ function rebuildOptions() {
   createOptions();
 }
 
-document.querySelector('.all-on').addEventListener('click',
+document.querySelector('.reset-all').addEventListener('click',
     function() {
       traceurOptions.reset();
       rebuildOptions();

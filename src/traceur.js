@@ -14,26 +14,29 @@
 
 export {System} from './runtime/System';
 import {System} from './runtime/System';
-export var ModuleStore = System.get('@traceur/src/runtime/ModuleStore');
+export var ModuleStore =
+    System.get('@traceur/src/runtime/ModuleStore').ModuleStore;
 
 export {options} from './options';
 
 export {WebPageTranscoder} from './WebPageTranscoder';
 
-import {ModuleAnalyzer} from './semantics/ModuleAnalyzer';
+import {ExportListBuilder} from './codegeneration/module/ExportListBuilder';
 
 export var semantics = {
-  ModuleAnalyzer,
+  ExportListBuilder,
 };
 
 import {ErrorReporter} from './util/ErrorReporter';
 import {SourcePosition} from './util/SourcePosition';
+import {SyntaxErrorReporter} from './util/SyntaxErrorReporter';
 import {TestErrorReporter} from './util/TestErrorReporter';
 import {resolveUrl} from './util/url';
 
 export var util = {
   ErrorReporter,
   SourcePosition,
+  SyntaxErrorReporter,
   TestErrorReporter,
   resolveUrl
 };
@@ -76,16 +79,17 @@ import {AmdTransformer} from './codegeneration/AmdTransformer';
 import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {CommonJsModuleTransformer} from './codegeneration/CommonJsModuleTransformer';
+import {DirectExportVisitor} from './codegeneration/module/DirectExportVisitor';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {InlineModuleTransformer} from './codegeneration/InlineModuleTransformer';
 import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
+import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
   AmdTransformer,
-  AttachModuleNameTransformer,
   CloneTreeTransformer,
   CommonJsModuleTransformer,
   FromOptionsTransformer,
@@ -94,13 +98,12 @@ export var codegeneration = {
   ParseTreeFactory,
   ParseTreeTransformer,
   module: {
-    ModuleSpecifierVisitor
+    AttachModuleNameTransformer,
+    DirectExportVisitor,
+    ModuleSpecifierVisitor,
+    createModuleEvaluationStatement
   }
 };
-
-module modules from './runtime/InternalLoader';
-export {modules};
-
 
 import {Loader} from './runtime/Loader';
 import {LoaderHooks} from './runtime/LoaderHooks';

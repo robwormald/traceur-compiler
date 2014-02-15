@@ -16,19 +16,18 @@ import {
   AttachModuleNameTransformer
 } from '../codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
-import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
+import {ExportListBuilder} from '../codegeneration/module/ExportListBuilder';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
-import {ModuleSymbol} from '../semantics/ModuleSymbol';
+import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
-import {write} from '../outputgeneration/TreeWriter';
+import {systemjs} from '../runtime/system-map';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
 import {isAbsolute, resolveUrl} from '../util/url';
 import {webLoader} from './webLoader';
-
 
 import {assert} from '../util/assert';
 
@@ -38,21 +37,22 @@ var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
 var PARSED = 3;
-var TRANSFORMED = 4;
-var COMPLETE = 5;
-var ERROR = 6;
+var TRANSFORMING = 4
+var TRANSFORMED = 5;
+var COMPLETE = 6;
+var ERROR = 7;
 
 var identifierGenerator = new UniqueIdentifierGenerator();
 
 export class LoaderHooks {
-  constructor(reporter, rootUrl, outputOptions = undefined,
-      fileLoader = webLoader, moduleStore = $traceurRuntime.ModuleStore) {
+  constructor(reporter, rootUrl,
+      fileLoader = webLoader,
+      moduleStore = $traceurRuntime.ModuleStore) {
     this.reporter = reporter;
     this.rootUrl_ = rootUrl;
-    this.outputOptions_ = outputOptions;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
-    this.analyzer_ = new ModuleAnalyzer(this.reporter);
+    this.exportListBuilder_ = new ExportListBuilder(this.reporter);
   }
 
   get(normalizedName) {
@@ -64,7 +64,12 @@ export class LoaderHooks {
   }
 
   normalize(name, referrerName, referrerAddress) {
-    return this.moduleStore_.normalize(name, referrerName, referrerAddress);
+    var normalizedName =
+        this.moduleStore_.normalize(name, referrerName, referrerAddress);
+    if (System.map)
+      return systemjs.applyMap(System.map, normalizedName, referrerName);
+    else
+      return normalizedName;
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
@@ -93,7 +98,7 @@ export class LoaderHooks {
     // For error reporting, prefer loader URL, fallback if we did not load text.
     var url = codeUnit.url || normalizedName;
     var file = new SourceFile(url, program);
-    var parser = new Parser(reporter, file);
+    var parser = new Parser(file, reporter);
     if (codeUnit.type == 'module')
       codeUnit.metadata.tree = parser.parseModule();
     else
@@ -130,9 +135,6 @@ export class LoaderHooks {
   locate_(load) {
     var normalizedModuleName = load.normalizedName;
     var asJS = normalizedModuleName + '.js';
-    // Tolerate .js endings
-    if (/\.js$/.test(normalizedModuleName))
-      asJS = normalizedModuleName;
     if (options.referrer) {
       if (asJS.indexOf(options.referrer) === 0) {
         asJS = asJS.slice(options.referrer.length);
@@ -183,8 +185,7 @@ export class LoaderHooks {
   }
 
   analyzeDependencies(dependencies, loader) {
-    var trees = [];
-    var moduleSymbols = [];
+    var deps = [];  // metadata for each dependency
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
 
@@ -192,59 +193,15 @@ export class LoaderHooks {
       assert(codeUnit.state >= PARSED);
 
       if (codeUnit.state == PARSED) {
-        trees.push(codeUnit.metadata.tree);
-        moduleSymbols.push(codeUnit.metadata.moduleSymbol);
+        deps.push(codeUnit.metadata);
       }
     }
 
-    this.analyzer_.analyzeTrees(trees, moduleSymbols, loader);
-    this.checkForErrors(dependencies, 'analyze');
+    this.exportListBuilder_.buildExportList(deps, loader);
   }
 
-  // TODO(jjb): this function belongs in Loader
-  transformDependencies(dependencies) {
-    for (var i = 0; i < dependencies.length; i++) {
-      var codeUnit = dependencies[i];
-      if (codeUnit.state >= TRANSFORMED) {
-        continue;
-      }
-      this.transformCodeUnit(codeUnit);
-      this.instantiate(codeUnit);
-    }
-    this.checkForErrors(dependencies, 'transform');
-  }
-
-  transformCodeUnit(codeUnit) {
-    this.transformDependencies(codeUnit.dependencies); // depth first
-    codeUnit.metadata.transformedTree = codeUnit.transform();
-    codeUnit.state = TRANSFORMED;
-    codeUnit.metadata.transcoded = write(codeUnit.metadata.transformedTree,
-        this.outputOptions_);
-    if (codeUnit.url && codeUnit.metadata.transcoded)
-      codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
-    // TODO(jjb): return sourcemaps not sideeffect
-    codeUnit.sourceMap =
-      this.outputOptions_ && this.outputOptions_.sourceMap;
-  }
-
-
-  checkForErrors(dependencies, phase) {
-    if (this.reporter.hadError()) {
-      for (var i = 0; i < dependencies.length; i++) {
-        var codeUnit = dependencies[i];
-        if (codeUnit.state >= COMPLETE) {
-          continue;
-        }
-        codeUnit.state = ERROR;
-      }
-
-      for (var i = 0; i < dependencies.length; i++) {
-        var codeUnit = dependencies[i];
-        if (codeUnit.state == ERROR) {
-          codeUnit.dispatchError(phase);
-        }
-      }
-    }
+  get options() {
+    return options;
   }
 
 }

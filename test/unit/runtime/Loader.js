@@ -44,7 +44,7 @@ suite('Loader.js', function() {
   function getLoaderHooks(opt_reporter) {
     var LoaderHooks = traceur.runtime.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
-    return new LoaderHooks(opt_reporter, url, undefined, fileLoader);
+    return new LoaderHooks(opt_reporter, url, fileLoader);
   }
 
   function getLoader(opt_reporter) {
@@ -63,6 +63,8 @@ suite('Loader.js', function() {
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/@abc/def.js');
     load.normalizedName = 'abc/def';
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
+    load.normalizedName = 'abc/def.js';
+    assert.notEqual(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
   });
 
   test('traceur@', function() {
@@ -73,34 +75,47 @@ suite('Loader.js', function() {
 
   test('Loader.PreCompiledModule', function(done) {
     var traceur = System.get('traceur@');
-    System.import('traceur@', {}, function(module) {
+    System.import('traceur@', {}).then(function(module) {
       assert.equal(traceur.options, module.options);
       done();
     });
   });
 
   test('LoaderEval', function(done) {
-    getLoader().script('(function(x = 42) { return x; })()', {},
+    getLoader().script('(function(x = 42) { return x; })()', {}).then(
       function(result) {
         assert.equal(42, result);
         done();
       });
   });
 
+  test('Loader.Script.Fail', function(done) {
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).script('export var x = 5;', {}).then(
+      function(result) {
+        fail('should not have succeeded');
+        done();
+      }, function(ex) {
+        assert(ex);
+        done();
+      });
+  });
+
   test('LoaderModule', function(done) {
     var code =
-        'module a from "./test_a.js";\n' +
-        'module b from "./test_b.js";\n' +
-        'module c from "./test_c.js";\n' +
+        'module a from "./test_a";\n' +
+        'module b from "./test_b";\n' +
+        'module c from "./test_c";\n' +
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
-    var result = getLoader().module(code, {},
+    var result = getLoader().module(code, {}).then(
       function(module) {
         assert.equal('test', module.arr[0]);
         assert.equal('A', module.arr[1]);
         assert.equal('B', module.arr[2]);
         assert.equal('C', module.arr[3]);
+        assert.isNull(Object.getPrototypeOf(module));
         done();
       }, function(error) {
         fail(error);
@@ -110,11 +125,11 @@ suite('Loader.js', function() {
 
   test('LoaderModuleWithSubdir', function(done) {
     var code =
-        'module d from "./subdir/test_d.js";\n' +
+        'module d from "./subdir/test_d";\n' +
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
-    var result = getLoader().module(code, {},
+    var result = getLoader().module(code, {}).then(
       function(module) {
         assert.equal('D', module.arr[0]);
         assert.equal('E', module.arr[1]);
@@ -127,15 +142,15 @@ suite('Loader.js', function() {
 
   test('LoaderModuleFail', function(done) {
     var code =
-        'module a from "./test_a.js";\n' +
-        'module b from "./test_b.js";\n' +
-        'module c from "./test_c.js";\n' +
+        'module a from "./test_a";\n' +
+        'module b from "./test_b";\n' +
+        'module c from "./test_c";\n' +
         '\n' +
         '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 
     var reporter = new MutedErrorReporter();
 
-    var result = getLoader(reporter).module(code, {},
+    var result = getLoader(reporter).module(code, {}).then(
       function(value) {
         fail('Should not have succeeded');
         done();
@@ -149,7 +164,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderLoad', function(done) {
-    getLoader().loadAsScript('./test_script.js', {}, function(result) {
+    getLoader().loadAsScript('./test_script.js', {}).then(function(result) {
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
@@ -160,9 +175,20 @@ suite('Loader.js', function() {
     });
   });
 
+  test('LoaderLoad.Fail', function(done) {
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).loadAsScript('./non_existing.js', {}).then(function(result) {
+      fail('should not have succeeded');
+      done();
+    }, function(error) {
+      assert(error);
+      done();
+    });
+  });
+
   test('LoaderLoadWithReferrer', function(done) {
     getLoader().loadAsScript('../test_script.js',
-      {referrerName: 'traceur@0.0.1/bin'},
+      {referrerName: 'traceur@0.0.1/bin'}).then(
       function(result) {
         assert.equal('A', result[0]);
         assert.equal('B', result[1]);
@@ -175,7 +201,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImport', function(done) {
-    getLoader().import('./test_module.js', {}, function(mod) {
+    getLoader().import('./test_module', {}).then(function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
@@ -187,10 +213,20 @@ suite('Loader.js', function() {
     });
   });
 
+  test('LoaderImport.Fail', function(done) {
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).import('./non_existing', {}).then(function(mod) {
+      fail('should not have succeeded')
+      done();
+    }, function(error) {
+      assert(error);
+      done();
+    });
+  });
+
   test('LoaderImportWithReferrer', function(done) {
-    getLoader().import('../test_module.js',
-      {referrerName: 'traceur@0.0.1/bin'},
-      function(mod) {
+    getLoader().import('../test_module',
+      {referrerName: 'traceur@0.0.1/bin'}).then(function(mod) {
         assert.equal('test', mod.name);
         assert.equal('A', mod.a);
         assert.equal('B', mod.b);
@@ -202,10 +238,62 @@ suite('Loader.js', function() {
       });
   });
 
-  test('System.semverMap', function() {
-    var System =
-        $traceurRuntime.ModuleStore.getForTesting('src/runtime/System').System;
+  test('Loader.define', function(done) {
+    var name = System.normalize('./test_define');
+    getLoader().import('./side-effect', {}).then(function(mod) {
+      assert.equal(6, mod.currentSideEffect());  // starting value.
+      var src = 'export {name as a} from \'./test_a\';\n' +
+        'export var d = 4;\n' + 'this.sideEffect++;';
+      getLoader().define(name, src, {}).then(function() {
+          assert.equal(6, mod.currentSideEffect());  // no change
+          var definedModule = System.get(name);
+          assert.equal(7, mod.currentSideEffect());  // module body evaluated
+          assert.equal(4, definedModule.d);  // define does exports
+          assert.equal('A', definedModule.a);  // define does imports
+          done();
+        }, function(error) {
+          fail(error);
+          done();
+        });
+    });
+  });
 
+  test('Loader.define.Fail', function(done) {
+    var name = System.normalize('./test_define');
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).import('./side-effect', {}).then(function(mod) {
+      var src = 'syntax error';
+      getLoader(reporter).define(name, src, {}).then(function() {
+          fail('should not have succeeded');
+          done();
+        }, function(error) {
+          assert(error);
+          done();
+        });
+    });
+  });
+
+  test('Loader.defineWithSourceMap', function(done) {
+    var normalizedName = System.normalize('./test_define_with_source_map');
+    var loader = getLoader();
+    loader.options.sourceMaps = true;
+    var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
+    loader.define(normalizedName, src, {}).then(function() {
+        var sourceMap = loader.sourceMap(normalizedName, 'module');
+        assert(sourceMap);
+        var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
+        var consumer = new SourceMapConsumer(sourceMap);
+        var sourceContent = consumer.sourceContentFor(normalizedName);
+        assert.equal(sourceContent, src);
+        done();
+      }, function(error) {
+        fail(error);
+        done();
+      }
+    );
+  });
+
+  test('System.semverMap', function() {
     var semVerRegExp = System.semVerRegExp_();
     var m = semVerRegExp.exec('1.2.3-a.b.c.5.d.100');
     assert.equal(1, m[1]);
@@ -221,6 +309,44 @@ suite('Loader.js', function() {
     // If the change is intended, this is a reminder to update the documentation.
     assert.equal(version, System.map['traceur@0']);
     assert.equal(version, System.map['traceur@0.0']);
+  });
+
+  test('System.map', function() {
+    System.map = System.semverMap('traceur@0.0.13/src/runtime/System');
+    var version = System.map['traceur'];
+    var remapped = System.normalize('traceur@0.0/src/runtime/System');
+    var versionSegment = remapped.split('/')[0];
+    assert.equal(version, versionSegment);
+  });
+
+  test('System.applyMap', function() {
+    var originalMap = System.map;
+    System.map['tests/contextual'] = {
+      maptest: 'tests/contextual-map-dep'
+    };
+    var contexualRemap = System.normalize('maptest', 'tests/contextual');
+    assert.equal('tests/contextual-map-dep', contexualRemap);
+    // prefix must match up to segment delimiter '/'
+    System.map = {
+      jquery: 'jquery@2.0.0'
+    };
+    var remap = System.normalize('jquery-ui');
+    assert.equal('jquery-ui', remap);
+    System.map = originalMap;
+  });
+
+  test('AnonModuleSourceMap', function() {
+    var src = "  import {name} from './test_a';";
+
+    var loader = getLoader();
+    loader.options.sourceMap = true;
+
+    loader.module(src, {}, function (mod) {
+      assert(mod);
+    }, function(err) {
+      throw new Error('AnonModuleSourceMap FAILED ');
+    });
+
   });
 
 });

@@ -25,7 +25,7 @@ suite('SourceMap.js', function() {
 
   function parse(name, source) {
     var sourceFile = new traceur.syntax.SourceFile(name, source);
-    var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
+    var parser = new traceur.syntax.Parser(sourceFile, errorReporter);
     var tree = parser.parseScript();
     return tree;
   }
@@ -103,4 +103,5 @@ suite('SourceMap.js', function() {
     var sourceContent = consumer.sourceContentFor(filename);
     assert.equal(sourceContent, src);
   });
+
 });
