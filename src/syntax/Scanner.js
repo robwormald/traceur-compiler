@@ -253,7 +253,7 @@ function isRegularExpressionFirstChar(code) {
 }
 
 var index, input, length, token, lastToken, lookaheadToken, currentCharCode,
-    lineNumberTable, errorReporter, currentParser;
+    lineNumberTable, errorReporter, currentParser, lastWhitespace;
 
 /**
  * Scans javascript source code into tokens. All entrypoints assume the
@@ -325,6 +325,8 @@ export class Scanner {
   isAtEnd() {
     return isAtEnd();
   }
+
+
 }
 
 /**
@@ -351,17 +353,13 @@ function nextRegularExpressionLiteralToken() {
 
   // body
   if (!skipRegularExpressionBody()) {
-    return new LiteralToken(REGULAR_EXPRESSION,
-                            getTokenString(beginIndex),
-                            getTokenRange(beginIndex));
+    return createLiteralToken(REGULAR_EXPRESSION, beginIndex);
   }
 
   // separating /
   if (currentCharCode !== 47) {  // /
     reportError('Expected \'/\' in regular expression literal');
-    return new LiteralToken(REGULAR_EXPRESSION,
-                            getTokenString(beginIndex),
-                            getTokenRange(beginIndex));
+    return createLiteralToken(REGULAR_EXPRESSION, beginIndex);
   }
   next();
 
@@ -370,9 +368,7 @@ function nextRegularExpressionLiteralToken() {
     next();
   }
 
-  return new LiteralToken(REGULAR_EXPRESSION,
-                          getTokenString(beginIndex),
-                          getTokenRange(beginIndex));
+  return createLiteralToken(REGULAR_EXPRESSION, beginIndex);
 }
 
 function skipRegularExpressionBody() {
@@ -520,15 +516,13 @@ function nextTemplateLiteralTokenShared(endType, middleType) {
   switch (currentCharCode) {
     case  96:  // `
       next();
-      return lastToken = new LiteralToken(endType,
-                                          value,
-                                          getTokenRange(beginIndex - 1));
+      return lastToken = createLiteralTokenWithValueAndLocation(
+          endType, value, getTokenRange(beginIndex - 1));
       case 36:  // $
       next();  // $
       next();  // {
-      return lastToken = new LiteralToken(middleType,
-                                          value,
-                                          getTokenRange(beginIndex - 1));
+      return lastToken = createLiteralTokenWithValueAndLocation(
+          middleType, value, getTokenRange(beginIndex - 1));
   }
 }
 
@@ -640,11 +634,17 @@ function skipMultiLineComment() {
   commentCallback(start, index);
 }
 
+function skipWhitespaceAndComments() {
+  var beginIndex = index;
+  skipComments();
+  lastWhitespace = input.slice(beginIndex, index);
+}
+
 /**
  * @return {Token}
  */
 function scanToken() {
-  skipComments();
+  skipWhitespaceAndComments();
   var beginIndex = index;
   if (isAtEnd())
     return createToken(END_OF_FILE, beginIndex);
@@ -882,9 +882,7 @@ function scanPostZero(beginIndex) {
         reportError('Hex Integer Literal must contain at least one digit');
       }
       skipHexDigits();
-      return new LiteralToken(NUMBER,
-                              getTokenString(beginIndex),
-                              getTokenRange(beginIndex));
+      return createLiteralToken(NUMBER, beginIndex);
 
     case 66:  // B
     case 98:  // b
@@ -896,9 +894,7 @@ function scanPostZero(beginIndex) {
         reportError('Binary Integer Literal must contain at least one digit');
       }
       skipBinaryDigits();
-      return new LiteralToken(NUMBER,
-                              getTokenString(beginIndex),
-                              getTokenRange(beginIndex));
+      return createLiteralToken(NUMBER, beginIndex);
 
     case 79:  // O
     case 111:  // o
@@ -910,9 +906,7 @@ function scanPostZero(beginIndex) {
         reportError('Octal Integer Literal must contain at least one digit');
       }
       skipOctalDigits();
-      return new LiteralToken(NUMBER,
-                              getTokenString(beginIndex),
-                              getTokenRange(beginIndex));
+      return createLiteralToken(NUMBER, beginIndex);
 
     case 48:  // 0
     case 49:  // 1
@@ -927,9 +921,7 @@ function scanPostZero(beginIndex) {
       return scanPostDigit(beginIndex);
   }
 
-  return new LiteralToken(NUMBER,
-                          getTokenString(beginIndex),
-                          getTokenRange(beginIndex));
+  return createLiteralToken(NUMBER, beginIndex);
 }
 
 /**
@@ -938,8 +930,23 @@ function scanPostZero(beginIndex) {
  * @return {Token}
  */
 function createToken(type, beginIndex) {
-  return new Token(type, getTokenRange(beginIndex));
+  var t = new Token(type, getTokenRange(beginIndex));
+  t.leadingWhitespace = lastWhitespace;
+  return t;
 }
+
+function createLiteralToken(type, beginIndex) {
+  return createLiteralTokenWithValueAndLocation(
+      type, getTokenString(beginIndex), getTokenRange(beginIndex));
+}
+
+function createLiteralTokenWithValueAndLocation(type, value, location) {
+  var t = new LiteralToken(type, value, location);
+  t.leadingWhitespace = lastWhitespace;
+  return t;
+}
+
+
 
 function readUnicodeEscapeSequence() {
   var beginIndex = index;
@@ -1005,7 +1012,9 @@ function scanIdentifierOrKeyword(beginIndex, code) {
     });
   }
 
-  return new IdentifierToken(getTokenRange(beginIndex), value);
+  var t = new IdentifierToken(getTokenRange(beginIndex), value);
+  t.leadingWhitespace = lastWhitespace;
+  return t;
 }
 
 /**
@@ -1014,9 +1023,7 @@ function scanIdentifierOrKeyword(beginIndex, code) {
 function scanStringLiteral(beginIndex, terminator) {
   while (peekStringLiteralChar(terminator)) {
     if (!skipStringLiteralChar()) {
-      return new LiteralToken(STRING,
-                              getTokenString(beginIndex),
-                              getTokenRange(beginIndex));
+      return createLiteralToken(STRING, beginIndex);
     }
   }
   if (currentCharCode !== terminator) {
@@ -1024,9 +1031,7 @@ function scanStringLiteral(beginIndex, terminator) {
   } else {
     next();
   }
-  return new LiteralToken(STRING,
-                          getTokenString(beginIndex),
-                          getTokenRange(beginIndex));
+  return createLiteralToken(STRING, beginIndex);
 }
 
 function getTokenString(beginIndex) {
@@ -1132,9 +1137,7 @@ function scanExponentOfNumericLiteral(beginIndex) {
     default:
       break;
   }
-  return new LiteralToken(NUMBER,
-                          getTokenString(beginIndex),
-                          getTokenRange(beginIndex));
+  return createLiteralToken(NUMBER, beginIndex);
 }
 
 function skipDecimalDigits() {

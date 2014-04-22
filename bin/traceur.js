@@ -6063,7 +6063,8 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
       currentCharCode,
       lineNumberTable,
       errorReporter,
-      currentParser;
+      currentParser,
+      lastWhitespace;
   var Scanner = function Scanner(reporter, file, parser) {
     errorReporter = reporter;
     lineNumberTable = file.lineNumberTable;
@@ -6118,17 +6119,17 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
   function nextRegularExpressionLiteralToken() {
     var beginIndex = index - token.toString().length;
     if (!skipRegularExpressionBody()) {
-      return new LiteralToken(REGULAR_EXPRESSION, getTokenString(beginIndex), getTokenRange(beginIndex));
+      return createLiteralToken(REGULAR_EXPRESSION, beginIndex);
     }
     if (currentCharCode !== 47) {
       reportError('Expected \'/\' in regular expression literal');
-      return new LiteralToken(REGULAR_EXPRESSION, getTokenString(beginIndex), getTokenRange(beginIndex));
+      return createLiteralToken(REGULAR_EXPRESSION, beginIndex);
     }
     next();
     while (isIdentifierPart(currentCharCode)) {
       next();
     }
-    return new LiteralToken(REGULAR_EXPRESSION, getTokenString(beginIndex), getTokenRange(beginIndex));
+    return createLiteralToken(REGULAR_EXPRESSION, beginIndex);
   }
   function skipRegularExpressionBody() {
     if (!isRegularExpressionFirstChar(currentCharCode)) {
@@ -6231,11 +6232,11 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
     switch (currentCharCode) {
       case 96:
         next();
-        return lastToken = new LiteralToken(endType, value, getTokenRange(beginIndex - 1));
+        return lastToken = createLiteralTokenWithValueAndLocation(endType, value, getTokenRange(beginIndex - 1));
       case 36:
         next();
         next();
-        return lastToken = new LiteralToken(middleType, value, getTokenRange(beginIndex - 1));
+        return lastToken = createLiteralTokenWithValueAndLocation(middleType, value, getTokenRange(beginIndex - 1));
     }
   }
   function nextToken() {
@@ -6320,8 +6321,13 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
     updateCurrentCharCode();
     commentCallback(start, index);
   }
-  function scanToken() {
+  function skipWhitespaceAndComments() {
+    var beginIndex = index;
     skipComments();
+    lastWhitespace = input.slice(beginIndex, index);
+  }
+  function scanToken() {
+    skipWhitespaceAndComments();
     var beginIndex = index;
     if (isAtEnd())
       return createToken(END_OF_FILE, beginIndex);
@@ -6537,7 +6543,7 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
           reportError('Hex Integer Literal must contain at least one digit');
         }
         skipHexDigits();
-        return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
+        return createLiteralToken(NUMBER, beginIndex);
       case 66:
       case 98:
         if (!parseOptions.numericLiterals)
@@ -6547,7 +6553,7 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
           reportError('Binary Integer Literal must contain at least one digit');
         }
         skipBinaryDigits();
-        return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
+        return createLiteralToken(NUMBER, beginIndex);
       case 79:
       case 111:
         if (!parseOptions.numericLiterals)
@@ -6557,7 +6563,7 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
           reportError('Octal Integer Literal must contain at least one digit');
         }
         skipOctalDigits();
-        return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
+        return createLiteralToken(NUMBER, beginIndex);
       case 48:
       case 49:
       case 50:
@@ -6570,10 +6576,20 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
       case 57:
         return scanPostDigit(beginIndex);
     }
-    return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
+    return createLiteralToken(NUMBER, beginIndex);
   }
   function createToken(type, beginIndex) {
-    return new Token(type, getTokenRange(beginIndex));
+    var t = new Token(type, getTokenRange(beginIndex));
+    t.leadingWhitespace = lastWhitespace;
+    return t;
+  }
+  function createLiteralToken(type, beginIndex) {
+    return createLiteralTokenWithValueAndLocation(type, getTokenString(beginIndex), getTokenRange(beginIndex));
+  }
+  function createLiteralTokenWithValueAndLocation(type, value, location) {
+    var t = new LiteralToken(type, value, location);
+    t.leadingWhitespace = lastWhitespace;
+    return t;
   }
   function readUnicodeEscapeSequence() {
     var beginIndex = index;
@@ -6622,12 +6638,14 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
         return String.fromCharCode(escapedCharCodes[i++]);
       });
     }
-    return new IdentifierToken(getTokenRange(beginIndex), value);
+    var t = new IdentifierToken(getTokenRange(beginIndex), value);
+    t.leadingWhitespace = lastWhitespace;
+    return t;
   }
   function scanStringLiteral(beginIndex, terminator) {
     while (peekStringLiteralChar(terminator)) {
       if (!skipStringLiteralChar()) {
-        return new LiteralToken(STRING, getTokenString(beginIndex), getTokenRange(beginIndex));
+        return createLiteralToken(STRING, beginIndex);
       }
     }
     if (currentCharCode !== terminator) {
@@ -6635,7 +6653,7 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
     } else {
       next();
     }
-    return new LiteralToken(STRING, getTokenString(beginIndex), getTokenRange(beginIndex));
+    return createLiteralToken(STRING, beginIndex);
   }
   function getTokenString(beginIndex) {
     return input.substring(beginIndex, index);
@@ -6723,7 +6741,7 @@ System.register("traceur@0.0.34/src/syntax/Scanner", [], function() {
       default:
         break;
     }
-    return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
+    return createLiteralToken(NUMBER, beginIndex);
   }
   function skipDecimalDigits() {
     while (isDecimalDigit(currentCharCode)) {
@@ -7280,6 +7298,7 @@ System.register("traceur@0.0.34/src/outputgeneration/ParseTreeWriter", [], funct
       if (tree.isGenerator())
         this.write_(tree.functionKind);
       if (tree.name) {
+        debugger;
         this.writeSpace_();
         this.visitAny(tree.name);
       }

@@ -719,6 +719,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.write_(tree.functionKind);
 
     if (tree.name) {
+      debugger
       this.writeSpace_();
       this.visitAny(tree.name);
     }
