@@ -22,14 +22,15 @@ filenames.forEach(function(filename) {
   var imports = {};
   var marker = '__INSERT_HERE__'
   var first = true;
-  text = text.replace(/import ((?:\w+)|(?:\{[^}]+\})) from ([^;\n]+);*\n/gm, function(_, name, path) {
+  text = text.replace(/import ((?:\w+)|(?:\{[^}]+\})) from ([^;\n]+);*\n/gm,
+      function(_, name, path) {
     if (!(path in imports))
       imports[path] = [];
     if (name[0] === '{') {
       name = name.replace(/^\{\s*|\s*\}$/gm, '');
       [].push.apply(imports[path], name.split(/\s*,\s*/m));
     } else {
-      imports[path].push(name);
+      imports[path].push(name + '[default]');
     }
     imports[path].sort();
     if (first) {
@@ -47,13 +48,17 @@ filenames.forEach(function(filename) {
     var result = 'import ';
     var names = imports[path]
     if (names.length === 1) {
-      if (/:/.test(names[0]))
+      if (/\[default\]$/.test(names[0])) {
+        result += names[0].slice(0, -9);
+      } else {
         result += '{' + names[0] + '}';
-      else
-        result += names[0];
+      }
     } else {
       result += '{\n' +
           names.map(function(name) {
+            if (/\[default\]$/.test(name)) {
+              name = name + ' as default';
+            }
             return '  ' + name;
           }).join(',\n') +
           '\n}';
