@@ -59,7 +59,7 @@ function getPreceeding(location) {
 }
 
 class CommentWriter extends ParseTreeWriter {
-  visitFunctionDeclaration(tree) {
+  maybeWriteComment(tree) {
     if (tree.location) {
       var comment = getPreceeding(tree.location);
       if (comment) {
@@ -68,6 +68,17 @@ class CommentWriter extends ParseTreeWriter {
         this.writeln_();
       }
     }
+  }
+  visitFunctionDeclaration(tree) {
+    this.maybeWriteComment(tree);
+    super(tree);
+  }
+  visitClassDeclaration(tree) {
+    this.maybeWriteComment(tree);
+    super(tree);
+  }
+  visitVariableStatement(tree) {
+    this.maybeWriteComment(tree);
     super(tree);
   }
 }
@@ -79,10 +90,21 @@ var content = `{
     return /* comment */ 42;
   }function g() {}
 
+  /* var */ var x = 1;
+
+  /* xyz */
+  class C {}
+
 }`;
 
-var {tree, errors} = new Compiler().stringToTree({content});
+var compiler = new Compiler();
+var {tree, errors, options} = compiler.stringToTree({content});
 
+var w = new CommentWriter();
+w.visitAny(tree);
+console.log(w.toString());
+
+({tree, errors} = compiler.treeToTree({tree, options}));
 var w = new CommentWriter();
 w.visitAny(tree);
 console.log(w.toString());

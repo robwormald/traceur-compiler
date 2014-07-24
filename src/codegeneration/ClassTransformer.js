@@ -245,6 +245,8 @@ export class ClassTransformer extends TempVarTransformer{
 
     // TODO(arv): Use let.
     var statements = parseStatements `var ${name} = ${func}`;
+    // HACK. Fix me
+    statements[0].location = tree.location;
     var expr = classCall(name, object, staticObject, superClass);
 
     if (hasSuper || referencesClassName) {
