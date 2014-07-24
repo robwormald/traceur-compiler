@@ -98,15 +98,6 @@ for (var i = 0; i < 128; i++) {
       i === 0x20;  // Space
 }
 
-// Some of these is* functions use an array as a lookup table for the lower 7
-// bit code points.
-
-var isWhitespaceArray = [];
-for (var i = 0; i < 128; i++) {
-  isWhitespaceArray[i] = i >= 9 && i <= 13 ||  // Tab - Carriage Return
-      i === 0x20;  // Space
-}
-
 export function isWhitespace(code) {
   if (code < 128)
     return isWhitespaceArray[code];
