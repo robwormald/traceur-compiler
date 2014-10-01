@@ -1,10 +1,18 @@
-var fs = require('fs');
+var readFileSync = require('fs').readFileSync;
 var path = require('path');
+
 suite('node public api', function() {
   var traceurAPI = require('../src/node/api.js');
-  var filename = __dirname + '/commonjs/BasicImport.js';
-  var contents =
-    fs.readFileSync(filename, 'utf8');
+  var filename = path.join(__dirname + '/commonjs/BasicImport.js');
+  var contents = readFileSync(filename, 'utf8');
+
+  function bs(s) {
+    return s.replace(/\//g, '\\');
+  }
+
+  function fs(s) {
+    return s.replace(/\\/g, '/');
+  }
 
   test('moduleName from filename with backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
@@ -18,7 +26,7 @@ suite('node public api', function() {
       sourceMaps: true
     });
     // windows-simulation, with .js
-    var compiled = compiler.compile(contents, filename.replace(/\//g,'\\'));
+    var compiled = compiler.compile(contents, filename);
     assert.ok(compiled, 'can compile');
     assert.include(
       compiled,
@@ -40,17 +48,17 @@ suite('node public api', function() {
       sourceMaps: true
     });
     // windows-simulation, with .js
-    var windowsLikeFilename = filename.replace(/\//g,'\\');
-    var windowsLikeDirname  = path.dirname(filename).replace(/\//g,'\\');
+    var windowsLikeFilename = bs(filename);
+    var windowsLikeDirname  = bs(path.dirname(filename));
     var compiled = compiler.compile(contents, windowsLikeFilename,
         windowsLikeFilename, windowsLikeDirname);
     assert.ok(compiled, 'can compile');
     assert.ok(compiler.getSourceMap(), 'has sourceMap');
     var sourceMap = JSON.parse(compiler.getSourceMap());
-    assert.equal(__dirname + '/commonjs/', sourceMap.sourceRoot,
+    assert.equal(fs(__dirname) + '/commonjs/', sourceMap.sourceRoot,
         'has correct sourceRoot');
     assert(sourceMap.sources.some(function(name) {
-      return (sourceMap.sourceRoot + name) === filename;
+      return path.join(sourceMap.sourceRoot, name) === path.normalize(filename);
     }), 'One of the sources is the source');
   });
 
