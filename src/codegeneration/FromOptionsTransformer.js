@@ -40,6 +40,7 @@ import {InstantiateModuleTransformer} from './InstantiateModuleTransformer';
 import {RegularExpressionTransformer} from './RegularExpressionTransformer';
 import {RestParameterTransformer} from './RestParameterTransformer';
 import {SpreadTransformer} from './SpreadTransformer';
+import {StripAssertTransformer} from './StripAssertTransformer';
 import {SymbolTransformer} from './SymbolTransformer';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
@@ -83,6 +84,10 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
+    if (!options.debug) {
+      append(StripAssertTransformer);
+    }
+
     if (transformOptions.exponentiation)
       append(ExponentiationTransformer);
 
