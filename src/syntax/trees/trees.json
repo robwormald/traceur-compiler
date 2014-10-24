@@ -498,6 +498,20 @@
       "FunctionBody"
     ]
   },
+  "FunctionType": {
+    "location": [
+      "SourceRange"
+    ],
+    "typeParameters": [
+      "TypeParameters"
+    ],
+    "parameterList": [
+      "ParameterList"
+    ],
+    "returnType": [
+      "ParseTree"
+    ]
+  },
   "GeneratorComprehension": {
     "location": [
       "SourceRange"
@@ -808,6 +822,9 @@
     ],
     "identifier": [
       "BindingIdentifier"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
     ]
   },
   "ReturnStatement": {

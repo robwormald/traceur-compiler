@@ -1049,7 +1049,8 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var id = this.parseBindingIdentifier_();
-    return new RestParameter(this.getTreeLocation_(start), id);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    return new RestParameter(this.getTreeLocation_(start), id, typeAnnotation);
   }
 
   /**
@@ -3705,9 +3706,12 @@ export class Parser {
         elementType = this.parseConstructorType_();
         break;
 
+      case OPEN_ANGLE:
+        var typeParameters = this.parseTypeParameters_();
+        return this.parseFunctionType_(start, typeParameters);
+
       case OPEN_PAREN:
-        elementType = this.parseFunctionType_();
-        break;
+        return this.parseFunctionType_(start, null);
 
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
@@ -3764,7 +3768,55 @@ export class Parser {
     throw 'NYI';
   }
 
-  parseFunctionType_() {
+  parseFunctionType_(start, typeParameters) {
+    this.eat_(OPEN_PAREN)
+    var parameterList = this.parseParameterListOpt_();
+    this.eat_(CLOSE_PAREN);
+    this.eat_(ARROW);
+    var returnType = this.parseType_();
+    return new FunctionType(this.getTreeLocation_(start), typeParameters,
+                            parameterList, returnType);
+  }
+
+  parseParameterListOpt_() {
+
+  }
+
+  // OptionalParameter:
+  //   PublicOrPrivateopt Identifier ? TypeAnnotationopt
+  //   PublicOrPrivateopt Identifier TypeAnnotationopt Initialiser
+
+  parseOptionalParameter_() {
+    var start = this.getTreeStartLocation_();
+    var id = this.eatId_();
+    var typeAnnotation = null;
+    var initializer = null;
+    if (this.eatIf_(QUESTION)) {
+      typeAnnotation = this.parseTypeAnnotationOpt_();
+    } else {
+      typeAnnotation = this.parseTypeAnnotationOpt_();
+      initializer = this.parseInitializer_();
+    }
+  }
+
+  parseParameterForFunctionType_() {
+    var start = this.getTreeStartLocation_();
+    var id = this.eatId_();
+    var typeAnnotation = null;
+    var initializer = null;
+    if (this.peek_(QUESTION)) {
+      typeAnnotation = this.parseTypeAnnotationOpt_();
+    } else {
+      if (this.eatIf_(COLON)) {
+        if (this.peek_(STRING)) {
+          throw 'NYI';
+        } else {
+          typeAnnotation = this.parseType_();
+          initializer = this.parseInitializerOpt_()
+        }
+      }
+    }
+
     throw 'NYI';
   }
 
