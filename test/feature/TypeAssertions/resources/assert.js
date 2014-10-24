@@ -14,6 +14,16 @@ assert.type = function (actual, type) {
     // chai.assert treats Number as number :'(
     // Use runtime to handle symbol
     assert.equal($traceurRuntime.typeof(actual), type.name);
+  } else if (type instanceof $traceurRuntime.GenericType) {
+    // First check instance of.
+    assert.type(actual, type.type);
+    if (type.type === Array) {
+      for (var i = 0; i < actual.length; i++) {
+        assert.type(actual[i], type.argumentTypes[0]);
+      }
+    } else {
+      throw new Error(`Unsupported generic type${type}`);
+    }
   } else {
     assert.instanceOf(actual, type);
   }

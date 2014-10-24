@@ -4,6 +4,7 @@ RUNTIME_SRC = \
   src/runtime/classes.js \
   src/runtime/generators.js \
   src/runtime/url.js \
+  src/runtime/type-assertions.js \
   src/runtime/ModuleStore.js
 POLYFILL_SRC = \
   src/runtime/polyfills/Map.js \

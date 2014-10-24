@@ -47,16 +47,6 @@
     };
   }
 
-  // ### Primitive value types
-  var types = {
-    any: {name: 'any'},
-    boolean: {name: 'boolean'},
-    number: {name: 'number'},
-    string: {name: 'string'},
-    symbol: {name: 'symbol'},
-    void: {name: 'void'},
-  };
-
   var method = nonEnum;
 
   // ### Symbols
@@ -383,7 +373,6 @@
     setupGlobals: setupGlobals,
     toObject: toObject,
     toProperty: toProperty,
-    type: types,
     typeof: typeOf,
   };
 
