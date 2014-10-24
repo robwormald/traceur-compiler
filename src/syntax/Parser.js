@@ -3692,20 +3692,23 @@ export class Parser {
             var token = this.nextToken_();
             return new PredefinedType(this.getTreeLocation_(start), token);
         }
-
         return this.parseTypeReference_(start);
+
+      case TYPEOF:
+        return this.parseTypeQuery_(start);
+
+      case OPEN_CURLY:
+        elementType = this.parseObjectType_();
+        break;
 
       case NEW:
         elementType = this.parseConstructorType_();
         break;
-      case OPEN_CURLY:
-        elementType = this.parseObjectType_();
-        break;
+
       case OPEN_PAREN:
         elementType = this.parseFunctionType_();
         break;
-      case TYPEOF:
-        return this.parseTypeQuery_(start);
+
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
     }
@@ -3767,6 +3770,45 @@ export class Parser {
 
   parseTypeQuery_(start) {
     throw 'NYI';
+  }
+
+  // TypeParameters:
+  //   < TypeParameterList >
+  //
+  // TypeParameterList:
+  //   TypeParameter
+  //   TypeParameterList , TypeParameter
+  //
+  // TypeParameter:
+  //   Identifier Constraintopt
+  //
+  // Constraint:
+  //   extends Type
+
+  peekTypeParameters_() {
+    return this.peek_(OPEN_ANGLE);
+  }
+
+  parseTypeParameters_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(OPEN_ANGLE);
+    var typeParameters = [this.parseTypeParameter_()];
+    while (this.peek_(COMMA)) {
+      this.eat_(COMMA);
+      parameters.push(this.parseTypeParameter_());
+    }
+    this.eat_(CLOSE_ANGLE);
+    return new TypeParameters(this.getTreeLocation_(start), parameters);
+  }
+
+  parseTypeParameter_() {
+    var start = this.getTreeStartLocation_();
+    var id = this.eatId_();
+    var extendsType = null;
+    if (this.eatIf_(EXTENDS) ) {
+      extendsType = this.parseType_();
+    }
+    return new TypeParameter(this.getTreeLocation_(start), id, extendsType);
   }
 
   /**

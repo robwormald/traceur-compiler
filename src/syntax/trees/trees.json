@@ -954,6 +954,25 @@
       "IdentifierToken"
     ]
   },
+  "TypeParameter": {
+    "location": [
+      "SourceRange"
+    ],
+    "identifierToken": [
+      "IdentifierToken"
+    ],
+    "extendsType": [
+      "ParseTree"
+    ]
+  },
+  "TypeParameters": {
+    "location": [
+      "SourceRange"
+    ],
+    "parameters": [
+      "TypeParameter"
+    ]
+  },
   "TypeReference": {
     "location": [
       "SourceRange"
