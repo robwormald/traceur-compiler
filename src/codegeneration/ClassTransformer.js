@@ -104,14 +104,23 @@ import {prependStatements} from './PrependStatements.js';
 //   }, {}, B);
 //
 
-function classCall(func, object, staticObject, superClass) {
+function classCall(transformOptions, func, object, staticObject, superClass) {
+  var createClass = getRuntimeFunction(transformOptions, 'createClass');
   if (superClass) {
     return parseExpression
-        `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject},
+        `(${createClass})(${func}, ${object}, ${staticObject},
                                        ${superClass})`;
   }
   return parseExpression
-      `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject})`;
+      `(${createClass})(${func}, ${object}, ${staticObject})`;
+}
+
+function getRuntimeFunction(transformOptions, name) {
+  if (transformOptions.modules === 'amd' ||
+      transformOptions.modules === 'commonjs') {
+    return id(`$traceurRuntime_${name}`);
+  }
+  return createMemberExpression('$traceurRuntime', name);
 }
 
 function methodNameFromTree(tree) {
@@ -149,6 +158,7 @@ export class ClassTransformer extends TempVarTransformer {
     this.state_ = null;
     this.reporter_ = reporter;
     this.showDebugNames_ = options.debugNames;
+    this.transformOptions_ = options.transformOptions;
   }
 
   // Override to handle AnonBlock
@@ -307,7 +317,8 @@ export class ClassTransformer extends TempVarTransformer {
 
     staticObject = appendStaticInitializers(staticObject, initStaticVars);
 
-    let expr = classCall(name, object, staticObject, superClass);
+    let expr = classCall(this.transformOptions_, name, object, staticObject,
+                         superClass);
 
     if (hasSuper || referencesClassName) {
       // The internal name is so that super lookups continue to work even in
@@ -364,7 +375,8 @@ export class ClassTransformer extends TempVarTransformer {
         }()`;
       }
     } else {
-      expression = classCall(func, object, staticObject, superClass);
+      expression = classCall(this.transformOptions_,
+                             func, object, staticObject, superClass);
     }
 
     this.popTempScope();
