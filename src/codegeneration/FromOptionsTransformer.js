@@ -44,6 +44,7 @@ import {InstantiateModuleTransformer} from './InstantiateModuleTransformer.js';
 import {ProperTailCallTransformer} from './ProperTailCallTransformer.js';
 import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
 import {RestParameterTransformer} from './RestParameterTransformer.js';
+import {RuntimeImportTransformer} from './RuntimeImportTransformer.js';
 import {SpreadTransformer} from './SpreadTransformer.js';
 import {SymbolTransformer} from './SymbolTransformer.js';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer.js';
@@ -87,6 +88,10 @@ export class FromOptionsTransformer extends MultiTransformer {
         return tree;
       });
     }
+
+    this.append((tree) => {
+      return new RuntimeImportTransformer(transformOptions).transformAny(tree);
+    });
 
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
