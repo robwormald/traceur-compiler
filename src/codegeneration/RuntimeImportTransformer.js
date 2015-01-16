@@ -14,6 +14,8 @@
 
 import {
   createBindingIdentifier,
+  createIdentifierExpression,
+  createMemberExpression,
   createStringLiteralToken
 } from './ParseTreeFactory.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
@@ -24,9 +26,22 @@ import {
   Module,
   ModuleSpecifier
 } from '../syntax/trees/ParseTrees.js';
+import {
+  MEMBER_EXPRESSION,
+  MEMBER_LOOKUP_EXPRESSION,
+  SUPER_EXPRESSION
+} from '../syntax/trees/ParseTreeType.js';
+import {hasSuperMemberExpression} from './SuperTransformer.js';
+import {EQUAL} from '../syntax/TokenType.js';
+
+// TODO(arv): Refactor
+function getName(name) {
+  return `$__${name}`;
+}
 
 export class RuntimeImportTransformer extends ParseTreeTransformer {
   constructor(transformOptions) {
+    super();
     // TODO(arv): Pass options and get the transformOptions off of that.
     this.transformOptions_ = transformOptions;
   }
@@ -47,10 +62,10 @@ export class RuntimeImportTransformer extends ParseTreeTransformer {
     var runtimeFunctions = visitor.runtimeFunctions;
 
     var statements = Object.keys(runtimeFunctions).map((name) => {
-      var runtimeName = `$traceurRuntime_${name}`;
+      var runtimeName = getName(name);
       var binding = createBindingIdentifier(runtimeName);
       var importClause = new ImportedBinding(null, binding);
-      var stringToken = createStringLiteralToken(`traceur-runtime:${name}`);
+      var stringToken = createStringLiteralToken(`traceur/src/runtime/${name}.js`);
       var moduleSpecifier = new ModuleSpecifier(null, stringToken);
       return new ImportDeclaration(null, importClause, moduleSpecifier);
     });
@@ -66,6 +81,7 @@ export class RuntimeImportTransformer extends ParseTreeTransformer {
 
 class FindRuntimeDependencies extends ParseTreeVisitor {
   constructor(transformOptions) {
+    super();
     // TODO(arv): Pass options and get the transformOptions off of that.
     this.transformOptions_ = transformOptions;
     this.runtimeFunctions = Object.create(null);
@@ -78,5 +94,40 @@ class FindRuntimeDependencies extends ParseTreeVisitor {
   visitClassExpression(tree) {
     this.runtimeFunctions['createClass'] = true;
     super.visitClassExpression(tree);
+  }
+
+  visitMemberExpression(tree) {
+    if (tree.operand.type === SUPER_EXPRESSION) {
+      this.runtimeFunctions['superGet'] = true;
+    }
+  }
+
+  visitMemberLookupExpression(tree) {
+    if (tree.operand.type === SUPER_EXPRESSION) {
+      this.runtimeFunctions['superGet'] = true;
+    }
+    super.visitMemberLookupExpression(tree);
+  }
+
+  visitBinaryExpression(tree) {
+    if (tree.operator.isAssignmentOperator() &&
+        hasSuperMemberExpression(tree.left)) {
+      this.runtimeFunctions['superSet'] = true; 
+      if (tree.operator.type !== EQUAL) {
+        this.runtimeFunctions['superGet'] = true; 
+      }
+      this.visitAny(tree.right);
+    } else {
+      super.visitBinaryExpression(tree);
+    }
+  }
+
+  visitCallExpression(tree) {
+    // TODO(arv): This does not yet handle computed properties.
+    // [expr]() { super(); }
+    if (tree.operand.type == SUPER_EXPRESSION) {
+      this.runtimeFunctions['superConstructor'] = true; 
+    }
+    super.visitCallExpression(tree);
   }
 }

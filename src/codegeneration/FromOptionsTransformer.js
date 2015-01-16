@@ -161,10 +161,7 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes) {
-      this.append((tree) => {
-        return new ClassTransformer(idGenerator, reporter, transformOptions).
-            transformAny(tree);
-      });
+      append(ClassTransformer);
     }
 
     if (transformOptions.propertyMethods ||

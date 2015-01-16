@@ -65,6 +65,7 @@ import {
 } from './PlaceholderParser.js';
 import {propName} from '../staticsemantics/PropName.js';
 import {prependStatements} from './PrependStatements.js';
+import {getRuntimeFunction} from './getRuntimeFunction.js';
 
 // Interaction between ClassTransformer and SuperTransformer:
 // - The initial call to SuperTransformer will always be a transformBlock on
@@ -115,14 +116,6 @@ function classCall(transformOptions, func, object, staticObject, superClass) {
       `(${createClass})(${func}, ${object}, ${staticObject})`;
 }
 
-function getRuntimeFunction(transformOptions, name) {
-  if (transformOptions.modules === 'amd' ||
-      transformOptions.modules === 'commonjs') {
-    return id(`$traceurRuntime_${name}`);
-  }
-  return createMemberExpression('$traceurRuntime', name);
-}
-
 function methodNameFromTree(tree) {
   // COMPUTED_PROPERTY_NAME such as [Symbol.iterator]
   if (tree.type === COMPUTED_PROPERTY_NAME) {
@@ -153,12 +146,13 @@ export class ClassTransformer extends TempVarTransformer {
    */
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
+    if (!options) { throw 'xxx'; }
     this.options_ = options;
     this.strictCount_ = 0;
     this.state_ = null;
     this.reporter_ = reporter;
     this.showDebugNames_ = options.debugNames;
-    this.transformOptions_ = options.transformOptions;
+    // this.transformOptions_ = options.transformOptions;
   }
 
   // Override to handle AnonBlock
@@ -317,7 +311,7 @@ export class ClassTransformer extends TempVarTransformer {
 
     staticObject = appendStaticInitializers(staticObject, initStaticVars);
 
-    let expr = classCall(this.transformOptions_, name, object, staticObject,
+    let expr = classCall(this.options_, name, object, staticObject,
                          superClass);
 
     if (hasSuper || referencesClassName) {
@@ -375,7 +369,7 @@ export class ClassTransformer extends TempVarTransformer {
         }()`;
       }
     } else {
-      expression = classCall(this.transformOptions_,
+      expression = classCall(this.options_,
                              func, object, staticObject, superClass);
     }
 
@@ -429,7 +423,8 @@ export class ClassTransformer extends TempVarTransformer {
     let thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
     let superTransformer = new SuperTransformer(this, homeObject,
-                                                thisName, internalName);
+                                                thisName, internalName,
+                                                this.options_);
     // ref_1: the inner transformFunctionBody call is key to proper super nesting.
     let transformedTree =
         superTransformer.transformFunctionBody(this.transformFunctionBody(tree));
@@ -448,7 +443,9 @@ export class ClassTransformer extends TempVarTransformer {
     let constructorParams = createEmptyParameterList();
     let constructorBody;
     if (tree.superClass) {
-      let statement = parseStatement `$traceurRuntime.superConstructor(
+      let superConstructor = getRuntimeFunction(this.options_,
+                                                'superConstructor');
+      let statement = parseStatement `${superConstructor}(
           ${internalName}).apply(this, arguments)`;
       constructorBody = createFunctionBody([statement, ...initStatements]);
       this.state_.hasSuper = true;
