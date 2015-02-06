@@ -1,0 +1,132 @@
+<script>
+'use strict';
+
+/*
+
+new F(a, b, c)
+
+class Base {
+
+}
+
+class Derived extends Base {
+  constructor(x, y, z) {
+    super(x, y, z);
+  }
+}
+
+*/
+
+//////////////////////////////////////////////////////////////////////////
+
+// $construct(F, [a,b,c])
+
+
+var constructStack = [];
+
+function $construct(target, args, newTarget) {
+  if (newTarget === undefined) newTarget = target;
+  constructStack.push(newTarget, target);
+  var result;
+  if (target.__construct__ && target.__construct__.__owner__ === target) {
+    result = target.__construct__(newTarget, args);
+  } else {
+    result = target.apply(undefined, args);
+  }
+  if (constructStack.pop() !== target) throw new Error('Internal error');
+  if (constructStack.pop() !== newTarget) throw new Error('Internal error');
+  var type = typeof result;
+  if (!result || type !== 'function' && type !== 'object') {
+    throw new TypeError();
+  }
+  return result;
+}
+
+function $currentTarget() {
+  return constructStack[constructStack.length - 1];
+}
+
+function $newTarget(target) {
+  if ($currentTarget() !== target) return undefined;
+  return constructStack[constructStack.length - 2];
+}
+
+Array.__construct__ = function(newTarget, args) {
+  var a = Array.apply(undefined, args);
+  a.__proto__ =  newTarget.prototype;
+  return a;
+};
+Array.__construct__.__owner__ = Array;
+
+Object.__construct__ = function(newTarget, args) {
+  var o = new Object(args[0]);
+  o.__proto__ =  newTarget.prototype;
+  return o;
+};
+Object.__construct__.__owner__ = Object;
+
+//////////////////////////////////////////////////////////////////////////
+
+function Base(x, y, z) {
+  var a = [x, y, z];
+  a.__proto__ = $newTarget(Base).prototype;
+  return a;
+}
+
+function Derived(x, y, z) {
+  if (Derived !== $currentTarget()) throw new TypeError();
+  var $this = $construct(Derived.__proto__, [x, y, z], $newTarget(Derived));
+  return $this;
+}
+
+Derived.__proto__ = Base;
+Derived.prototype.__proto__ = Base.prototype;
+
+var d = $construct(Derived, [1, 2, 3]);
+
+/*
+class MyArray extends Array {
+  constructor(...args) {
+    super(...args);
+  }
+}
+*/
+
+function MyArray() {
+  if (MyArray !== $currentTarget()) throw new TypeError();
+  var $this = $construct(MyArray.__proto__, arguments, $newTarget(MyArray));
+  return $this;
+}
+MyArray.__proto__ = Array;
+MyArray.prototype.__proto__ = Array.prototype;
+
+
+var a = $construct(MyArray, ['x', 'y']);
+console.log(a, a.map);
+
+
+var ex;
+try {
+  MyArray(42);
+} catch (e) {
+  ex = e;
+}
+console.assert(ex instanceof TypeError);
+
+
+/*
+class NoExtends {
+  constructor(x) {
+    this.x = x;
+  }
+}
+*/
+
+function NoExtends(x) {
+  var $this = Object.create(...
+  this.x = x;
+}
+
+debugger;
+var ne = $construct(NoExtends, [42]);
+</script>
