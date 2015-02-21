@@ -134,6 +134,7 @@ MyArray2.prototype[Symbol.iterator] = undefined;
 
 class MyArray3 extends Array {
   constructor(v) {
+    super();
     this.length = v;
   }
 }

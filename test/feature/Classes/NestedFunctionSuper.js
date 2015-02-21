@@ -45,6 +45,7 @@ class SuperDerived extends SuperBase {
     })();
   }
   constructor() {
+    super();
     this.x = 10;
     this.derC = 3;
     (function() { super(); })();

@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ARGUMENTS, THIS} from '../syntax/PredefinedName.js';
+import {AlphaRenamer} from './AlphaRenamer.js';
 import {FunctionExpression} from '../syntax/trees/ParseTrees.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType.js';
-import alphaRenameThisAndArguments from './alphaRenameThisAndArguments.js';
+import {FindThisOrArguments} from './FindThisOrArguments.js';
 import {
+  createAssignmentExpression,
+  createCommaExpression,
   createFunctionBody,
+  createIdentifierExpression,
   createParenExpression,
-  createReturnStatement
+  createReturnStatement,
+  createThisExpression,
 } from './ParseTreeFactory.js';
 
 /**
@@ -46,15 +52,45 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
    * function body and return statement if needed.
    */
   transformArrowFunctionExpression(tree) {
-    let alphaRenamed = alphaRenameThisAndArguments(this, tree);
-    let parameterList = this.transformAny(alphaRenamed.parameterList);
+    let finder = new FindThisOrArguments();
+    let argumentsTempName, thisTempName;
+    finder.visitAny(tree);
+    if (finder.foundArguments) {
+      argumentsTempName = this.addTempVar();
+      tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);
+    }
+    if (finder.foundThis) {
+      thisTempName = this.addTempVar();
+      tree = AlphaRenamer.rename(tree, THIS, thisTempName);
+    }
+    
 
-    let body = this.transformAny(alphaRenamed.body);
+    // let alphaRenamed = alphaRenameThisAndArguments(this, tree);
+    let parameterList = this.transformAny(tree.parameterList);
+
+    let body = this.transformAny(tree.body);
     body = convertConciseBody(body);
     let functionExpression = new FunctionExpression(tree.location, null,
         tree.functionKind, parameterList, null, [], body);
 
-    return createParenExpression(functionExpression);
+    var expressions = [];
+    if (argumentsTempName) {
+      expressions.push(createAssignmentExpression(
+          createIdentifierExpression(argumentsTempName),
+          createIdentifierExpression(ARGUMENTS)));
+    }
+    if (thisTempName) {
+      expressions.push(createAssignmentExpression(
+          createIdentifierExpression(thisTempName),
+          createThisExpression()));
+    }
+
+    if (expressions.length === 0) {
+      return createParenExpression(functionExpression);
+    }
+
+    expressions.push(functionExpression);
+    return createParenExpression(createCommaExpression(expressions));
   }
 
   /**

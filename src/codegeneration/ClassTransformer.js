@@ -65,6 +65,7 @@ import {
 } from './PlaceholderParser.js';
 import {propName} from '../staticsemantics/PropName.js';
 import {prependStatements} from './PrependStatements.js';
+import {validateConstructor} from '../semantics/ConstructorValidator.js';
 
 // Interaction between ClassTransformer and SuperTransformer:
 // - The initial call to SuperTransformer will always be a transformBlock on
@@ -148,6 +149,7 @@ export class ClassTransformer extends TempVarTransformer {
     this.strictCount_ = 0;
     this.state_ = null;
     this.reporter_ = reporter;
+    if (!reporter) throw new Error();
     this.showDebugNames_ = options.debugNames;
   }
 
@@ -228,6 +230,9 @@ export class ClassTransformer extends TempVarTransformer {
           if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
             hasConstructor = true;
             constructor = tree;
+            if (superClass) {
+              validateConstructor(tree, this.reporter_);
+            }
           } else {
             let transformed = this.transformPropertyMethodAssignment_(
                 tree, homeObject, internalName, originalName);

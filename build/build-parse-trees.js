@@ -58,7 +58,11 @@ names.forEach(function(name) {
   });
   print('   */');
   print('  constructor(%s) {', paramNames.join(', '));
-  paramNames.forEach(printInitializer);
+  print('    super(location);');
+  if (paramNames[0] !== 'location') {
+    throw new Error('First param must be named location');
+  }
+  paramNames.slice(1).forEach(printInitializer);
   print('  }');
   print();
   print('  /**');

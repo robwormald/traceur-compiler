@@ -33,6 +33,7 @@ import {
   ASYNC,
   ASYNC_STAR,
   AWAIT,
+  CONSTRUCTOR,
   FROM,
   GET,
   OF,
@@ -48,6 +49,7 @@ import {
   isAssignmentOperator
 } from './Token.js';
 import {getKeywordType} from './Keywords.js';
+import {validateConstructor} from '../semantics/ConstructorValidator.js';
 
 import {
   AMPERSAND,
@@ -778,7 +780,7 @@ export class Parser {
       superClass = this.parseLeftHandSideExpression_();
     }
     this.eat_(OPEN_CURLY);
-    let elements = this.parseClassElements_();
+    let elements = this.parseClassElements_(superClass);
     this.eat_(CLOSE_CURLY);
     this.strictMode_ = strictMode;
     return new constr(this.getTreeLocation_(start), name, superClass,
@@ -805,7 +807,7 @@ export class Parser {
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseClassElements_() {
+  parseClassElements_(derivedClass) {
     let result = [];
 
     while (true) {
@@ -813,7 +815,7 @@ export class Parser {
       if (type === SEMI_COLON) {
         this.nextToken_();
       } else if (this.peekClassElement_(this.peekType_())) {
-        result.push(this.parseClassElement_());
+        result.push(this.parseClassElement_(derivedClass));
       } else {
         break;
       }
@@ -2186,7 +2188,7 @@ export class Parser {
    *   get PropertyName ( ) { FunctionBody }
    *   set PropertyName ( PropertySetParameterList ) { FunctionBody }
    */
-  parseClassElement_() {
+  parseClassElement_(derivedClass) {
     let start = this.getTreeStartLocation_();
 
     let annotations = this.parseAnnotations_();
@@ -2207,7 +2209,8 @@ export class Parser {
             if (type === STAR && this.options_.generators)
               return this.parseGeneratorMethod_(start, true, annotations);
 
-            return this.parseClassElement2_(start, isStatic, annotations);
+            return this.parseClassElement2_(start, isStatic, annotations,
+                                            derivedClass);
         }
         break;
 
@@ -2215,7 +2218,8 @@ export class Parser {
         return this.parseGeneratorMethod_(start, isStatic, annotations);
 
       default:
-        return this.parseClassElement2_(start, isStatic, annotations);
+        return this.parseClassElement2_(start, isStatic, annotations,
+                                        derivedClass);
     }
   }
 
@@ -2244,7 +2248,7 @@ export class Parser {
         isStatic, name, typeAnnotation, annotations, initializer);
   }
 
-  parseClassElement2_(start, isStatic, annotations) {
+  parseClassElement2_(start, isStatic, annotations, derivedClass) {
     let functionKind = null;
     let name = this.parsePropertyName_();
     let type = this.peekType_();
@@ -2273,7 +2277,14 @@ export class Parser {
     }
 
     if (!this.options_.memberVariables || type === OPEN_PAREN) {
-      return this.parseMethod_(start, isStatic, functionKind, name, annotations);
+      var method =
+          this.parseMethod_(start, isStatic, functionKind, name, annotations);
+      if (derivedClass && !isStatic && functionKind === null &&
+          name.type === LITERAL_PROPERTY_NAME &&
+          name.literalToken.value === CONSTRUCTOR) {
+        validateConstructor(method, this.errorReporter_);
+      }
+      return method;
     }
 
     return this.parsePropertyVariableDeclaration_(start, isStatic, name, annotations);
