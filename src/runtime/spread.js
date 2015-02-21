@@ -23,12 +23,36 @@ function spread() {
     }
 
     var iter = valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)]();
-
     while (!(iterResult = iter.next()).done) {
       rv[j++] = iterResult.value;
     }
   }
 
+  return rv;
+}
+
+
+// f(a, b, ...cs, d, ...es, f)
+//
+// f.apply((void 0), $traceurRuntime.spread(7, a, b, cs, d, es, f, 3, 5));
+unction spread2(spreadIndex) {
+  var rv = [];
+  var j = 0;
+  var endIndex = spreadIndex;
+  var length = arguments.length;
+  for (var i = 1; i < endIndex; i++) {
+    var spread = spreadIndex === length ? endIndex : arguments[spreadIndex];
+    for (; i < spread; i++) {
+      rv[j++] = arguments[i];
+    }
+
+    if (spreadIndex++ === length) break
+    var valueToSpread = arguments[i];
+    var iter = valueToSpread[Symbol.iterator]();
+    while (!(iterResult = iter.next()).done) {
+      rv[j++] = iterResult.value;
+    }
+  }
   return rv;
 }
 
