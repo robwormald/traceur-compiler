@@ -315,6 +315,23 @@ function containsInitializer(declarations) {
   return declarations.some((v) => v.initializer);
 }
 
+const FUNCTION_STATE_SCRIPT = 1;
+const FUNCTION_STATE_MODULE = 1 << 1;
+const FUNCTION_STATE_FUNCTION = 1 << 2;
+const FUNCTION_STATE_ARROW = 1 << 3;
+const FUNCTION_STATE_METHOD = 1 << 4;
+const FUNCTION_STATE_DERIVED_CONSTRUCTOR = 1 << 5;
+const FUNCTION_STATE_GENERATOR = 1 << 6;
+const FUNCTION_STATE_ASYNC = 1 << 7;
+
+class FunctionState {
+  constructor(outer, kind) {
+    this.outer = outer;
+    this.kind = kind;
+  }
+}
+
+
 /**
  * Parses a javascript file.
  *
@@ -382,6 +399,8 @@ export class Parser {
     this.strictMode_ = false;
 
     this.annotations_ = [];
+
+    this.functionState_ = null;
   }
 
   // 14 Script
@@ -391,9 +410,22 @@ export class Parser {
   parseScript() {
     this.strictMode_ = false;
     let start = this.getTreeStartLocation_();
+    let fs = this.enterFunctionState_(FUNCTION_STATE_SCRIPT);
     let scriptItemList = this.parseStatementList_(true);
     this.eat_(END_OF_FILE);
+    this.leaveFunctionState_(fs);
     return new Script(this.getTreeLocation_(start), scriptItemList);
+  }
+
+  enterFunctionState_(kind) {
+    return this.functionState_ = new FunctionState(this.functionState_, kind);
+  }
+
+  leaveFunctionState_(fs) {
+    if (fs != this.functionState_) {
+      throw new Error('Internal error');
+    }
+    this.functionState_ = this.functionState_.outer;
   }
 
   // StatementList :
@@ -442,8 +474,10 @@ export class Parser {
 
   parseModule() {
     let start = this.getTreeStartLocation_();
+    let fs = this.enterFunctionState_(FUNCTION_STATE_MODULE);
     let scriptItemList = this.parseModuleItemList_();
     this.eat_(END_OF_FILE);
+    this.leaveFunctionState_(fs);
     return new Module(this.getTreeLocation_(start), scriptItemList, null);
   }
 
@@ -972,20 +1006,31 @@ export class Parser {
   parseAsyncFunction_(asyncToken, ctor) {
     let start = asyncToken.location.start;
     this.eat_(FUNCTION);
+    let kind = FUNCTION_STATE_FUNCTION | FUNCTION_STATE_ASYNC;
     if (this.options_.asyncGenerators && this.peek_(STAR)) {
+      kind |= FUNCTION_STATE_GENERATOR;
       this.eat_(STAR);
       asyncToken = new IdentifierToken(asyncToken.location, ASYNC_STAR);
     }
-    return this.parseFunction2_(start, asyncToken, ctor);
+    let fs = this.enterFunctionState_(kind);
+    var f = this.parseFunction2_(start, asyncToken, ctor);
+    this.leaveFunctionState_(fs);
+    return f;
   }
 
   parseFunction_(ctor) {
     let start = this.getTreeStartLocation_();
     this.eat_(FUNCTION);
     let functionKind = null;
-    if (this.options_.generators && this.peek_(STAR))
+    let kind = FUNCTION_STATE_FUNCTION;
+    if (this.options_.generators && this.peek_(STAR)) {
       functionKind = this.eat_(STAR);
-    return this.parseFunction2_(start, functionKind, ctor);
+      kind |= FUNCTION_STATE_GENERATOR;
+    }
+    let fs = this.enterFunctionState_(kind);
+    let f = this.parseFunction2_(start, functionKind, ctor);
+    this.leaveFunctionState_(fs);
+    return f;
   }
 
   parseFunction2_(start, functionKind, ctor) {
@@ -2110,14 +2155,22 @@ export class Parser {
 
     if (this.options_.generators && this.options_.propertyMethods &&
         this.peek_(STAR)) {
-      return this.parseGeneratorMethod_(start, isStatic, []);
+      let fs = this.enterFunctionState_(
+          FUNCTION_STATE_METHOD | FUNCTION_STATE_GENERATOR);
+      let m = this.parseGeneratorMethod_(start, isStatic, []);
+      this.leaveFunctionState_(fs);
+      return m;
     }
 
     let token = this.peekToken_();
     let name = this.parsePropertyName_();
 
-    if (this.options_.propertyMethods && this.peek_(OPEN_PAREN))
-      return this.parseMethod_(start, isStatic, functionKind, name, []);
+    if (this.options_.propertyMethods && this.peek_(OPEN_PAREN)) {
+      let fs = this.enterFunctionState_(FUNCTION_STATE_METHOD);
+      let m = this.parseMethod_(start, isStatic, functionKind, name, []);
+      this.leaveFunctionState_(fs);
+      return m;
+    }
 
     if (this.eatIf_(COLON)) {
       let value = this.parseAssignmentExpression();
@@ -2142,7 +2195,11 @@ export class Parser {
           this.peekPropertyName_(type)) {
         let async = nameLiteral;
         let name = this.parsePropertyName_();
-        return this.parseMethod_(start, isStatic, async, name, []);
+        let fs = this.enterFunctionState_(
+            FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC);
+        let m = this.parseMethod_(start, isStatic, async, name, []);
+        this.leaveFunctionState_(fs);
+        return m;
       }
 
       if (this.options_.propertyNameShorthand &&
@@ -2202,8 +2259,11 @@ export class Parser {
           case OPEN_PAREN:
             let location = this.getTreeLocation_(start);
             let name = new LiteralPropertyName(location, staticToken);
-            return this.parseMethod_(start, isStatic, functionKind, name,
-                                     annotations);
+            let fs = this.enterFunctionState_(FUNCTION_STATE_METHOD);
+            let m = this.parseMethod_(start, isStatic, functionKind, name,
+                                      annotations);
+            this.leaveFunctionState_(fs);
+            return m;
           default:
             isStatic = true;
             if (type === STAR && this.options_.generators)
@@ -2226,10 +2286,29 @@ export class Parser {
   parseGeneratorMethod_(start, isStatic, annotations) {
     let functionKind = this.eat_(STAR);
     let name = this.parsePropertyName_();
-    return this.parseMethod_(start, isStatic, functionKind, name, annotations);
+    let fs = this.enterFunctionState_(
+        FUNCTION_STATE_METHOD | FUNCTION_STATE_GENERATOR);
+    let m = this.parseMethod_(start, isStatic, functionKind, name, annotations);
+    this.leaveFunctionState_(fs);
+    return m;
   }
 
   parseMethod_(start, isStatic, functionKind, name, annotations) {
+    // let kind = FUNCTION_STATE_METHOD;
+    // if (functionKind) {
+    //   switch (functionKind.value) {
+    //     case ASYNC:
+    //       kind |= FUNCTION_STATE_ASYNC;
+    //       break;
+    //     case STAR:
+    //       kind |= FUNCTION_STATE_GENERATOR;
+    //       break;
+    //     case ASYNC_STAR:
+    //       kind |= FUNCTION_STATE_GENERATOR | FUNCTION_STATE_ASYNC;
+    //       break;
+    //   }
+    // }
+    // this.enterFunctionState_(kind);
     this.eat_(OPEN_PAREN);
     let parameterList = this.parseFormalParameters_();
     this.eat_(CLOSE_PAREN);
@@ -2273,18 +2352,29 @@ export class Parser {
         this.peekPropertyName_(type)) {
       let async = name.literalToken;
       name = this.parsePropertyName_();
-      return this.parseMethod_(start, isStatic, async, name, annotations);
+      let fs = this.enterFunctionState_(
+          FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC);
+      let m = this.parseMethod_(start, isStatic, async, name, annotations);
+      this.leaveFunctionState_(fs);
+      return m;
     }
 
     if (!this.options_.memberVariables || type === OPEN_PAREN) {
-      var method =
-          this.parseMethod_(start, isStatic, functionKind, name, annotations);
-      if (derivedClass && !isStatic && functionKind === null &&
-          name.type === LITERAL_PROPERTY_NAME &&
-          name.literalToken.value === CONSTRUCTOR) {
-        validateConstructor(method, this.errorReporter_);
+      let kind = FUNCTION_STATE_METHOD;
+      let isDerivedConstructor = derivedClass && !isStatic &&
+          functionKind === null && name.type === LITERAL_PROPERTY_NAME &&
+          name.literalToken.value === CONSTRUCTOR;
+      if (isDerivedConstructor) {
+        kind |= FUNCTION_STATE_DERIVED_CONSTRUCTOR;
       }
-      return method;
+      let fs = this.enterFunctionState_(kind);
+      let m =
+          this.parseMethod_(start, isStatic, functionKind, name, annotations);
+      this.leaveFunctionState_(fs);
+      if (isDerivedConstructor) {
+        validateConstructor(m, this.errorReporter_);
+      }
+      return m;
     }
 
     return this.parsePropertyVariableDeclaration_(start, isStatic, name, annotations);
@@ -2293,10 +2383,12 @@ export class Parser {
   parseGetAccessor_(start, isStatic, annotations) {
     let functionKind = null;
     let name = this.parsePropertyName_();
+    let fs = this.enterFunctionState_(FUNCTION_STATE_METHOD);
     this.eat_(OPEN_PAREN);
-    this.eat_(CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);    
     let typeAnnotation = this.parseTypeAnnotationOpt_();
     let body = this.parseFunctionBody_(functionKind, null);
+    this.leaveFunctionState_(fs);
     return new GetAccessor(this.getTreeLocation_(start), isStatic, name,
                            typeAnnotation, annotations, body);
   }
@@ -2304,10 +2396,12 @@ export class Parser {
   parseSetAccessor_(start, isStatic, annotations) {
     let functionKind = null;
     let name = this.parsePropertyName_();
+    let fs = this.enterFunctionState_(FUNCTION_STATE_METHOD);
     this.eat_(OPEN_PAREN);
     let parameterList = this.parsePropertySetParameterList_();
     this.eat_(CLOSE_PAREN);
     let body = this.parseFunctionBody_(functionKind, parameterList);
+    this.leaveFunctionState_(fs);
     return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
                            parameterList, annotations, body);
   }
@@ -3084,10 +3178,7 @@ export class Parser {
       case NEW:
         start = this.getTreeStartLocation_();
         this.eat_(NEW);
-        if (this.peek_(SUPER))
-          operand = this.parseSuperExpression_();
-        else
-          operand = this.toPrimaryExpression_(this.parseNewExpression_());
+        operand = this.toPrimaryExpression_(this.parseNewExpression_());
         let args = null;
         if (this.peek_(OPEN_PAREN)) {
           args = this.parseArguments_();
@@ -3186,6 +3277,11 @@ export class Parser {
    */
   parseArrowFunction_(start, tree, asyncToken) {
     let formals;
+    let kind = FUNCTION_STATE_ARROW;
+    if (asyncToken && asyncToken.value === ASYNC) {
+      kind |= FUNCTION_STATE_ASYNC;
+    }
+    let fs = this.enterFunctionState_(kind);
     switch (tree.type) {
       case IDENTIFIER_EXPRESSION:
         tree = new BindingIdentifier(tree.location, tree.identifierToken);
@@ -3204,6 +3300,7 @@ export class Parser {
 
     this.eat_(ARROW);
     let body = this.parseConciseBody_(asyncToken);
+    this.leaveFunctionState_(fs);
     return new ArrowFunctionExpression(this.getTreeLocation_(start),
         asyncToken, formals, body);
   }
