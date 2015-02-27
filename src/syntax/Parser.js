@@ -1909,10 +1909,29 @@ export class Parser {
    * @return {SuperExpression}
    * @private
    */
-  parseSuperExpression_() {
+  parseSuperExpression_(isNew) {
     let start = this.getTreeStartLocation_();
     this.eat_(SUPER);
-    return new SuperExpression(this.getTreeLocation_(start));
+    let operand = new SuperExpression(this.getTreeLocation_(start));
+    let type = this.peekType_();
+    if (isNew) {
+      // new super() is not allowed so we require a PERIOD or an OPEN_SQUARE.
+      if (type === OPEN_SQUARE) {
+        return this.parseMemberLookupExpression_(start, operand);
+      }
+      return this.parseMemberExpression_(start, operand);
+    }
+
+    switch (type) {
+      case OPEN_SQUARE:
+        return this.parseMemberLookupExpression_(start, operand);
+      case PERIOD:
+        return this.parseMemberExpression_(start, operand);
+      case OPEN_PAREN:
+        return this.parseCallExpression_(start, operand);
+    }
+
+    return this.parseUnexpectedToken_(type);
   }
 
   /**
@@ -3149,13 +3168,13 @@ export class Parser {
   }
 
   parseMemberExpression_(start, operand) {
-    this.nextToken_();
+    this.eat_(PERIOD);
     let name = this.eatIdName_();
     return new MemberExpression(this.getTreeLocation_(start), operand, name);
   }
 
   parseMemberLookupExpression_(start, operand) {
-    this.nextToken_();
+    this.eat_(OPEN_SQUARE);
     let member = this.parseExpression();
     this.eat_(CLOSE_SQUARE);
     return new MemberLookupExpression(this.getTreeLocation_(start), operand,
@@ -3178,7 +3197,11 @@ export class Parser {
       case NEW:
         start = this.getTreeStartLocation_();
         this.eat_(NEW);
-        operand = this.toPrimaryExpression_(this.parseNewExpression_());
+        if (this.peek_(SUPER)) {
+          operand = this.parseSuperExpression_(true);
+        } else {
+          operand = this.toPrimaryExpression_(this.parseNewExpression_());
+        }
         let args = null;
         if (this.peek_(OPEN_PAREN)) {
           args = this.parseArguments_();
@@ -3186,20 +3209,7 @@ export class Parser {
         return new NewExpression(this.getTreeLocation_(start), operand, args);
 
       case SUPER:
-        start = this.getTreeStartLocation_();
-        operand = this.parseSuperExpression_();
-        let type = this.peekType_();
-        switch (type) {
-          case OPEN_SQUARE:
-            return this.parseMemberLookupExpression_(start, operand);
-          case PERIOD:
-            return this.parseMemberExpression_(start, operand);
-          case OPEN_PAREN:
-            return this.parseCallExpression_(start, operand);
-          default:
-            return this.parseUnexpectedToken_(type);
-        }
-        break;
+        return this.parseSuperExpression_(false);
 
       default:
         return this.parseMemberExpressionNoNew_();

@@ -1,4 +1,4 @@
-// Error: xxxxx
+// Error: :5:14: Unexpected token (
 
 class C {
   m() {
