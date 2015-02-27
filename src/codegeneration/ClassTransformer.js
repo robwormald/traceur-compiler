@@ -468,19 +468,19 @@ export class ClassTransformer extends TempVarTransformer {
           superExpressionIndex = index;
           break;
         }
-        if (initStatements.length > 0) {
-          this.reporter_.reportError(statement.location.start,
-              'The first statement of the constructor must be a super ' +
-              'call when the memberVariables option is enabled and the ' +
-              'class contains initialized instance variables');
-        }
+        // if (initStatements.length > 0) {
+        //   this.reporter_.reportError(statement.location.start,
+        //       'The first statement of the constructor must be a super ' +
+        //       'call when the memberVariables option is enabled and the ' +
+        //       'class contains initialized instance variables');
+        // }
       }
 
-      if (superExpressionIndex === -1) {
-        this.reporter_.reportError(constructor.location.start,
-            'Constructors of derived class must contain a super call ' +
-            'when the memberVariables option is enabled');
-      }
+      // if (superExpressionIndex === -1) {
+      //   this.reporter_.reportError(constructor.location.start,
+      //       'Constructors of derived class must contain a super call ' +
+      //       'when the memberVariables option is enabled');
+      // }
       if (initStatements.length === 0) return constructor;
       statements = statements.slice();
       statements.splice(superExpressionIndex + 1, 0, ...initStatements);

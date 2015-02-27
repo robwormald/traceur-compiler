@@ -56,5 +56,10 @@ class ConstructorValidator extends FindVisitor {
 export function validateConstructor(tree, reporter) {
   let visitor = new ConstructorValidator(reporter);
   visitor.visitAny(tree);
-  return !visitor.hasError;
+  if (visitor.hasError) return false;
+  if (visitor.found) return true;
+
+  reporter.reportError(tree.location.end,
+                       'Derived constructor must call super()');
+  return false;
 }

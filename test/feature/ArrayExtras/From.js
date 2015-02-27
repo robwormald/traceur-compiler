@@ -91,6 +91,7 @@ var lengthGetCounter = 0;
 
 class MyArray extends Array {
   constructor(v) {
+    super();
     constructorCounter++;
     assert.isUndefined(v);
   }
@@ -126,6 +127,7 @@ lengthGetCounter = 0;
 
 class MyArray2 extends MyArray {
   constructor(v) {
+    super();
     constructorCounter++;
     assert.equal(v, 2);
   }
@@ -145,7 +147,7 @@ ma3[0] = 'a';
 ma3[1] = 'b';
 ma = MyArray2.from(ma3);
 assert.instanceOf(ma, MyArray2);
-assert.equal(constructorCounter, 1);
+assert.equal(constructorCounter, 2);
 assert.equal(lengthSetCounter, 1);
 assert.equal(lengthGetCounter, 0);
 assert.isTrue(ma.hasOwnProperty('0'));
