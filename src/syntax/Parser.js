@@ -1910,6 +1910,16 @@ export class Parser {
    * @private
    */
   parseSuperExpression_(isNew) {
+
+    var fs = this.functionState_;
+    while (fs && (fs.kind & FUNCTION_STATE_ARROW) !== 0) {
+      fs = fs.outer;
+    }
+    if ((fs.kind & FUNCTION_STATE_METHOD) === 0) {
+      this.reportError('super is not allowed outside of methods');
+      return this.parseUnexpectedToken_(SUPER);
+    }
+
     let start = this.getTreeStartLocation_();
     this.eat_(SUPER);
     let operand = new SuperExpression(this.getTreeLocation_(start));
@@ -2404,7 +2414,7 @@ export class Parser {
     let name = this.parsePropertyName_();
     let fs = this.enterFunctionState_(FUNCTION_STATE_METHOD);
     this.eat_(OPEN_PAREN);
-    this.eat_(CLOSE_PAREN);    
+    this.eat_(CLOSE_PAREN);
     let typeAnnotation = this.parseTypeAnnotationOpt_();
     let body = this.parseFunctionBody_(functionKind, null);
     this.leaveFunctionState_(fs);
