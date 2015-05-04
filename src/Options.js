@@ -68,6 +68,7 @@ export const optionsV01 = enumerableOnlyObject({
   unicodeEscapeSequences: true,
   unicodeExpressions: true,
   validate: false,
+  test: false
 });
 
 export const versionLockedOptions = optionsV01;
@@ -154,6 +155,7 @@ addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
+addFeatureOption('test', EXPERIMENTAL);
 
 let transformOptionsPrototype = {};
 
@@ -578,4 +580,3 @@ export function addOptions(flags, commandOptions) {
   // After we've processed the commandOptions, set defaults for commandOptions.
   commandOptions.setDefaults();
 }
-

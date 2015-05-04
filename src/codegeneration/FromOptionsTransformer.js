@@ -52,6 +52,8 @@ import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer.js';
 import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
+import {TestTransformer} from './TestTransformer.js';
+import {TestTempTransformer} from './TestTempTransformer.js';
 
 /**
  * MultiTransformer built from global options settings
@@ -86,6 +88,10 @@ export class FromOptionsTransformer extends MultiTransformer {
         validateFreeVariables(tree, reporter);
         return tree;
       });
+    }
+
+    if (options.test) {
+      append(TestTransformer);
     }
 
     // TODO: many of these simple, local transforms could happen in the same
@@ -222,6 +228,10 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.properTailCalls) {
       append(ProperTailCallTransformer);
+    }
+
+    if (options.test) {
+      append(TestTempTransformer);
     }
   }
 }

@@ -58,7 +58,7 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
     // variable declaration after the function declaration.
 
     let tmpVar = id(this.inBlock_ ?
-        this.getTempIdentifier() : this.addTempVar(setupPrototypeExpression));
+        this.getTempIdentifier() : this.addTempVar('_ref', setupPrototypeExpression));
     let funcDecl = this.transformFunction_(tree, FunctionDeclaration, tmpVar);
 
     if (!this.inBlock_)

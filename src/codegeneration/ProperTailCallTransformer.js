@@ -79,7 +79,7 @@ export class ProperTailCallTransformer extends TempVarTransformer {
     // variable declaration after the function declaration.
 
     let tmpVar = id(this.inBlock_ ?
-        this.getTempIdentifier() : this.addTempVar(setupFlagExpression));
+        this.getTempIdentifier() : this.addTempVar('_ref', setupFlagExpression));
 
     if (!this.inBlock_) {
       return funcDecl;

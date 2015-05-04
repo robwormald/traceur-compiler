@@ -73,11 +73,11 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
     let argumentsTempName, thisTempName;
     finder.visitAny(tree);
     if (finder.foundArguments) {
-      argumentsTempName = this.addTempVar();
+      argumentsTempName = this.addTempVar('_arguments');
       tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);
     }
     if (finder.foundThis) {
-      thisTempName = this.addTempVar();
+      thisTempName = this.addTempVar('_this');
       tree = AlphaRenamer.rename(tree, THIS, thisTempName);
     }
 

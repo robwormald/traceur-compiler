@@ -106,6 +106,7 @@ export const STATIC = 'static';
 export const STRING = 'string literal';
 export const SUPER = 'super';
 export const SWITCH = 'switch';
+export const TEMP_IDENTIFIER = 'temp identifier';
 export const TEMPLATE_HEAD = 'template head';
 export const TEMPLATE_MIDDLE = 'template middle';
 export const TEMPLATE_TAIL = 'template tail';

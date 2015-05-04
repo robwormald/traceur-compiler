@@ -105,7 +105,7 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
         // they could have side effects.
       thisArg = object;
     } else {
-      thisArg = id(this.bodyTransformer_.addTempVar());
+      thisArg = id(this.bodyTransformer_.addTempVar('_ref'));
       assignment = createAssignmentExpression(thisArg, operand.operand);
     }
     if (operand.type === MEMBER_EXPRESSION) {

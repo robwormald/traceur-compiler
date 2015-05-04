@@ -222,7 +222,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   desugarAssignment_(lvalue, rvalue) {
-    let tempId = createIdentifierExpression(this.addTempVar());
+    let tempId = createIdentifierExpression(this.addTempVar('_ref'));
     let desugaring = new AssignmentExpressionDesugaring(tempId);
     this.desugarPattern_(desugaring, lvalue);
     return desugaring.createAssignmentExpression(tempId, rvalue);
@@ -532,8 +532,8 @@ export class DestructuringTransformer extends TempVarTransformer {
       case ARRAY_PATTERN:
         pattern = tree;
         this.pushTempScope();
-        let iterId = createIdentifierExpression(this.addTempVar());
-        let iterObjectId = createIdentifierExpression(this.addTempVar());
+        let iterId = createIdentifierExpression(this.addTempVar('_ref'));
+        let iterObjectId = createIdentifierExpression(this.addTempVar('_ref'));
         desugaring.createIterator(iterId);
 
         for (let i = 0; i < pattern.elements.length; i++) {
@@ -641,7 +641,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (!initializer)
       return createMemberExpression(rvalue, token);
 
-    let tempIdent = createIdentifierExpression(this.addTempVar());
+    let tempIdent = createIdentifierExpression(this.addTempVar('_ref'));
 
     return parseExpression `(${tempIdent} = ${rvalue}.${token}) === void 0 ?
         ${initializer} : ${tempIdent}`;
@@ -651,7 +651,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (!initializer)
       return createMemberLookupExpression(rvalue, index);
 
-    let tempIdent = createIdentifierExpression(this.addTempVar());
+    let tempIdent = createIdentifierExpression(this.addTempVar('_ref'));
     return parseExpression `(${tempIdent} = ${rvalue}[${index}]) === void 0 ?
         ${initializer} : ${tempIdent}`;
   }
@@ -663,7 +663,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       return expr;
     }
     // TODO(arv): Simplify this expression?
-    let tempIdent = createIdentifierExpression(this.addTempVar());
+    let tempIdent = createIdentifierExpression(this.addTempVar('_ref'));
     return parseExpression `(${tempIdent} = ${expr}) === void 0 ?
         ${initializer} : ${tempIdent}`;
   }
