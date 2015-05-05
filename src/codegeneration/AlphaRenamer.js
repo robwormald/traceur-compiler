@@ -15,14 +15,12 @@
 import { ScopeTransformer } from './ScopeTransformer.js';
 import {
   FunctionDeclaration,
-  FunctionExpression
+  FunctionExpression,
+  IdentifierExpression,
 } from '../syntax/trees/ParseTrees.js';
 import {
   THIS
 } from '../syntax/PredefinedName.js';
-import {
-  createIdentifierExpression
-} from './ParseTreeFactory.js';
 
 /**
  * Replaces one identifier with another identifier (alpha
@@ -38,11 +36,11 @@ import {
 export class AlphaRenamer extends ScopeTransformer {
   /**
    * @param {string} varName
-   * @param {string} newName
+   * @param {Token} newName
    */
   constructor(varName, newName) {
     super(varName);
-    this.newName_ = newName;
+    this.newNameToken_ = newName;
   }
 
   /**
@@ -51,16 +49,16 @@ export class AlphaRenamer extends ScopeTransformer {
    */
   transformIdentifierExpression(tree) {
     if (this.varName_ === tree.identifierToken.value) {
-      return createIdentifierExpression(this.newName_);
-    } else {
-      return tree;
+      return new IdentifierExpression(tree.location, this.newNameToken_);
     }
+    return tree;
   }
 
   transformThisExpression(tree) {
-    if (this.varName_ !== THIS)
+    if (this.varName_ !== THIS) {
       return tree;
-    return createIdentifierExpression(this.newName_);
+    }
+    return new IdentifierExpression(tree.location, this.newNameToken_);
   }
 
   /**
@@ -70,7 +68,7 @@ export class AlphaRenamer extends ScopeTransformer {
   transformFunctionDeclaration(tree) {
     if (this.varName_ === tree.name) {
       // it is the function that is being renamed
-      tree = new FunctionDeclaration(tree.location, this.newName_,
+      tree = new FunctionDeclaration(tree.location, this.newNameToken_,
           tree.functionKind, tree.parameterList, tree.typeAnnotation,
           tree.annotations, tree.body);
     }
@@ -84,7 +82,7 @@ export class AlphaRenamer extends ScopeTransformer {
   transformFunctionExpression(tree) {
     if (this.varName_ === tree.name) {
       // it is the function that is being renamed
-      tree = new FunctionExpression(tree.location, this.newName_,
+      tree = new FunctionExpression(tree.location, this.newNameToken_,
           tree.functionKind, tree.parameterList, tree.typeAnnotation,
           tree.annotations, tree.body);
     }
@@ -114,11 +112,11 @@ export class AlphaRenamer extends ScopeTransformer {
    *
    * @param {ParseTree} tree the tree to substitute names in.
    * @param {string} varName the identifier to be replaced.
-   * @param {string} newName the identifier that will appear instead of |varName|.
+   * @param {Token} newName The identifier token that will appear instead of
+   *     |varName|.
    * @return {ParseTree} a copy of {@code tree} with replacements.
    */
   static rename(tree, varName, newName) {
     return new AlphaRenamer(varName, newName).transformAny(tree);
   }
 }
-

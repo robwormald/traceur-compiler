@@ -65,7 +65,7 @@ class TempScope {
 class VarScope {
   constructor(options) {
     this.thisName = null;
-    this.argumentName = null;
+    this.argumentsName = null;
     this.tempVarStatements = [];
     this.declarationType_ =
         options.blockBinding && !options.transformOptions.blockBinding ?
@@ -209,6 +209,10 @@ export class TempVarTransformer extends ParseTreeTransformer {
    * @return {string} The name of the temporary variable.
    */
   addTempVar(wantedName = '_ref', initializer = null) {
+    return this.addTempVarToken(wantedName, initializer).value;
+  }
+
+  addTempVarToken(wantedName = '_ref', initializer = null) {
     if (typeof wantedName !== 'string') {
       throw new TypeError();
     }
@@ -217,20 +221,35 @@ export class TempVarTransformer extends ParseTreeTransformer {
     let name = this.getName_();
     let token = new TempIdentifierToken(null, name, wantedName);
     vars.push(new TempVarStatement(token, initializer));
-    return name;
+    return token;
   }
 
   addTempVarForThis() {
+    return this.addTempVarForThisToken().value;
+  }
+
+  addTempVarForThisToken() {
     let varScope = this.tempVarStack_[this.tempVarStack_.length - 1];
-    return varScope.thisName ||
-        (varScope.thisName = this.addTempVar('_this', createThisExpression()));
+    if (varScope.thisName !== null) {
+      return varScope.thisName;
+    }
+    return varScope.thisName =
+        this.addTempVarToken('_this', createThisExpression());
   }
 
   addTempVarForArguments() {
-    let varScope = this.tempVarStack_[this.tempVarStack_.length - 1];
-    return varScope.argumentName || (varScope.argumentName =
-        this.addTempVar('_arguments', createIdentifierExpression(ARGUMENTS)));
+    return this.addTempVarForArgumentsToken().value;
   }
+
+  addTempVarForArgumentsToken() {
+    let varScope = this.tempVarStack_[this.tempVarStack_.length - 1];
+    if (varScope.argumentsName !== null) {
+      return varScope.argumentsName;
+    }
+    return varScope.argumentsName = this.addTempVarToken('_arguments',
+        createIdentifierExpression(ARGUMENTS));
+  }
+
 
   /**
    * Pushes a new temporary name scope. This is useful if you know that

@@ -13,8 +13,14 @@
 // limitations under the License.
 
 import {TempIdentifierToken} from '../syntax/TempIdentifierToken.js';
+import {IdentifierToken} from '../syntax/IdentifierToken.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {AnonBlock, ExpressionStatement, IdentifierExpression} from '../syntax/trees/ParseTrees.js';
+import {
+  AnonBlock,
+  BindingIdentifier,
+  ExpressionStatement,
+  IdentifierExpression,
+} from '../syntax/trees/ParseTrees.js';
 import {ScopeChainBuilderWithReferences} from '../semantics/ScopeChainBuilderWithReferences.js';
 import {TEMP_IDENTIFIER} from '../syntax/TokenType.js';
 import {StringSet} from '../util/StringSet.js';
@@ -58,6 +64,7 @@ export class TestTempTransformer extends ParseTreeTransformer {
   constructor() {
     super();
     this.scopeBuilder_ = null;
+    this.renames = Object.create(null);
   }
 
   transformScript(tree) {
@@ -69,30 +76,50 @@ export class TestTempTransformer extends ParseTreeTransformer {
 
   transformFunctionDeclaration(tree) {
     let scope = this.scopeBuilder_.getScopeForTree(tree);
-    let varNames = scope.getAllBindingNames();
-    let varsToRename = new StringSet();
+    let varNames = scope.getVariableBindingNames();
+    let renames = this.renames;
+    this.renames = Object.create(renames);
+
     varNames.forEach((name) => {
-      if (/^\$__/.test(name)) {
-        let wantedName = 'x';
-        let varName = wantedName;
-        let n = 2;
-        while (varNames.has(varName) || scope.hasFreeVariable(varName)) {
-          varName = wantedName + n;
-          n++;
-        }
-        console.log(varName);
+      let b = scope.getBindingByName(name);
+      debugger;
+      let token = b.tree.identifierToken;
+      if (token.type !== TEMP_IDENTIFIER) {
+        return;
       }
+
+      let wantedName = token.wantedName;
+      let varName = wantedName;
+      let n = 2;
+      while (varNames.has(varName) || scope.hasFreeVariable(varName)) {
+        varName = wantedName + String(n);
+        n++;
+      }
+      this.renames[name] = varName;
     });
 
-    return super.transformFunctionDeclaration(tree);
+    let rv = super.transformFunctionDeclaration(tree);
+    this.renames = renames;
+    return rv;
   }
 
-  // transformIdentifierExpression(tree) {
-  //   if (tree.identifierToken.type === TEMP_IDENTIFIER) {
-  //     debugger;
-  //     let name = tree.identifierToken.value;
-  //     // this.scopeBuilder_.scope.hasBindingName(name);
-  //   }
-  //   return super.transformIdentifierExpression(tree);
-  // }
+  transformIdentifierExpression(tree) {
+    if (tree.identifierToken.type === TEMP_IDENTIFIER) {
+      let name = tree.identifierToken.value;
+      let token = new IdentifierToken(tree.location,
+                                      this.renames[name]);
+      return new IdentifierExpression(tree.location, token);
+    }
+    return super.transformIdentifierExpression(tree);
+  }
+
+  transformBindingIdentifier(tree) {
+    if (tree.identifierToken.type === TEMP_IDENTIFIER) {
+      let name = tree.identifierToken.value;
+      let token = new IdentifierToken(tree.location,
+                                      this.renames[name]);
+      return new BindingIdentifier(tree.location, token);
+    }
+    return super.transformBindingIdentifier(tree);
+  }
 }

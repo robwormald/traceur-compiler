@@ -23,11 +23,11 @@ export default function alphaRenameThisAndArguments(tempVarTransformer, tree) {
   let finder = new FindThisOrArguments();
   finder.visitAny(tree);
   if (finder.foundArguments) {
-    let argumentsTempName = tempVarTransformer.addTempVarForArguments();
+    let argumentsTempName = tempVarTransformer.addTempVarForArgumentsToken();
     tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);
   }
   if (finder.foundThis) {
-    let thisTempName = tempVarTransformer.addTempVarForThis();
+    let thisTempName = tempVarTransformer.addTempVarForThisToken();
     tree = AlphaRenamer.rename(tree, THIS, thisTempName);
   }
   return tree;
