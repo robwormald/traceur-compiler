@@ -58,7 +58,7 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
     // variable declaration after the function declaration.
 
     let tmpVar = id(this.inBlock_ ?
-        this.getTempIdentifier() : this.addTempVar('_ref', setupPrototypeExpression));
+        this.getTempIdentifierToken('_ref') : this.addTempVarToken('_ref', setupPrototypeExpression));
     let funcDecl = this.transformFunction_(tree, FunctionDeclaration, tmpVar);
 
     if (!this.inBlock_)
@@ -78,7 +78,7 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
     let name;
     if (!tree.name) {
       // We need a name to be able to reference the function object.
-      name = createIdentifierToken(this.getTempIdentifier());
+      name = createIdentifierToken(this.getTempIdentifierToken('_ref'));
       tree = new FunctionExpression(tree.location,
           createBindingIdentifier(name), tree.functionKind,
           tree.parameterList, tree.typeAnnotation, tree.annotations,

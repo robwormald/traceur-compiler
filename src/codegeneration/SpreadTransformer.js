@@ -106,7 +106,7 @@ export class SpreadTransformer extends TempVarTransformer {
       //
       // ($tmp = expr).fun.apply($tmp, expandedArgs)
 
-      let tempIdent = createIdentifierExpression(this.addTempVar('_ref'));
+      let tempIdent = createIdentifierExpression(this.addTempVarToken('_ref'));
       let parenExpression = createParenExpression(
           createAssignmentExpression(tempIdent, operand.operand));
       let memberName = operand.memberName;
@@ -119,7 +119,7 @@ export class SpreadTransformer extends TempVarTransformer {
       //
       // ($tmp = expr)[fun].apply($tmp, expandedArgs)
 
-      let tempIdent = createIdentifierExpression(this.addTempVar('_ref'));
+      let tempIdent = createIdentifierExpression(this.addTempVarToken('_ref'));
       let parenExpression = createParenExpression(
           createAssignmentExpression(tempIdent, operand.operand));
       let memberExpression = this.transformAny(operand.memberExpression);

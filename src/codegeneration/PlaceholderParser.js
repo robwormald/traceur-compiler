@@ -19,6 +19,7 @@ import {
   IDENTIFIER_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {TempIdentifierToken} from '../syntax/TempIdentifierToken.js';
 import {LiteralToken} from '../syntax/LiteralToken.js';
 import {CollectingErrorReporter} from '../util/CollectingErrorReporter.js';
 import {Options} from '../Options.js';
@@ -154,7 +155,7 @@ function getParser(source, errorReporter) {
 function convertValueToExpression(value) {
   if (value instanceof ParseTree)
     return value;
-  if (value instanceof IdentifierToken)
+  if (value instanceof IdentifierToken || value instanceof TempIdentifierToken)
     return createIdentifierExpression(value);
   if (value instanceof LiteralToken)
     return new LiteralExpression(value.location, value);

@@ -70,8 +70,14 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     let append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, reporter, options).
+        let rv = new transformer(idGenerator, reporter, options).
             transformAny(tree);
+        try {
+          traceur.outputgeneration.TreeWriter.write(tree);
+        } catch (e) {
+          debugger;
+        }
+        return rv;
       });
     };
 

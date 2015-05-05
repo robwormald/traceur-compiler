@@ -83,7 +83,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     // variable declaration after the function declaration.
 
     let tmpVar = id(this.inBlock_ ?
-        this.getTempIdentifier() : this.addTempVar('_ref', setupPrototypeExpression));
+        this.getTempIdentifier() : this.addTempVarToken('_ref', setupPrototypeExpression));
     let funcDecl = this.transformFunction_(tree, FunctionDeclaration, tmpVar);
 
     if (!this.inBlock_)

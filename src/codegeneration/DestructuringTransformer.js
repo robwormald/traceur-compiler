@@ -222,7 +222,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   desugarAssignment_(lvalue, rvalue) {
-    let tempId = createIdentifierExpression(this.addTempVar('_ref'));
+    let tempId = createIdentifierExpression(this.addTempVarToken('_ref'));
     let desugaring = new AssignmentExpressionDesugaring(tempId);
     this.desugarPattern_(desugaring, lvalue);
     return desugaring.createAssignmentExpression(tempId, rvalue);
@@ -377,7 +377,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       this.pushTempScope();  // Popped in the function body.
     }
 
-    let varName = this.getTempIdentifier();
+    let varName = this.getTempIdentifierToken('_ref');
     let binding = createBindingIdentifier(varName);
     let initializer = createIdentifierExpression(varName);
     let decl = createVariableDeclaration(tree.binding, initializer);
@@ -434,7 +434,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {BindingIdentifier} The binding tree.
    */
   desugarBinding_(bindingTree, statements, declarationType) {
-    let varName = this.getTempIdentifier();
+    let varName = this.getTempIdentifierToken('_ref');
     let binding = createBindingIdentifier(varName);
     let idExpr = createIdentifierExpression(varName);
 
@@ -476,7 +476,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {Array.<VariableDeclaration>}
    */
   desugarVariableDeclaration_(tree) {
-    let tempRValueName = this.getTempIdentifier();
+    let tempRValueName = this.getTempIdentifierToken('_ref');
     let tempRValueIdent = createIdentifierExpression(tempRValueName);
     let desugaring;
     let initializer;
@@ -532,8 +532,8 @@ export class DestructuringTransformer extends TempVarTransformer {
       case ARRAY_PATTERN:
         pattern = tree;
         this.pushTempScope();
-        let iterId = createIdentifierExpression(this.addTempVar('_ref'));
-        let iterObjectId = createIdentifierExpression(this.addTempVar('_ref'));
+        let iterId = createIdentifierExpression(this.addTempVarToken('_ref'));
+        let iterObjectId = createIdentifierExpression(this.addTempVarToken('_ref'));
         desugaring.createIterator(iterId);
 
         for (let i = 0; i < pattern.elements.length; i++) {
@@ -610,7 +610,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     // AssignmentExpressionDesugaring already works.
     if (desugaring instanceof VariableDeclarationDesugaring &&
         desugaring.declarations.length === 0) {
-      desugaring.assign(createBindingIdentifier(this.getTempIdentifier()),
+      desugaring.assign(createBindingIdentifier(this.getTempIdentifierToken('_ref')),
                         desugaring.rvalue);
     }
 
@@ -641,7 +641,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (!initializer)
       return createMemberExpression(rvalue, token);
 
-    let tempIdent = createIdentifierExpression(this.addTempVar('_ref'));
+    let tempIdent = createIdentifierExpression(this.addTempVarToken('_ref'));
 
     return parseExpression `(${tempIdent} = ${rvalue}.${token}) === void 0 ?
         ${initializer} : ${tempIdent}`;
@@ -651,7 +651,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (!initializer)
       return createMemberLookupExpression(rvalue, index);
 
-    let tempIdent = createIdentifierExpression(this.addTempVar('_ref'));
+    let tempIdent = createIdentifierExpression(this.addTempVarToken('_ref'));
     return parseExpression `(${tempIdent} = ${rvalue}[${index}]) === void 0 ?
         ${initializer} : ${tempIdent}`;
   }
@@ -663,7 +663,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       return expr;
     }
     // TODO(arv): Simplify this expression?
-    let tempIdent = createIdentifierExpression(this.addTempVar('_ref'));
+    let tempIdent = createIdentifierExpression(this.addTempVarToken('_ref'));
     return parseExpression `(${tempIdent} = ${expr}) === void 0 ?
         ${initializer} : ${tempIdent}`;
   }

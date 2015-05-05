@@ -25,6 +25,7 @@ export class IdentifierToken extends Token {
    */
   constructor(location, value) {
     super(IDENTIFIER, location);
+    if (typeof value !== 'string') { throw new Error(); }
     this.value = value;
   }
 

@@ -67,22 +67,14 @@ export class TestTempTransformer extends ParseTreeTransformer {
     this.renames = Object.create(null);
   }
 
-  transformScript(tree) {
-    let scopeBuilder = new BuildScopes(null);
-    scopeBuilder.visitAny(tree);
-    this.scopeBuilder_ = scopeBuilder;
-    return super.transformScript(tree);
-  }
-
-  transformFunctionDeclaration(tree) {
+  buildRenameMap_(tree) {
     let scope = this.scopeBuilder_.getScopeForTree(tree);
-    let varNames = scope.getVariableBindingNames();
+    let varNames = scope.getAllBindingNames();
     let renames = this.renames;
     this.renames = Object.create(renames);
-
+    let seenNames = new StringSet();
     varNames.forEach((name) => {
       let b = scope.getBindingByName(name);
-      debugger;
       let token = b.tree.identifierToken;
       if (token.type !== TEMP_IDENTIFIER) {
         return;
@@ -91,14 +83,78 @@ export class TestTempTransformer extends ParseTreeTransformer {
       let wantedName = token.wantedName;
       let varName = wantedName;
       let n = 2;
-      while (varNames.has(varName) || scope.hasFreeVariable(varName)) {
+      while (varNames.has(varName) || scope.hasFreeVariable(varName) ||
+             seenNames.has(varName)) {
         varName = wantedName + String(n);
         n++;
       }
+      seenNames.add(varName);
       this.renames[name] = varName;
-    });
 
+    });
+    return renames;
+  }
+
+  transformScript(tree) {
+    let scopeBuilder = new BuildScopes(null);
+    scopeBuilder.visitAny(tree);
+    this.scopeBuilder_ = scopeBuilder;
+
+    let renames = this.buildRenameMap_(tree);
+    let rv = super.transformScript(tree);
+    this.renames = renames;
+    return rv;
+  }
+
+  transformModules(tree) {
+    let scopeBuilder = new BuildScopes(null);
+    scopeBuilder.visitAny(tree);
+    this.scopeBuilder_ = scopeBuilder;
+
+    let renames = this.buildRenameMap_(tree);
+    let rv = super.transformModules(tree);
+    this.renames = renames;
+    return rv;
+  }
+
+  transformFunctionDeclaration(tree) {
+    let renames = this.buildRenameMap_(tree);
     let rv = super.transformFunctionDeclaration(tree);
+    this.renames = renames;
+    return rv;
+  }
+
+  transformFunctionExpression(tree) {
+    let renames = this.buildRenameMap_(tree);
+    let rv = super.transformFunctionExpression(tree);
+    this.renames = renames;
+    return rv;
+  }
+
+  transformPropertyMethodAssignment(tree) {
+    let renames = this.buildRenameMap_(tree);
+    let rv = super.transformPropertyMethodAssignment(tree);
+    this.renames = renames;
+    return rv;
+  }
+
+  transformGetAccessor(tree) {
+    let renames = this.buildRenameMap_(tree);
+    let rv = super.transformGetAccessor(tree);
+    this.renames = renames;
+    return rv;
+  }
+
+  transformSetAccessor(tree) {
+    let renames = this.buildRenameMap_(tree);
+    let rv = super.transformSetAccessor(tree);
+    this.renames = renames;
+    return rv;
+  }
+
+  transformArrowFunctionExpression(tree) {
+    let renames = this.buildRenameMap_(tree);
+    let rv = super.transformArrowFunctionExpression(tree);
     this.renames = renames;
     return rv;
   }

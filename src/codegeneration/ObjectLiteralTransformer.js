@@ -237,7 +237,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     properties = properties.filter((tree) => tree);
 
     // (tmp = ..., Object.defineProperty(...), ..., tmp)
-    let tempVar = this.addTempVar();
+    let tempVar = this.addTempVarToken();
     let tempVarIdentifierExpression = createIdentifierExpression(tempVar);
 
     let expressions = properties.map((property) => {

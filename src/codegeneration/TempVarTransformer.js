@@ -198,6 +198,12 @@ export class TempVarTransformer extends ParseTreeTransformer {
     return name;
   }
 
+  getTempIdentifierToken(wantedName = '_ref') {
+    let name = this.getName_();
+    return new TempIdentifierToken(null, name, wantedName);
+
+  }
+
   getName_() {
     return this.identifierGenerator.generateUniqueIdentifier();
   }
