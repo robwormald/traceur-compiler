@@ -27,7 +27,7 @@ import {
   VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {StringSet} from '../util/StringSet.js';
+import {StringMap} from '../util/StringMap.js';
 import {VAR} from '../syntax/TokenType.js';
 import {
   createAssignmentExpression,
@@ -67,7 +67,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   constructor(shouldHoistFunctions = false) {
     super();
     this.hoistedFunctions_ = [];
-    this.hoistedVariables_ = new StringSet();
+    this.hoistedVariables_ = new StringMap();
     this.keepBindingIdentifiers_ = false;
     this.inBlockOrFor_ = false;
     this.shouldHoistFunctions_ = shouldHoistFunctions;
@@ -83,8 +83,9 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     return new FunctionBody(tree.location, statements);
   }
 
-  addVariable(name) {
-    this.hoistedVariables_.add(name);
+  addVariable(token) {
+    if (typeof token === 'string') throw new Error();
+    this.hoistedVariables_.set(token.value, token);
   }
 
   addFunctionDeclaration(tree) {
@@ -107,8 +108,8 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     if (!this.hasVariables())
       return new AnonBlock(null, []);
 
-    let declarations = this.getVariableNames().map((name) => {
-      return createVariableDeclaration(name, null);
+    let declarations = this.getVariableNames().map((token) => {
+      return createVariableDeclaration(token, null);
     });
 
     return new VariableStatement(null,
@@ -180,7 +181,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
 
   transformBindingIdentifier(tree) {
     let idToken = tree.identifierToken;
-    this.addVariable(idToken.value);
+    this.addVariable(idToken);
     if (this.keepBindingIdentifiers_)
       return tree;
     return id(idToken);
@@ -276,6 +277,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   addMachineVariable(name) {
+    throw new Error('WAT');
     this.machineVariables_[name] = true;
   }
 

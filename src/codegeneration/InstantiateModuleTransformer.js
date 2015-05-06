@@ -92,7 +92,7 @@ class DeclarationExtractionTransformer extends HoistVariablesTransformer {
     return new AnonBlock(null, []);
   }
   transformClassDeclaration(tree) {
-    this.addVariable(tree.name.identifierToken.value);
+    this.addVariable(tree.name.identifierToken);
 
     // Convert a class declaration into a class expression.
     tree = new ClassExpression(tree.location, tree.name, tree.superClass,

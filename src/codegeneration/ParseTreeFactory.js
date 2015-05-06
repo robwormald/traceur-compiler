@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {TempIdentifierToken} from '../syntax/TempIdentifierToken.js';
 import {LiteralToken} from '../syntax/LiteralToken.js';
 import {
   ParseTree,
@@ -518,7 +519,7 @@ export function createNumberLiteral(value) {
  * @return {MemberExpression|MemberLookupExpression}
  */
 export function createMemberExpression(operand, memberName, ...memberNames) {
-  if (typeof operand === 'string' || operand instanceof IdentifierToken)
+  if (typeof operand === 'string' || operand instanceof IdentifierToken || operand instanceof TempIdentifierToken)
     operand = createIdentifierExpression(operand);
   if (typeof memberName === 'string')
     memberName = createIdentifierToken(memberName);

@@ -51,8 +51,8 @@ export class ArrayComprehensionTransformer extends ComprehensionTransformer {
 
     let expression = this.transformAny(tree.expression);
 
-    let index = createIdentifierExpression(this.getTempIdentifier());
-    let result = createIdentifierExpression(this.getTempIdentifier());
+    let index = createIdentifierExpression(this.getTempIdentifierToken());
+    let result = createIdentifierExpression(this.getTempIdentifierToken());
 
     let tempVarsStatatement = parseStatement `var ${index} = 0, ${result} = [];`;
     let statement = parseStatement `${result}[${index}++] = ${expression};`;

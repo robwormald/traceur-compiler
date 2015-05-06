@@ -82,7 +82,7 @@ export class AmdTransformer extends ModuleTransformer {
   }
 
   transformModuleSpecifier(tree) {
-    let localName = this.getTempIdentifier();
+    let localName = this.getTempIdentifierToken();
     // AMD does not allow .js
     let value = tree.token.processedValue
     let stringLiteral = createStringLiteralToken(value.replace(/\.js$/, ''));

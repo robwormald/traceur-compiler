@@ -52,7 +52,7 @@ import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer.js';
 import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
-import {TestTransformer} from './TestTransformer.js';
+// import {TestTransformer} from './TestTransformer.js';
 import {TestTempTransformer} from './TestTempTransformer.js';
 
 /**
@@ -95,10 +95,10 @@ export class FromOptionsTransformer extends MultiTransformer {
         return tree;
       });
     }
-
-    if (options.test) {
-      append(TestTransformer);
-    }
+    // 
+    // if (options.test) {
+    //   append(TestTransformer);
+    // }
 
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass

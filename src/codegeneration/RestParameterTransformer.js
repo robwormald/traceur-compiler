@@ -43,7 +43,7 @@ export class RestParameterTransformer extends ParameterTransformer {
           transformed.parameters.slice(0, -1));
 
       let startIndex = transformed.parameters.length - 1;
-      let i = createIdentifierToken(this.getTempIdentifier());
+      let i = this.getTempIdentifierToken();
       let name = getRestParameterLiteralToken(transformed);
       let loop;
       if (startIndex) {

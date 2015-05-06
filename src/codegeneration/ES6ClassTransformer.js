@@ -165,10 +165,10 @@ export class ES6ClassTransformer extends TempVarTransformer {
     }
 
     this.pushTempScope();
-    let id = this.getTempIdentifier();
+    let id = this.getTempIdentifierToken();
     let className = createBindingIdentifier(id);
     let statements = [
-      parseStatement `let ${id} = ${classExpression}`,
+      parseStatement `let ${className} = ${classExpression}`,
       ...createStaticInitializerStatements(className, initStaticVars),
       parseStatement `return ${className}`
     ];

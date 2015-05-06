@@ -227,7 +227,7 @@ export class ClassTransformer extends TempVarTransformer {
     if (tree.name)
       name = tree.name.identifierToken;
     else
-      name = createIdentifierToken(this.getTempIdentifier());
+      name = this.getTempIdentifierToken();
 
     let internalName = id(`${name}`);
 
@@ -392,7 +392,7 @@ export class ClassTransformer extends TempVarTransformer {
 
   transformSuperInFunctionBody_(tree, homeObject, internalName) {
     this.pushTempScope();
-    let thisName = this.getTempIdentifier();
+    let thisName = this.getTempIdentifierToken();
     let thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
     let superTransformer = new SuperTransformer(this, homeObject,

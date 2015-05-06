@@ -120,11 +120,11 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   transformYieldForExpression_(expression, machine = undefined) {
-    let gName = this.getTempIdentifier();
+    let gName = this.getTempIdentifierToken();
     this.addMachineVariable(gName);
     let g = id(gName);
 
-    let nextName = this.getTempIdentifier();
+    let nextName = this.getTempIdentifierToken();
     this.addMachineVariable(nextName);
     let next = id(nextName);
 

@@ -79,7 +79,7 @@ export class ProperTailCallTransformer extends TempVarTransformer {
     // variable declaration after the function declaration.
 
     let tmpVar = id(this.inBlock_ ?
-        this.getTempIdentifier() : this.addTempVar('_ref', setupFlagExpression));
+        this.getTempIdentifierToken() : this.addTempVarToken('_ref', setupFlagExpression));
 
     if (!this.inBlock_) {
       return funcDecl;
@@ -114,7 +114,6 @@ export class ProperTailCallTransformer extends TempVarTransformer {
     if (body === tree.body) {
       return tree;
     }
-    let func = id(this.getTempIdentifier());
     let innerFunction = createFunctionExpression(tree.parameterList, body);
     let outerBody = createFunctionBody(parseStatements `
         return $traceurRuntime.call(${innerFunction}, this, arguments);`);

@@ -17,11 +17,13 @@ import alphaRenameThisAndArguments from './alphaRenameThisAndArguments.js';
 import {parseStatement} from './PlaceholderParser.js';
 import {
   AnonBlock,
+  BindingIdentifier,
   BreakStatement,
   ContinueStatement,
   FormalParameterList,
   FunctionExpression,
   ReturnStatement,
+  VariableDeclaration,
   YieldExpression
 } from '../syntax/trees/ParseTrees.js';
 import {
@@ -46,6 +48,7 @@ import {
   createVoid0
 } from './ParseTreeFactory.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
+import {TempIdentifierToken} from '../syntax/TempIdentifierToken.js';
 import {StringSet} from '../util/StringSet.js';
 import {Token} from '../syntax/Token.js';
 import {
@@ -153,19 +156,25 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
     };
   }
 
-  // alphaRenameThisAndArguments
-  addTempVarForArguments() {
+  addTempVarToken_(preferredName, initializer) {
     let tmpVarName = this.idGenerator_.generateUniqueIdentifier();
-    this.variableDeclarations_.push(createVariableDeclaration(
-        tmpVarName, createIdentifierExpression(ARGUMENTS)));
-    return tmpVarName;
+    let token = new TempIdentifierToken(null, tmpVarName, preferredName);
+    var binding = new BindingIdentifier(null, token);
+    let declaration =
+        new VariableDeclaration(null, binding, null, initializer);
+    this.variableDeclarations_.push(declaration);
+    return token;
   }
+
   // alphaRenameThisAndArguments
-  addTempVarForThis() {
-    let tmpVarName = this.idGenerator_.generateUniqueIdentifier();
-    this.variableDeclarations_.push(createVariableDeclaration(
-        tmpVarName, createThisExpression()));
-    return tmpVarName;
+  addTempVarForArgumentsToken() {
+    return this.addTempVarToken_('_arguments',
+                                 createIdentifierExpression(ARGUMENTS));
+  }
+
+  // alphaRenameThisAndArguments
+  addTempVarForThisToken() {
+    return this.addTempVarToken_('_this', createThisExpression());
   }
 
   transformAny(tree) {

@@ -47,13 +47,13 @@ export class ForOfTransformer extends TempVarTransformer {
 
   transformForOfStatement_(original, labelSet) {
     let tree = super.transformForOfStatement(original);
-    let iter = id(this.getTempIdentifier());
-    let result = id(this.getTempIdentifier());
-    let label = id(this.getTempIdentifier());
-    let normalCompletion = id(this.getTempIdentifier());
-    let throwCompletion = id(this.getTempIdentifier());
-    let exception = id(this.getTempIdentifier());
-    let ex = id(this.getTempIdentifier());
+    let iter = id(this.getTempIdentifierToken());
+    let result = id(this.getTempIdentifierToken());
+    let label = id(this.getTempIdentifierToken());
+    let normalCompletion = id(this.getTempIdentifierToken());
+    let throwCompletion = id(this.getTempIdentifierToken());
+    let exception = id(this.getTempIdentifierToken());
+    let ex = id(this.getTempIdentifierToken());
     let labelledStatement;
     let innerStatement;
 

@@ -85,17 +85,17 @@ export class ForInTransformPass extends TempVarTransformer {
     let elements = [];
 
     // let $keys = [];
-    let keys = this.getTempIdentifier();
+    let keys = this.getTempIdentifierToken('_keys');
     elements.push(
         createVariableStatement(VAR, keys,
         createEmptyArrayLiteralExpression()));
 
     // var $collection = object;
-    let collection = this.getTempIdentifier();
+    let collection = this.getTempIdentifierToken('_coll');
     elements.push(createVariableStatement(VAR, collection, tree.collection));
 
     // for (let $p in $collection) $keys.push($p);
-    let p = this.getTempIdentifier();
+    let p = this.getTempIdentifierToken('_p');
     elements.push(
         createForInStatement(
             // var $p
@@ -107,7 +107,7 @@ export class ForInTransformPass extends TempVarTransformer {
                 createMemberExpression(keys, PUSH),
                 createArgumentList([createIdentifierExpression(p)]))));
 
-    let i = this.getTempIdentifier();
+    let i = this.getTempIdentifierToken('_i');
 
     // $keys[$i]
     let lookup = createMemberLookupExpression(

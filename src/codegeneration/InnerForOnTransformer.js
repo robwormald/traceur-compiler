@@ -60,8 +60,8 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
     this.extractedStatements_ = [];
     this.labelSet_ = labelSet;
     this.labelledStatements_ = new StringSet();
-    this.observer_ = id(this.idGenerator_.getTempIdentifier());
-    this.result_ = id(this.idGenerator_.getTempIdentifier());
+    this.observer_ = id(this.idGenerator_.getTempIdentifierToken());
+    this.result_ = id(this.idGenerator_.getTempIdentifierToken());
     this.parentLabels_ = new StringSet();
     this.labelSet_.forEach((tree) => {
       this.parentLabels_.add(tree.name.value);
@@ -69,7 +69,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
   }
 
   transform(tree) {
-    let value = id(this.idGenerator_.getTempIdentifier());
+    let value = id(this.idGenerator_.getTempIdentifierToken());
     let assignment;
     if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
       // {var,let,const} initializer = $value;

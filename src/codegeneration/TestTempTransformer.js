@@ -159,6 +159,13 @@ export class TestTempTransformer extends ParseTreeTransformer {
     return rv;
   }
 
+  transformCatch(tree) {
+    let renames = this.buildRenameMap_(tree);
+    let rv = super.transformCatch(tree);
+    this.renames = renames;
+    return rv;
+  }
+
   transformIdentifierExpression(tree) {
     if (tree.identifierToken.type === TEMP_IDENTIFIER) {
       let name = tree.identifierToken.value;

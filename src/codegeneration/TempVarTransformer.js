@@ -189,15 +189,9 @@ export class TempVarTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @return {string} An identifier string that can may be reused after the
+   * @return {TempIdentifierToken} An identifier token that can may be reused after the
    *     current temp scope has been exited.
    */
-  getTempIdentifier() {
-    let name = this.getName_();
-    // this.tempScopeStack_[this.tempScopeStack_.length - 1].push(name);
-    return name;
-  }
-
   getTempIdentifierToken(wantedName = '_ref') {
     let name = this.getName_();
     return new TempIdentifierToken(null, name, wantedName);
@@ -214,9 +208,9 @@ export class TempVarTransformer extends ParseTreeTransformer {
    *     have this as the initializer expression.
    * @return {string} The name of the temporary variable.
    */
-  addTempVar(wantedName = '_ref', initializer = null) {
-    return this.addTempVarToken(wantedName, initializer).value;
-  }
+  // addTempVar(wantedName = '_ref', initializer = null) {
+  //   return this.addTempVarToken(wantedName, initializer).value;
+  // }
 
   addTempVarToken(wantedName = '_ref', initializer = null) {
     if (typeof wantedName !== 'string') {

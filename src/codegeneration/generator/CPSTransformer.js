@@ -858,7 +858,7 @@ export class CPSTransformer extends TempVarTransformer {
           parseStatement `$ctx.popTry();`);
       tryMachine = tryMachine.append(popTry);
 
-      let exceptionName = catchBlock.binding.identifierToken.value;
+      let exceptionName = catchBlock.binding.identifierToken;
       let catchMachine = this.ensureTransformed_(catchBlock.catchBody);
       let catchStart = this.allocateState();
 
@@ -1010,13 +1010,14 @@ export class CPSTransformer extends TempVarTransformer {
     }`;
   }
 
-  addTempVar() {
-    let name = this.getTempIdentifier();
+  addTempVarToken() {
+    let name = this.getTempIdentifierToken();
     this.addMachineVariable(name);
     return name;
   }
 
   addMachineVariable(name) {
+    if (typeof name === 'string') throw new Error();
     this.hoistVariablesTransformer_.addVariable(name);
   }
 

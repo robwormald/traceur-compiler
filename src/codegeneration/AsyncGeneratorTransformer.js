@@ -28,9 +28,11 @@ import {parseStatement} from './PlaceholderParser.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   AwaitExpression,
+  BindingIdentifier,
   Block,
   CallExpression,
-  Catch
+  Catch,
+  VariableDeclaration,
 } from '../syntax/trees/ParseTrees.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {VAR} from '../syntax/TokenType.js';
@@ -39,7 +41,7 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     this.variableDeclarations_ = [];
-    this.ctx_ = id(this.getTempIdentifier());
+    this.ctx_ = id(this.getTempIdentifierToken());
   }
 
   transformYieldExpression(tree) {
@@ -92,20 +94,23 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
       return createFunctionBody(statements);
   }
 
-  // alphaRenameThisAndArguments
-  addTempVarForArguments() {
-    let tmpVarName = this.getTempIdentifier();
-    this.variableDeclarations_.push(createVariableDeclaration(
-        tmpVarName, id(ARGUMENTS)));
-    return tmpVarName;
+  addTempVarToken_(preferredName, initializer) {
+    let token = this.getTempIdentifierToken(preferredName);
+    var binding = new BindingIdentifier(null, token);
+    let declaration =
+        new VariableDeclaration(null, binding, null, initializer);
+    this.variableDeclarations_.push(declaration);
+    return token;
   }
 
   // alphaRenameThisAndArguments
-  addTempVarForThis() {
-    let tmpVarName = this.getTempIdentifier();
-    this.variableDeclarations_.push(createVariableDeclaration(
-        tmpVarName, createThisExpression()));
-    return tmpVarName;
+  addTempVarForArgumentsToken() {
+    return this.addTempVarToken_('_arguments', id(ARGUMENTS));
+  }
+
+  // alphaRenameThisAndArguments
+  addTempVarForThisToken() {
+    return this.addTempVarToken_('_this', createThisExpression());
   }
 
    /**

@@ -22,30 +22,50 @@ export class StringMap {
   constructor() {
     this.storage_ = Object.create(null);
   }
+
   set(key, value) {
     assertString(key);
     this.storage_[key] = value;
   }
+
   get(key) {
     assertString(key);
     return this.storage_[key];
   }
+
   delete(key) {
     assertString(key);
     delete this.storage_[key];
   }
+
   has(key) {
     assertString(key);
     return this.storage_[key] !== undefined;
   }
+
+  isEmpty() {
+    for (let _ in this.storage_) {
+      return false;
+    }
+    return true;
+  }
+
   keysAsArray() {
     return Object.keys(this.storage_);
   }
+
   keysAsSet() {
     let set = new StringSet();
     this.forEach((key) => set.add(key));
     return set;
   }
+
+  valuesAsArray() {
+    let values = [];
+    this.forEach((key, value) => values.push(value));
+    return values;
+  }
+
   forEach(func) {
     for (let key in this.storage_) {
       func(key, this.storage_[key]);

@@ -123,8 +123,8 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     this.tempVarTransformer_ = tempVarTransformer;
   }
 
-  addTempVar(name) {
-    let tmpId = this.tempVarTransformer_.addTempVar(name);
+  addTempVarToken(name) {
+    let tmpId = this.tempVarTransformer_.addTempVarToken(name);
     return id(tmpId);
   }
 
@@ -179,7 +179,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     // $0 = x, x = $0 + 1, $0
 
     let operand = tree.operand
-    let tmp = this.addTempVar(tree.operand.identifierToken.value);
+    let tmp = this.addTempVarToken(tree.operand.identifierToken.value);
     let operator = tree.operator.type === PLUS_PLUS ? PLUS : MINUS;
 
     let expressions = [
@@ -199,7 +199,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
     let memberName = tree.operand.memberName;
     let operand = this.transformAny(tree.operand.operand);
-    let tmp = this.addTempVar('_ref');
+    let tmp = this.addTempVarToken('_ref');
     let memberExpression =
         new MemberExpression(tree.operand.location, getResult(operand),
                              memberName);
@@ -223,7 +223,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
     let memberExpression = this.transformAny(tree.operand.memberExpression);
     let operand = this.transformAny(tree.operand.operand);
-    let tmp = this.addTempVar('_ref');
+    let tmp = this.addTempVarToken('_ref');
     let memberLookupExpression = new MemberLookupExpression(
         null, getResult(operand), getResult(memberExpression));
     let operator = tree.operator.type === PLUS_PLUS ? PLUS : MINUS;
@@ -374,7 +374,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     // $0 = b, $1 = a + $0, a = $1, $1
 
     let right = this.transformAny(tree.right);
-    let tmp = this.addTempVar(tree.left.identifierToken.value);
+    let tmp = this.addTempVarToken(tree.left.identifierToken.value);
     let binop = createOperatorToken(
         assignmentOperatorToBinaryOperator(tree.operator.type));
 
@@ -417,10 +417,10 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
     let operand = this.transformAny(left.operand);
     let right = this.transformAny(tree.right);
-    let tmp = this.addTempVar('_ref');
+    let tmp = this.addTempVarToken('_ref');
     let memberExpression = new MemberExpression(left.location,
         getResult(operand), left.memberName);
-    let tmp2 = this.addTempVar('_ref');
+    let tmp2 = this.addTempVarToken('_ref');
     let binop = createOperatorToken(
         assignmentOperatorToBinaryOperator(tree.operator.type));
 
@@ -469,10 +469,10 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     let operand = this.transformAny(left.operand);
     let memberExpression = this.transformAny(left.memberExpression);
     let right = this.transformAny(tree.right);
-    let tmp = this.addTempVar('_ref');
+    let tmp = this.addTempVarToken('_ref');
     let memberLookupExpression = new MemberLookupExpression(left.location,
         getResult(operand), getResult(memberExpression));
-    let tmp2 = this.addTempVar('_ref');
+    let tmp2 = this.addTempVarToken('_ref');
     let binop = createOperatorToken(
         assignmentOperatorToBinaryOperator(tree.operator.type));
 
@@ -587,7 +587,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
     let memberName = tree.operand.memberName;
     let operand = this.transformAny(tree.operand.operand);
-    let tmp = this.addTempVar('_ref');
+    let tmp = this.addTempVarToken('_ref');
     let memberExpresssion = new MemberExpression(
         tree.operand.location, getResult(operand), memberName);
     let args = this.transformAny(tree.args);
@@ -608,7 +608,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
             createMemberExpression(tmp, 'call'),
             new ArgumentList(args.location, argResults));
 
-    let tmp2 = this.addTempVar('_ref');
+    let tmp2 = this.addTempVarToken('_ref');
     expressions.push(
         createAssignmentExpression(tmp2, callExpression),
         tmp2);
@@ -622,7 +622,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
     let operand = this.transformAny(tree.operand.operand);
     let memberExpression = this.transformAny(tree.operand.memberExpression);
-    let tmp = this.addTempVar('_ref');
+    let tmp = this.addTempVarToken('_ref');
     let lookupExpresssion = new MemberLookupExpression(
         tree.operand.location, getResult(operand), getResult(memberExpression));
     let args = this.transformAny(tree.args);
@@ -647,7 +647,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
             createMemberExpression(tmp, 'call'),
             new ArgumentList(args.location, argResults));
 
-    let tmp2 = this.addTempVar('_ref');
+    let tmp2 = this.addTempVarToken('_ref');
     expressions.push(
         createAssignmentExpression(tmp2, callExpression),
         tmp2);
@@ -665,7 +665,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     if (condition === tree.condition && left === tree.left && right === tree.right)
       return tree;
 
-    let res = this.addTempVar('_ref');
+    let res = this.addTempVarToken('_ref');
     let leftTree = createCommaExpression([
       ...getExpressions(left),
       createAssignmentExpression(res, getResult(left))
@@ -689,7 +689,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     // =>
     // ($0 = a) ? $0 : b
 
-    let res = this.addTempVar('_ref');
+    let res = this.addTempVarToken('_ref');
 
     let leftTree = createCommaExpression([
       createAssignmentExpression(res, getResult(left))
@@ -714,7 +714,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     // =>
     // ($0 = a) ? b : $0
 
-    let res = this.addTempVar('_ref');
+    let res = this.addTempVarToken('_ref');
 
     let leftTree = createCommaExpression([
       ...getExpressions(right),
@@ -751,6 +751,6 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
   }
 
   createCommaExpressionBuilder_() {
-    return new CommaExpressionBuilder(this.addTempVar('_ref'));
+    return new CommaExpressionBuilder(this.addTempVarToken('_ref'));
   }
 }

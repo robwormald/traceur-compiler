@@ -17,23 +17,26 @@ import {suite, test, assert, setup} from '../../unit/unitTestRunner.js';
 import {ExplodeExpressionTransformer} from '../../../src/codegeneration/ExplodeExpressionTransformer.js';
 import {Parser} from '../../../src/syntax/Parser.js';
 import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {TempIdentifierToken} from '../../../src/syntax/TempIdentifierToken.js';
 import {createIdentifierExpression as id} from '../../../src/codegeneration/ParseTreeFactory.js';
 import {write} from '../../../src/outputgeneration/TreeWriter.js';
+
 
 suite('ExplodeExpressionTransformer.js', function() {
 
   var counter = 0;
   var transformer;
 
-  function stubAddTempVar() {
-    var s = '$' + counter++;
-    return id(s);
+  function stubAddTempVarToken() {
+    let s = '$' + counter++;
+    let token = new TempIdentifierToken(null, s, '_ref');
+    return id(token);
   }
 
   setup(function() {
     counter = 0;
     transformer = new ExplodeExpressionTransformer(null);
-    transformer.addTempVar = stubAddTempVar;
+    transformer.addTempVarToken = stubAddTempVarToken;
   });
 
   function parseExpression(content) {
