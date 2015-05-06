@@ -79,7 +79,9 @@ export class Scope {
   }
 
   // we deduce the oldType
-  renameBinding(oldName, newTree, newType, reporter) {
+  renameBinding(oldNameToken, newTree, newType, reporter) {
+    console.assert(typeof oldNameToken !== 'string');
+    let oldName = oldNameToken.value;
     let name = newTree.getStringValue();
     if (newType === VAR) {
       if (this.lexicalDeclarations_.has(oldName)) {

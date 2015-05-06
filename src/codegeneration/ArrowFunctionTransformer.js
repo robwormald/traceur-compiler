@@ -28,6 +28,8 @@ import {
   createReturnStatement,
   createThisExpression,
 } from './ParseTreeFactory.js';
+import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {Token} from '../syntax/Token.js';
 
 /**
  * Converts a concise body to a function body.
@@ -74,11 +76,13 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
     finder.visitAny(tree);
     if (finder.foundArguments) {
       argumentsTempName = this.addTempVarToken('_arguments');
-      tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);
+      let token = new IdentifierToken(null, ARGUMENTS);
+      tree = AlphaRenamer.rename(tree, token, argumentsTempName);
     }
     if (finder.foundThis) {
       thisTempName = this.addTempVarToken('_this');
-      tree = AlphaRenamer.rename(tree, THIS, thisTempName);
+      let token = new Token(THIS, null);
+      tree = AlphaRenamer.rename(tree, token, thisTempName);
     }
 
     let parameterList = this.transformAny(tree.parameterList);

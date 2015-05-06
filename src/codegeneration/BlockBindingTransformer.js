@@ -43,6 +43,7 @@ import {
   WhileStatement
 } from '../syntax/trees/ParseTrees.js';
 import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {TempIdentifierToken} from '../syntax/TempIdentifierToken.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {VAR} from '../syntax/TokenType.js';
 import {
@@ -193,12 +194,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   /**
    * @param {VariableDeclaration} variable
-   * @return {string}
+   * @return {Token}
    */
   getVariableName_(variable) {
     let lvalue = variable.lvalue;
     if (lvalue.type === BINDING_IDENTIFIER) {
-      return lvalue.getStringValue();
+      return lvalue.identifierToken;
     }
     throw new Error('Unexpected destructuring declaration found.');
   }
@@ -241,7 +242,9 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     this.scopeBuilder_.scope = null;
   }
 
-  needsRename_(name) {
+  needsRename_(token) {
+    console.assert(typeof token !== 'string');
+    let name = token.value;
     if (this.usedVars_.has(name)) return true;
     let scope = this.scope_;
     let parent = scope.parent;
@@ -260,13 +263,15 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     return true;
   }
 
-  newNameFromOrig(origName, renames) {
+  newNameFromOrig_(origName, renames) {
+    console.assert(typeof origName !== 'string');
     let newName;
     if (this.needsRename_(origName)) {
-      newName = origName + this.idGenerator_.generateUniqueIdentifier();
-      renames.push(new Rename(origName, newName));
+      newName = this.idGenerator_.generateUniqueIdentifier();
+      let newToken = new TempIdentifierToken(origName.location, newName, origName.value);
+      renames.push(new Rename(origName, newToken));
     } else {
-      this.usedVars_.add(origName);
+      this.usedVars_.add(origName.value);
       newName = origName;
     }
     return newName;
@@ -389,13 +394,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   transformBindingIdentifier(tree) {
     if (this.maybeRename_) {
-      let origName = tree.getStringValue()
-      let newName = this.newNameFromOrig(origName, this.blockRenames_);
+      let origName = tree.identifierToken
+      let newName = this.newNameFromOrig_(origName, this.blockRenames_);
       if (origName === newName) {
         return tree;
       }
-      let newToken = new IdentifierToken(tree.location, newName);
-      let bindingIdentifier = new BindingIdentifier(tree.location, newToken);
+      let bindingIdentifier = new BindingIdentifier(tree.location, newName);
       this.scope_.renameBinding(origName, bindingIdentifier, VAR,
                                 this.reporter_);
       return bindingIdentifier;
@@ -506,8 +510,8 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     // Named function in a block scope is only scoped to the block.
     // Change to variable statement and "hoist" it to the top of the block.
     if (!this.scope_.isVarScope) {
-      let origName = tree.name.getStringValue();
-      let newName = this.newNameFromOrig(origName, this.blockRenames_);
+      let origName = tree.name.identifierToken;
+      let newName = this.newNameFromOrig_(origName, this.blockRenames_);
 
       // var f = function( ... ) { ... }
       let functionExpression =
@@ -562,7 +566,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
         let initializer = new VariableDeclarationList(null, VAR,
             tree.initializer.declarations.map((declaration) => {
                 let origName = this.getVariableName_(declaration);
-                let newName = this.newNameFromOrig(origName, renames);
+                let newName = this.newNameFromOrig_(origName, renames);
 
                 let bindingIdentifier = createBindingIdentifier(newName);
                 this.scope_.renameBinding(origName, bindingIdentifier,
@@ -596,7 +600,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
         initializer = new VariableDeclarationList(null, VAR,
             tree.initializer.declarations.map((declaration) => {
               let origName = this.getVariableName_(declaration);
-              let newName = this.newNameFromOrig(origName, renames);
+              let newName = this.newNameFromOrig_(origName, renames);
 
               iifeArgumentList.push(createIdentifierExpression(newName));
               iifeParameterList.push(new FormalParameter(null,
@@ -695,10 +699,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
 class Rename {
   /**
-   * @param {string} oldName
-   * @param {string} newName
+   * @param {Token} oldName
+   * @param {Token} newName
    */
   constructor(oldName, newName) {
+    console.assert(typeof oldName !== 'string');
+    console.assert(typeof newName !== 'string');
     this.oldName = oldName;
     this.newName = newName;
   }

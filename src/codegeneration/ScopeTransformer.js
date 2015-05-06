@@ -63,11 +63,14 @@ function getLexicalBindingNames(tree) {
  */
 export class ScopeTransformer extends ParseTreeTransformer {
   /**
-   * @param {string} varName
+   * @param {Token} varToken
    */
-  constructor(varName) {
+  constructor(varToken) {
+    console.assert(typeof varToken !== 'string');
     super();
-    this.varName_ = varName;
+    this.varToken_ = varToken;
+    this.varName_ = varToken.value;
+    console.assert(typeof varName === 'string');
   }
 
   /**
