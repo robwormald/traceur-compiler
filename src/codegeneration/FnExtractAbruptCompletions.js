@@ -84,6 +84,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
     body = alphaRenameThisAndArguments(this, body);
     let tmpFnName = this.idGenerator_.generateUniqueIdentifier();
+    let tempToken = new TempIdentifierToken(null, tmpFnName, '_loop')
     let functionKind = inGenerator ? new Token(STAR, null) : null;
     // function ( * )opt (...) { ... }
     let functionExpression = new FunctionExpression(null, null, functionKind,
@@ -91,10 +92,10 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
         createFunctionBody(body.statements || [body]));
     // var $tmpFn = ${functionExpression}
     this.variableDeclarations_.push(
-        createVariableDeclaration(tmpFnName, functionExpression));
+        createVariableDeclaration(tempToken, functionExpression));
     // $tmpFn(...)
     let functionCall = createCallExpression(
-        createIdentifierExpression(tmpFnName),
+        createIdentifierExpression(tempToken),
         createArgumentList(argsList));
     // yield* $tmpFn(...)
     if (inGenerator) {
@@ -103,18 +104,19 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
     let loopBody = null;
     if (this.extractedStatements_.length || this.hasReturns) {
-      let tmpVarName = createIdentifierExpression(
-          this.idGenerator_.generateUniqueIdentifier());
+      let name = this.idGenerator_.generateUniqueIdentifier();
+      let tmpVarToken = new TempIdentifierToken(null, name, '_ret');
+      let tmpVarIdExpr = createIdentifierExpression(tmpVarToken);
       // hoist declaration
       this.variableDeclarations_.push(
-          createVariableDeclaration(tmpVarName, null));
+          createVariableDeclaration(tmpVarToken, null));
 
       let maybeReturn;
       if (this.hasReturns) {
         // ${tmpVarName} is either a number of an object
         // this check is enough since it's never null
-        maybeReturn = parseStatement `if (typeof ${tmpVarName} === "object")
-            return ${tmpVarName}.v;`;
+        maybeReturn = parseStatement `if (typeof ${tmpVarIdExpr} === "object")
+            return ${tmpVarIdExpr}.v;`;
       }
 
       if (this.extractedStatements_.length) {
@@ -132,14 +134,14 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
         // $tmpVar = $tmpFn(...); switch($tmpVar) {...}
         loopBody = createBlock([
           createExpressionStatement(
-              createAssignmentExpression(tmpVarName, functionCall)),
-          createSwitchStatement(tmpVarName, caseClauses)
+              createAssignmentExpression(tmpVarIdExpr, functionCall)),
+          createSwitchStatement(tmpVarIdExpr, caseClauses)
         ]);
       } else {
         // $tmpVar = ( yield* )opt $tmpFn(...); ${maybeReturn}
         loopBody = createBlock( [
           createExpressionStatement(
-              createAssignmentExpression(tmpVarName, functionCall)),
+              createAssignmentExpression(tmpVarIdExpr, functionCall)),
           maybeReturn
         ]);
       }

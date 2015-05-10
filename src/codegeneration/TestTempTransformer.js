@@ -20,10 +20,16 @@ import {
   BindingIdentifier,
   ExpressionStatement,
   IdentifierExpression,
+  ObjectPatternField,
 } from '../syntax/trees/ParseTrees.js';
 import {ScopeChainBuilderWithReferences} from '../semantics/ScopeChainBuilderWithReferences.js';
 import {TEMP_IDENTIFIER} from '../syntax/TokenType.js';
 import {StringSet} from '../util/StringSet.js';
+import {
+  BINDING_ELEMENT,
+  BINDING_IDENTIFIER,
+  LITERAL_PROPERTY_NAME,
+} from '../syntax/trees/ParseTreeType.js';
 
 /*
 
@@ -80,12 +86,13 @@ export class TestTempTransformer extends ParseTreeTransformer {
         return;
       }
 
-      let wantedName = token.wantedName;
-      let varName = wantedName;
+      let preferredName = token.preferredName;
+      let varName = preferredName;
       let n = 2;
+      let prepend = preferredName[0] === '_' ? '' : '_';
       while (varNames.has(varName) || scope.hasFreeVariable(varName) ||
              seenNames.has(varName)) {
-        varName = wantedName + String(n);
+        varName = prepend + preferredName + String(n);
         n++;
       }
       seenNames.add(varName);
@@ -179,10 +186,29 @@ export class TestTempTransformer extends ParseTreeTransformer {
   transformBindingIdentifier(tree) {
     if (tree.identifierToken.type === TEMP_IDENTIFIER) {
       let name = tree.identifierToken.value;
+      console.assert(typeof this.renames[name] == 'string', name, tree.identifierToken.preferredName, this.renames);
       let token = new IdentifierToken(tree.location,
                                       this.renames[name]);
       return new BindingIdentifier(tree.location, token);
     }
     return super.transformBindingIdentifier(tree);
+  }
+
+  transformObjectPatternField(tree) {
+    // We might have renamed {x} into {x: temp} but end up renaming temp back to
+    // x.
+    let name = this.transformAny(tree.name);
+    let element = this.transformAny(tree.element);
+    if (name === tree.name && element === tree.element) {
+      return tree;
+    }
+    if (name.type === LITERAL_PROPERTY_NAME &&
+        element.type === BINDING_ELEMENT &&
+        element.binding.type === BINDING_IDENTIFIER  &&
+        element.binding.identifierToken.value === name.literalToken.value) {
+      return element;
+    }
+    return new ObjectPatternField(tree.location, name, element);
+
   }
 }

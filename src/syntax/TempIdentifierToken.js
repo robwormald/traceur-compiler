@@ -23,13 +23,24 @@ export class TempIdentifierToken extends Token {
    * @param {SourceRange} location
    * @param {string} value
    */
-  constructor(location, value, wantedName) {
+  constructor(location, value, preferredName) {
     super(TEMP_IDENTIFIER, location);
     this.value = value;
-    this.wantedName = wantedName;
+    this.preferredName = preferredName;
   }
 
   toString() {
     return this.value;
   }
 }
+// 
+// let counter = Math.random() * 1e6 | 0;
+//
+// export function createTempIdentifierToken(origToken = undefined) {
+//   let location = null, value = '_ref';
+//   if (origToken !== undefined) {
+//     ({location, value} = origToken);
+//   }
+//   let name = `_t${counter++}`;
+//   return new TempIdentifierToken(location, name, value);
+// }

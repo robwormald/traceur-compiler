@@ -22,6 +22,7 @@ import {
 
 import {BlockBindingTransformer} from '../../../src/codegeneration/BlockBindingTransformer.js';
 import {UniqueIdentifierGenerator} from '../../../src/codegeneration/UniqueIdentifierGenerator.js';
+import {TestTempTransformer} from '../../../src/codegeneration/TestTempTransformer.js';
 import {Parser} from '../../../src/syntax/Parser.js';
 import {SourceFile} from '../../../src/syntax/SourceFile.js';
 import {write} from '../../../src/outputgeneration/TreeWriter.js';
@@ -31,42 +32,32 @@ import {CollectingErrorReporter as ErrorReporter} from '../../../src/util/Collec
 
 suite('BlockBindingTransformer.js', function() {
 
-  var options = new Options();
-  var currentOption;
-
-  setup(function() {
-    currentOption = options.blockBinding;
-    options.blockBinding = true;
-  });
-
-  teardown(function() {
-    options.blockBinding = currentOption;
-  });
-
-  function parseExpression(content) {
+  function parseScript(content) {
+    var options = new Options({
+      blockBinding: true,
+      test: true,
+    });
     var file = new SourceFile('test', content);
     var parser = new Parser(file, undefined, options);
-    return parser.parseExpression();
-  }
-
-  function parseFunction(content) {
-    return parseExpression('function() {' + content + '}');
+    return parser.parseScript();
   }
 
   function normalize(content) {
-    var tree = parseExpression('function() {' + content + '}').body;
+    var tree = parseScript(content);
     return write(tree);
   }
 
   function makeTest(name, code, expected) {
     test(name, function() {
-      var tree = parseFunction(code);
+      var tree = parseScript(code);
       var reporter = new ErrorReporter();
       var transformer = new BlockBindingTransformer(
           new UniqueIdentifierGenerator(), reporter, tree);
       var transformed = transformer.transformAny(tree);
       new ParseTreeValidator().visitAny(transformed);
-      assert.equal(write(transformed.body), normalize(expected));
+      var testTempTransformer = new TestTempTransformer();
+      transformed = testTempTransformer.transformAny(transformed);
+      assert.equal(write(transformed), normalize(expected));
       assert.lengthOf(reporter.errors, 0);
     });
   }
@@ -75,6 +66,9 @@ suite('BlockBindingTransformer.js', function() {
   makeTest('Let to Var In Block',
       '1; { 2; let x; }',
       '1; { 2; var x; }');
+//      AssertionError: expected '{\n  1;\n  {\n    2;\n    var $__0;\n  }\n}' to equal
+//                               '{\n  1;\n  {\n    2;\n    var x;\n  }\n}'
+
   makeTest('Let to Var In Block',
       '1; if (true) { 2; let x = 5; }',
       '1; if (true) { 2; var x = 5; }');
@@ -101,7 +95,6 @@ suite('BlockBindingTransformer.js', function() {
       '  var t = function() {alert(i); var i = 5;};' +
       '}');
 
-
   makeTest('Let to Var with name collisions',
      'if (true) { let x = 5; }'+
      'if (true) { let x = 5; }',
@@ -110,48 +103,71 @@ suite('BlockBindingTransformer.js', function() {
       '  var x = 5;' +
       '}' +
       'if (true) {' +
-      '  var x$__0 = 5;' +
+      '  var _x2 = 5;' +
       '}');
 
+/*
+ 'var $__1 = function(i) {\n  function t() {\n    log(i);\n  }\n};\nfor (var i = 0; i < 5; i++) {\n  $__1(i);\n}\n'
+ 'var $__0 = function(i) {\n  function t() {\n    log(i);\n  }\n};\nfor (var i = 0; i < 5; i++) {\n  $__0(i);\n}\n'
+*/
   suite('Loops with Fns using block variables', function() {
     makeTest('Let to Var in',
-        'for(let i = 0; i < 5; i++){ function t(){log(i)} }',
+        'for (let i = 0; i < 5; i++) { function t(){ log(i); } }',
         // ======
-        'var $__0 = function(i) {' +
+        'var _loop = function(i) {' +
         '  function t() {' +
         '    log(i);' +
         '  }' +
         '};' +
         'for (var i = 0; i < 5; i++) {' +
-          '$__0(i);' +
+          '_loop(i);' +
         '}');
 
     makeTest('Return in Fn',
-        'for(let i = 0; i < 5; i++) { return function t(){return i;} }',
+        `() => {
+          for(let i = 0; i < 5; i++) {
+            return function t(){
+              return i;
+            }
+          }
+        }`,
         // =======
-        'var $__0 = function(i) {' +
-        '  return {v: function t() {' +
-        '    return i;' +
-        '  }};' +
-        '}, $__1;' +
-        'for (var i = 0; i < 5; i++) {' +
-        '  $__1 = $__0(i);' +
-        '  if (typeof $__1 === "object") ' +
-        '    return $__1.v;' +
-        '}');
+        `() => {
+          var _loop = function(i) {
+            return {v: function t() {
+              return i;
+            }};
+          }, _ret;
+          for (var i = 0; i < 5; i++) {
+            _ret = _loop(i);
+            if (typeof _ret === "object")
+              return _ret.v;
+          }
+        }`);
 
     makeTest('Return nothing in Fn',
-        'for(let i = 0; i < 5; i++) { return; function t(){return i;} } }',
+        `() => {
+          for (let i = 0; i < 5; i++) {
+            return;
+            function t() {
+              return i;
+            }
+          }
+        }`,
         // =======
-        'var $__0 = function(i) {' +
-        '  return {v: (void 0)};' +
-        '  function t(){return i;}' +
-        '}, $__1;' +
-        'for (var i = 0; i < 5; i++) {' +
-        '  $__1 = $__0(i);' +
-        '  if (typeof $__1 === "object") ' +
-        '    return $__1.v;' +
-        '}');
+        `() => {
+          var _loop = function(i) {
+            return {v: (void 0)};
+            function t() {
+              return i;
+            }
+          }, _ret;
+          for (var i = 0; i < 5; i++) {
+            _ret = _loop(i);
+            if (typeof _ret === "object")
+              return _ret.v;
+          }
+        }`);
 
     makeTest('Break and Continue in Fn',
         '"use strict";' +
@@ -171,7 +187,7 @@ suite('BlockBindingTransformer.js', function() {
         // ======
         '"use strict";' +
         'outer: while (true) {' +
-        '  var $__0 = function (i) {' +
+        '  var _loop = function (i) {' +
         '    inner: while (true) {' +
         '      var t = function() {' +
         '        return i;' +
@@ -183,10 +199,10 @@ suite('BlockBindingTransformer.js', function() {
         '      return 1;' +
         '      continue inner;' +
         '    }' +
-        '  }, $__1 = void 0;' +
+        '  }, _ret = void 0;' +
         '  for (var i = 0; i < 5; i++) {' +
-        '    $__1 = $__0(i);' +
-        '    switch ($__1) {' +
+        '    _ret = _loop(i);' +
+        '    switch (_ret) {' +
         '      case 0:' +
         '        break outer;' +
         '      case 1:' +
@@ -202,40 +218,40 @@ suite('BlockBindingTransformer.js', function() {
         '  function t() { log(i); }' +
         '}',
         // ======
-        'var $__0 = arguments,' +
-        '    $__1 = this,' +
-        '    $__2 = function(i) {' +
-        '      console.log($__1, $__0);' +
+        'var _arguments = arguments,' +
+        '    _this = this,' +
+        '    _loop = function(i) {' +
+        '      console.log(_this, _arguments);' +
         '      function t() { log(i); }' +
         '    };' +
         'for (var i = 0; i < 5; i++) {' +
-        '$__2(i);' +
+        '_loop(i);' +
         '}');
 
     makeTest('Hoist Var Declaration',
         'for(let i = 0; i < 5; i++){ var k = 1; function t(){log(i)} }',
         // ======
-        'var k, $__0 = function(i) {' +
+        'var k, _loop = function(i) {' +
         '  k = 1;' +
         '  function t() {' +
         '    log(i);' +
         '  }' +
         '};' +
         'for (var i = 0; i < 5; i++) {' +
-        '$__0(i);' +
+        '_loop(i);' +
         '}');
 
     makeTest('Function as Block Binding',
         'for(let i = 0; i < 5; i++){ function k() {} function t(){log(k)} }',
         // ======
-        'var $__0 = function(i) {' +
+        'var _loop = function(i) {' +
         '  function k() {}' +
         '  function t() {' +
         '    log(k);' +
         '  }' +
         '};' +
         'for (var i = 0; i < 5; i++) {' +
-        '$__0(i);' +
+        '_loop(i);' +
         '}');
 
     makeTest('Loop with Var initializer remains untouched',
@@ -244,14 +260,14 @@ suite('BlockBindingTransformer.js', function() {
         '  function t() {console.log(x)}' +
         '}',
         // ======
-        'var $__0 = function() {' +
+        'var _loop = function() {' +
         '  var x = 10;' +
         '  function t() {' +
         '    console.log(x);' +
         '  }' +
         '};' +
         'for (var i = 0; i < 5; i++) {' +
-        '  $__0();' +
+        '  _loop();' +
         '}');
   });
 
@@ -260,10 +276,10 @@ suite('BlockBindingTransformer.js', function() {
         'if (true) { f(); function f() { other() } }',
         // ======
         'if (true) {' +
-        '  var f$__0 = function() {' +
+        '  var f = function() {' +
         '    other();' +
         '  };' +
-        'f$__0();' +
+        'f();' +
         '}');
 
     makeTest('Function are untouched when outside block',
@@ -273,37 +289,37 @@ suite('BlockBindingTransformer.js', function() {
 
   makeTest('Rename in destructuring',
       'let x = 1; { let {x, y} = {}; }',
-      'var x = 1; { var {x: x$__0, y} = {}; }');
+      'var x = 1; { var {x: _x2, y} = {}; }');
   makeTest('Rename in destructuring 2',
       'let x = 1; { let {y, x} = {}; }',
-      'var x = 1; { var {y, x: x$__0} = {}; }');
+      'var x = 1; { var {y, x: _x2} = {}; }');
 
   makeTest('Rename in destructuring 3',
       'let x = 1; { let {x: x, y} = {}; }',
-      'var x = 1; { var {x: x$__0, y} = {}; }');
+      'var x = 1; { var {x: _x2, y} = {}; }');
   makeTest('Rename in destructuring 4',
       'let x = 1; { let {y, x: x} = {}; }',
-      'var x = 1; { var {y, x: x$__0} = {}; }');
+      'var x = 1; { var {y, x: _x2} = {}; }');
 
   makeTest('Rename in destructuring with initializer',
       'let x = 1; { let {x, y = x} = {}; }',
-      'var x = 1; { var {x: x$__0, y = x$__0} = {}; }');
+      'var x = 1; { var {x: _x2, y = _x2} = {}; }');
   makeTest('Rename in destructuring with initializer with binding',
       'let x = 1; { let {x = function x() {}} = {}; }',
-      'var x = 1; { var {x: x$__0 = function x() {}} = {}; }');
+      'var x = 1; { var {x: _x2 = function x() {}} = {}; }');
   makeTest('Rename in destructuring with initializer',
       'let x = 1; { let {x: x = function x() {}} = {}; }',
-      'var x = 1; { var {x: x$__0 = function x() {}} = {}; }');
+      'var x = 1; { var {x: _x2 = function x() {}} = {}; }');
   makeTest('Rename in destructuring with reference in initializer',
       'let x = 1; { let {x = () => x} = {}; }',
-      'var x = 1; { var {x: x$__0 = () => x$__0} = {}; }');
+      'var x = 1; { var {x: _x2 = () => _x2} = {}; }');
 
   makeTest('Rename in nested destructuring',
       'let x = 1; { let {x: {x}} = {}; }',
-      'var x = 1; { var {x: {x: x$__0}} = {}; }');
+      'var x = 1; { var {x: {x: _x2}} = {}; }');
   makeTest('Rename in nested destructuring 2',
       'let x = 1; { let {x: {x = function x() {}}} = {}; }',
-      'var x = 1; { var {x: {x: x$__0 = function x() {}}} = {}; }');
+      'var x = 1; { var {x: {x: _x2 = function x() {}}} = {}; }');
 
   makeTest('Rename, make sure function name in initializer is not renamed',
       'let x = 1; { let y = function x() {}; }',
@@ -318,8 +334,8 @@ suite('BlockBindingTransformer.js', function() {
       '{ let x = 2; }' +
       'x;',
       // ======
-      '{ var x$__0 = 1; }' +
-      '{ var x$__1 = 2; }' +
+      '{ var _x2 = 1; }' +
+      '{ var _x3 = 2; }' +
       'x;');
 
   makeTest('Siblings 2',
@@ -327,32 +343,32 @@ suite('BlockBindingTransformer.js', function() {
       '{ let x = 2; x; }' +
       'x;',
       // ======
-      '{ var x$__0 = 1; x$__0; }' +
-      '{ var x$__1 = 2; x$__1; }' +
+      '{ var _x2 = 1; _x2; }' +
+      '{ var _x3 = 2; _x3; }' +
       'x;');
 
   makeTest('Siblings 3',
       'function g() {' +
-      '  var zzz = 1;' +
+      '  var z = 1;' +
       '  function f() {' +
-      '    zzz;' +
+      '    z;' +
       '    {' +
-      '      let zzz = 2;' +
-      '      zzz;' +
+      '      let z = 2;' +
+      '      z;' +
       '    }' +
-      '    zzz;' +
+      '    z;' +
       '  }' +
       '}',
       // ======
       'function g() {' +
-      '  var zzz = 1;' +
+      '  var z = 1;' +
       '  function f() {' +
-      '    zzz;' +
+      '    z;' +
       '    {' +
-      '      var zzz$__0 = 2;' +
-      '      zzz$__0;' +
+      '      var _z2 = 2;' +
+      '      _z2;' +
       '    }' +
-      '    zzz;' +
+      '    z;' +
       '  }' +
       '}');
 

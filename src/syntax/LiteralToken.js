@@ -95,7 +95,7 @@ class StringParser {
       case 'x':
         // 2 hex digits
         return String.fromCharCode(parseInt(this.next().value + this.next().value, 16));
-      case 'u':
+      case 'u': {
         let nextValue = this.next().value;
         if (nextValue === '{') {
           let hexDigits = '';
@@ -113,6 +113,7 @@ class StringParser {
         // 4 hex digits
         return String.fromCharCode(parseInt(nextValue + this.next().value +
                                             this.next().value + this.next().value, 16));
+      }
 
       default:
         if (Number(ch) < 8)
@@ -148,7 +149,7 @@ export class LiteralToken extends Token {
       case NULL:
         return null;
 
-      case NUMBER:
+      case NUMBER: {
         let value = this.value;
         if (value.charCodeAt(0) === 48) {  // 0
           switch (value.charCodeAt(1)) {
@@ -161,10 +162,12 @@ export class LiteralToken extends Token {
           }
         }
         return Number(this.value);
+      }
 
-      case STRING:
+      case STRING: {
         let parser = new StringParser(this.value);
         return parser.parse();
+      }
 
       default:
         throw new Error('Not implemented');

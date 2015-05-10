@@ -66,11 +66,11 @@ export class ScopeTransformer extends ParseTreeTransformer {
    * @param {Token} varToken
    */
   constructor(varToken) {
-    console.assert(typeof varToken !== 'string');
+    // console.assert(typeof varToken !== 'string');
     super();
     this.varToken_ = varToken;
-    this.varName_ = varToken.value;
-    console.assert(typeof varName === 'string');
+    this.varName_ = varToken.toString();
+    // console.assert(typeof this.varName_ === 'string');
   }
 
   /**
