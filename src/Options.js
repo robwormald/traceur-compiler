@@ -68,7 +68,7 @@ export const optionsV01 = enumerableOnlyObject({
   unicodeEscapeSequences: true,
   unicodeExpressions: true,
   validate: false,
-  test: false
+  test: true
 });
 
 export const versionLockedOptions = optionsV01;
@@ -155,7 +155,7 @@ addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
-addFeatureOption('test', EXPERIMENTAL);
+addFeatureOption('test', ON_BY_DEFAULT);
 
 let transformOptionsPrototype = {};
 

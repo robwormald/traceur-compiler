@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  BindingElement,
+  BindingIdentifier,
+  FormalParameter,
+  FormalParameterList,
+  FunctionBody,
+  FunctionExpression,
+} from '../syntax/trees/ParseTrees.js';
 import {ModuleTransformer} from './ModuleTransformer.js';
 import {
   createIdentifierExpression,
@@ -24,6 +32,7 @@ import {
   parseStatements,
   parsePropertyDefinition
 } from './PlaceholderParser.js';
+import filePathToBindingName from './module/filePathToBindingName.js';
 import scopeContainsThis from './scopeContainsThis.js';
 
 export class AmdTransformer extends ModuleTransformer {
@@ -62,13 +71,19 @@ export class AmdTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
     let depPaths = this.dependencies.map((dep) => dep.path);
-    let depLocals = this.dependencies.map((dep) => dep.local);
+    let formals = this.dependencies.map((dep) => {
+      return new FormalParameter(null,
+          new BindingElement(null,
+              new BindingIdentifier(null, dep.local), null),
+          null, []);
+      });
 
     let hasTopLevelThis = statements.some(scopeContainsThis);
 
-    let func = parseExpression `function(${depLocals}) {
-      ${statements}
-    }`;
+    let parameterList = new FormalParameterList(null, formals);
+    let body = new FunctionBody(null, statements);
+    let func = new FunctionExpression(null, null, null,
+                                      parameterList, null, [], body);
 
     if (hasTopLevelThis)
       func = parseExpression `${func}.bind(${globalThis()})`;
@@ -82,9 +97,11 @@ export class AmdTransformer extends ModuleTransformer {
   }
 
   transformModuleSpecifier(tree) {
-    let localName = this.getTempIdentifierToken();
+    let value = tree.token.processedValue;
+    let preferredName = filePathToBindingName(value);
+    let localName = this.getTempIdentifierToken(preferredName);
+
     // AMD does not allow .js
-    let value = tree.token.processedValue
     let stringLiteral = createStringLiteralToken(value.replace(/\.js$/, ''));
     this.dependencies.push({path: stringLiteral, local: localName});
     return createIdentifierExpression(localName);

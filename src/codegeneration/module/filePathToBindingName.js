@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Token} from './Token.js';
-import {IDENTIFIER} from './TokenType.js';
 
-/**
- * A token representing an identifier.
- */
-export class IdentifierToken extends Token {
-  /**
-   * @param {SourceRange} location
-   * @param {string} value
-   */
-  constructor(location, value) {
-    super(IDENTIFIER, location);
-    if (typeof value !== 'string') { throw new Error(`wrong type. got: ${typeof value}`); }
-    this.value = value;
+export default function filePathToBindingName(s) {
+  s = s.replace(/\.js$/, '');
+  let parts = s.split(/[^_$a-zA-Z0-9]+/);
+  let output = '';
+  for (let i = 0; i < parts.length; i++) {
+    let part = parts[i];
+    if (!part) continue;
+    if (output === '') {
+      output = part;
+    } else {
+      output += part[0].toUpperCase() + part.slice(1);
+    }
   }
-
-  toString() {
-    return this.value;
+  if (output === '') {
+    return '_module';
   }
+  if (output[0] !== '_') {
+    return '_' + output;
+  }
+  return output;
 }

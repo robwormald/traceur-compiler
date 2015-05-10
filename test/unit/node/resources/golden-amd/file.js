@@ -1,8 +1,8 @@
-define(["./dep"], function($__0) {
+define(["./dep"], function(_dep) {
   "use strict";
-  if (!$__0 || !$__0.__esModule)
-    $__0 = {default: $__0};
-  var q = $__0.q;
+  if (!_dep || !_dep.__esModule)
+    _dep = {default: _dep};
+  var q = _dep.q;
   var p = 'module';
   return {
     get p() {

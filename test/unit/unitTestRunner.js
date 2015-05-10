@@ -36,6 +36,7 @@ unitTestRunner.applyOptions([
   'test/unit/util/*.js',
   'test/unit/syntax/*.js',
   'test/unit/codegeneration/*.js',
+  'test/unit/codegeneration/module/*.js',
   'test/unit/semantics/*.js',
   'test/unit/tools/*.js',
   'test/unit/runtime/*.js',

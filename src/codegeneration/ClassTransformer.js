@@ -227,9 +227,9 @@ export class ClassTransformer extends TempVarTransformer {
     if (tree.name)
       name = tree.name.identifierToken;
     else
-      name = this.getTempIdentifierToken();
+      name = this.getTempIdentifierToken('_class');
 
-    let internalName = id(`${name}`);
+    let internalName = id(name);
 
     let oldState = this.state_;
     this.state_ = {hasSuper: false};
