@@ -1004,6 +1004,10 @@ export class Parser {
   parseLiteralPropertyName_() {
     let start = this.getTreeStartLocation_();
     let token = nextToken();
+    if (token.isKeyword()) {
+      // Use IdentifierToken to simplify the rest of the code base.
+      token = new IdentifierToken(token.location, token.type);
+    }
     return new LiteralPropertyName(this.getTreeLocation_(start), token);
   }
 

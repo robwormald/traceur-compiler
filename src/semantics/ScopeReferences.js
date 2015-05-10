@@ -25,7 +25,8 @@ export class ScopeReferences extends Scope {
     this.freeVars_ = new StringSet();
   }
 
-  addReference(name) {
+  addReference(token) {
+    let name = token.value;
     this.freeVars_.add(name);
   }
 

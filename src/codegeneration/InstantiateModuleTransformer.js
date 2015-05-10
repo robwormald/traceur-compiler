@@ -191,7 +191,7 @@ class InsertBindingAssignmentTransformer extends ScopeTransformer {
  * where [deps] are unnormalized (module-specifier-like) names
  * and $__export is the dynamic export binding setter function.
  */
-export class InstantiateModuleTransformer extends ModuleTransformer {
+  export class InstantiateModuleTransformer extends ModuleTransformer {
 
   constructor(identifierGenerator, reporter, options = undefined) {
     super(identifierGenerator, reporter, options);
@@ -306,7 +306,8 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
    *
    */
   appendExportStatement(statements) {
-    let declarationExtractionTransformer = new DeclarationExtractionTransformer();
+    let declarationExtractionTransformer =
+        new DeclarationExtractionTransformer();
 
     // replace local export assignments with binding functions
     // using InsertBindingAssignmentTransformer
@@ -317,9 +318,8 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     // Transform statements into execution statements only, with declarations
     // removed.
-    let executionStatements = statements.map(
-      (statement) => declarationExtractionTransformer.transformAny(statement)
-    );
+    let executionStatements =
+        declarationExtractionTransformer.transformList(statements);
 
     let executionFunction = createFunctionExpression(
         createEmptyParameterList(),

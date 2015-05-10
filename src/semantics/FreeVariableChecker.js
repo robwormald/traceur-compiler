@@ -23,10 +23,11 @@ class FreeVariableChecker extends ScopeChainBuilderWithReferences {
   /**
    * Override to report an error instead of adding the reference to the scope.
    */
-  referenceFound(tree, name) {
-    if (this.scope.getBinding(tree)) return;
-    if (!(name in this.global_)) {
-      this.reporter.reportError(tree.location.start, `${name} is not defined`);
+  referenceFound(token) {
+    if (this.scope.getBinding(token)) return;
+    let {location, value} = token;
+    if (!(value in this.global_)) {
+      this.reporter.reportError(location.start, `${value} is not defined`);
     }
   }
 

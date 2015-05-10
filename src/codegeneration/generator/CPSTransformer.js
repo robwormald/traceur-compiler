@@ -66,6 +66,7 @@ import {
   createSwitchStatement,
 } from '../ParseTreeFactory.js';
 import HoistVariablesTransformer from '../HoistVariablesTransformer.js';
+import {IdentifierToken} from '../../syntax/IdentifierToken.js';
 
 class LabelState {
   constructor(name, continueState, fallThroughState) {
@@ -1022,7 +1023,11 @@ export class CPSTransformer extends TempVarTransformer {
   }
 
   transformCpsFunctionBody(tree, runtimeMethod, functionRef = undefined) {
-    let alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
+    // TODO(arv): Why isn't this usinf addTempVarForArgumentsToken?
+    let argumentsToken = new IdentifierToken(null, 'arguments');
+    let argumentsTempToken = this.getTempIdentifierToken('_arguments');
+    let alphaRenamedTree =
+        AlphaRenamer.rename(tree, argumentsToken, argumentsTempToken);
     let hasArguments = alphaRenamedTree !== tree;
 
     // We hoist all the variables. They are not even inserted at the top in this
@@ -1060,7 +1065,7 @@ export class CPSTransformer extends TempVarTransformer {
     if (this.hoistVariablesTransformer_.hasVariables())
       statements.push(this.hoistVariablesTransformer_.getVariableStatement());
     if (hasArguments)
-      statements.push(parseStatement `var $arguments = arguments;`);
+      statements.push(parseStatement `var ${argumentsTempToken} = arguments;`);
     if (functionRef) {
       statements.push(parseStatement
           `return ${runtimeMethod}(

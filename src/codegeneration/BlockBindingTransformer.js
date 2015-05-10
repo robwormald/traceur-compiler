@@ -242,26 +242,26 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     this.scopeBuilder_.scope = null;
   }
 
-  needsRename_(token) {
-    console.assert(typeof token !== 'string');
-    let name = token.value;
-    if (this.usedVars_.has(name)) return true;
-    let scope = this.scope_;
-    let parent = scope.parent;
-    if (!parent || scope.isVarScope) return false;
-
-    // Look for free variables with the same name in the current var scope.
-    let varScope = scope.getVarScope();
-    if (varScope && varScope.hasFreeVariable(name)) {
-      return true;
-    }
-
-    let parentBinding = parent.getBindingByName(name);
-    if (!parentBinding) return false;
-    let currentBinding = scope.getBindingByName(name);
-    if (currentBinding.tree === parentBinding.tree) return false;
-    return true;
-  }
+  // needsRename_(token) {
+  //   console.assert(typeof token !== 'string');
+  //   let name = token.value;
+  //   if (this.usedVars_.has(name)) return true;
+  //   let scope = this.scope_;
+  //   let parent = scope.parent;
+  //   if (!parent || scope.isVarScope) return false;
+  //
+  //   // Look for free variables with the same name in the current var scope.
+  //   let varScope = scope.getVarScope();
+  //   if (varScope && varScope.hasFreeVariable(name)) {
+  //     return true;
+  //   }
+  //
+  //   let parentBinding = parent.getBindingByName(name);
+  //   if (!parentBinding) return false;
+  //   let currentBinding = scope.getBindingByName(name);
+  //   if (currentBinding.token === parentBinding.token) return false;
+  //   return true;
+  // }
 
   newNameFromOrig_(origName, renames) {
     console.assert(typeof origName !== 'string');
@@ -513,8 +513,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
           new VariableDeclarationList(tree.location, VAR,
               [new VariableDeclaration(tree.location, bindingIdentifier,
                                        null, functionExpression)]));
-      this.scope_.renameBinding(origName, bindingIdentifier, VAR,
-                                this.reporter_);
+      this.scope_.renameBinding(origName, newToken, VAR, this.reporter_);
       this.prependBlockStatement_.push(statement);
 
       return new AnonBlock(null, []);
@@ -557,7 +556,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                 let newToken = this.newNameFromOrig_(origName, renames);
 
                 let bindingIdentifier = createBindingIdentifier(newToken);
-                this.scope_.renameBinding(origName, bindingIdentifier,
+                this.scope_.renameBinding(origName, newToken,
                     VAR, this.reporter_);
                 return new VariableDeclaration(null,
                     bindingIdentifier, null, declaration.initializer);
@@ -596,8 +595,8 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                       createBindingIdentifier(origName), null), null, []));
 
               let bindingIdentifier = createBindingIdentifier(newToken);
-              this.scope_.renameBinding(origName, bindingIdentifier,
-                  VAR, this.reporter_);
+              this.scope_.renameBinding(origName, newToken, VAR,
+                                        this.reporter_);
               return new VariableDeclaration(null,
                   bindingIdentifier, null, declaration.initializer);
             }));

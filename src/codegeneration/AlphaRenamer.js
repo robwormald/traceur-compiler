@@ -40,6 +40,7 @@ export class AlphaRenamer extends ScopeTransformer {
    */
   constructor(varName, newName) {
     super(varName);
+    console.assert(typeof newName !== 'string');
     this.newNameToken_ = newName;
   }
 

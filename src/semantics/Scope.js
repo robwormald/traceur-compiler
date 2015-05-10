@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {
+  BINDING_IDENTIFIER,
   BLOCK,
   CATCH
 } from '../syntax/trees/ParseTreeType.js';
@@ -20,9 +21,10 @@ import {StringMap} from '../util/StringMap.js';
 import {VAR} from '../syntax/TokenType.js';
 import {isTreeStrict} from './isTreeStrict.js';
 
-function reportDuplicateVar(reporter, tree, name) {
-  reporter.reportError(tree.location && tree.location.start,
-      `Duplicate declaration, ${name}`);
+function reportDuplicateVar(reporter, token) {
+  let {location, value} = token;
+  reporter.reportError(location && location.start,
+      `Duplicate declaration, ${value}`);
 }
 
 /**
@@ -46,53 +48,55 @@ export class Scope {
     this.inGenerator = parent ? parent.inGenerator || false : false;
   }
 
-  addBinding(tree, type, reporter) {
+  addBinding(token, type, reporter) {
     if (type === VAR) {
-      this.addVar(tree, reporter);
+      this.addVar(token, reporter);
     } else {
-      this.addDeclaration(tree, type, reporter);
+      this.addDeclaration(token, type, reporter);
     }
   }
 
-  addVar(tree, reporter) {
+  addVar(token, reporter) {
     // We add VAR bindings to blocks so that we can check for duplicates.
-    let name = tree.getStringValue();
+    // debugger;
+    // if (tree.type !== BINDING_IDENTIFIER) return;
+    let name = token.value;
     if (this.lexicalDeclarations_.has(name)) {
-      reportDuplicateVar(reporter, tree, name);
+      reportDuplicateVar(reporter, token);
       return;
     }
-    this.variableDeclarations_.set(name, {type: VAR, tree});
+    this.variableDeclarations_.set(name, {type: VAR, token});
     // This may be used starting at a block scope.
     if (!this.isVarScope && this.parent) {
-      this.parent.addVar(tree, reporter);
+      this.parent.addVar(token, reporter);
     }
   }
 
-  addDeclaration(tree, type, reporter) {
-    let name = tree.getStringValue();
+  addDeclaration(token, type, reporter) {
+    let name = token.value;
     if (this.lexicalDeclarations_.has(name) ||
         this.variableDeclarations_.has(name)) {
-      reportDuplicateVar(reporter, tree, name);
+      reportDuplicateVar(reporter, token);
       return;
     }
-    this.lexicalDeclarations_.set(name, {type, tree});
+    this.lexicalDeclarations_.set(name, {type, token});
   }
 
   // we deduce the oldType
-  renameBinding(oldNameToken, newTree, newType, reporter) {
+  renameBinding(oldNameToken, newToken, newType, reporter) {
     console.assert(typeof oldNameToken !== 'string');
     let oldName = oldNameToken.value;
-    let name = newTree.getStringValue();
+    let name = newToken.value;
     if (newType === VAR) {
       if (this.lexicalDeclarations_.has(oldName)) {
         this.lexicalDeclarations_.delete(oldName);
-        this.addVar(newTree, reporter);
+        this.addVar(newToken, reporter);
       }
     } else if (this.variableDeclarations_.has(oldName)) {
       this.variableDeclarations_.delete(oldName);
-      this.addDeclaration(newTree, newType, reporter);
+      this.addDeclaration(newToken, newType, reporter);
       if (!this.isVarScope && this.parent) {
-        this.parent.renameBinding(oldName, newTree, newType);
+        this.parent.renameBinding(oldName, newToken, newType);
       }
     }
   }
@@ -116,8 +120,8 @@ export class Scope {
     return null;
   }
 
-  getBinding(tree) {
-    let name = tree.getStringValue();
+  getBinding(token) {
+    let name = token.value;
     return this.getBindingByName(name);
   }
 

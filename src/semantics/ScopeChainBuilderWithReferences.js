@@ -60,7 +60,8 @@ export class ScopeChainBuilderWithReferences extends ScopeChainBuilder {
     }
     let scope = this.scope;
 
-    let name = tree.getStringValue();
+    let token = tree.identifierToken;
+    let name = token.value;
     if (name === 'arguments' && hasArgumentsInScope(scope)) {
       return;
     }
@@ -69,25 +70,25 @@ export class ScopeChainBuilderWithReferences extends ScopeChainBuilder {
       return;
     }
 
-    this.referenceFound(tree, name);
+    this.referenceFound(token);
   }
+  //
+  // visitUnaryExpression(tree) {
+  //   // Allow typeof x to be a heuristic for allowing reading x later.
+  //   if (tree.operator.type === TYPEOF &&
+  //       tree.operand.type === IDENTIFIER_EXPRESSION) {
+  //     let scope = this.scope;
+  //     let binding = scope.getBinding(tree.operand);
+  //     if (!binding) {
+  //       scope.addVar(tree.operand, this.reporter);
+  //     }
+  //   } else {
+  //     super.visitUnaryExpression(tree);
+  //   }
+  // }
 
-  visitUnaryExpression(tree) {
-    // Allow typeof x to be a heuristic for allowing reading x later.
-    if (tree.operator.type === TYPEOF &&
-        tree.operand.type === IDENTIFIER_EXPRESSION) {
-      let scope = this.scope;
-      let binding = scope.getBinding(tree.operand);
-      if (!binding) {
-        scope.addVar(tree.operand, this.reporter);
-      }
-    } else {
-      super.visitUnaryExpression(tree);
-    }
-  }
-
-  referenceFound(tree, name) {
+  referenceFound(token) {
     // tree is used in subclass.
-    this.scope.addReference(name);
+    this.scope.addReference(token);
   }
 }

@@ -65,16 +65,16 @@ export class ConstChecker extends ScopeVisitor {
     if (this.inWithBlock) {
       return;
     }
-    let binding = this.scope.getBinding(identifierExpression);
+    let binding = this.scope.getBinding(identifierExpression.identifierToken);
     if (binding === null) {
       // We don't know anything about this binding.
       return;
     }
 
-    let {type, tree} = binding;
+    let {type, token} = binding;
     if (type === CONST) {
       this.reportError_(identifierExpression.location,
-          `${tree.getStringValue()} is read-only`);
+          `${token.value} is read-only`);
     }
   }
 

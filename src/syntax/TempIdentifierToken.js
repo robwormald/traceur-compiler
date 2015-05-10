@@ -33,14 +33,14 @@ export class TempIdentifierToken extends Token {
     return this.value;
   }
 }
-// 
-// let counter = Math.random() * 1e6 | 0;
-//
-// export function createTempIdentifierToken(origToken = undefined) {
-//   let location = null, value = '_ref';
-//   if (origToken !== undefined) {
-//     ({location, value} = origToken);
-//   }
-//   let name = `_t${counter++}`;
-//   return new TempIdentifierToken(location, name, value);
-// }
+
+let counter = Math.random() * 1e6 | 0;
+
+export function createTempIdentifierToken(origToken = undefined) {
+  let location = null, value = '_ref';
+  if (origToken !== undefined) {
+    ({location, value} = origToken);
+  }
+  let name = `_t${counter++}`;
+  return new TempIdentifierToken(location, name, value);
+}

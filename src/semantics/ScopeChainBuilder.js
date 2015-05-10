@@ -52,7 +52,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
   }
 
   visitBindingIdentifier(tree) {
-    this.declareVariable(tree);
+    this.declareVariable(tree.identifierToken);
   }
 
   visitFunctionExpression(tree) {
@@ -82,7 +82,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
         if (!this.scope.strictMode) {
           let varScope = this.scope.getVarScope();
           if (varScope) {
-            varScope.addVar(tree.name, this.reporter);
+            varScope.addVar(tree.name.identifierToken, this.reporter);
           }
         }
         this.declarationType_ = LET;
@@ -126,7 +126,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
     super.visitComprehensionFor(tree);
   }
 
-  declareVariable(tree) {
-    this.scope.addBinding(tree, this.declarationType_, this.reporter);
+  declareVariable(token) {
+    this.scope.addBinding(token, this.declarationType_, this.reporter);
   }
 }

@@ -93,7 +93,7 @@ export class TestTempTransformer extends ParseTreeTransformer {
 
     varNames.forEach((name) => {
       let b = scope.getBindingByName(name);
-      let token = b.tree.identifierToken;
+      let token = b.token;
       if (token.type !== TEMP_IDENTIFIER) {
         return;
       }
