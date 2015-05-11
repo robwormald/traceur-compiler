@@ -137,4 +137,10 @@ suite('FreeVariableChecker.js', function() {
       '  set x(_) { x; }\n' +
       '})',
       ['CODE:2:14: x is not defined']);
+
+  makeTest('var hoisting', 'x = 42; var x;', []);
+  makeTest('function hoisting', 'f(); function f() {}', []);
+
+  makeTest('property shorthand', 'var x = {y};',
+      ['CODE:1:10: y is not defined']);
 });

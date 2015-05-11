@@ -28,7 +28,7 @@ import {
   NAME_SPACE_IMPORT
 } from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
-import {ScopeTransformer} from './ScopeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   createEmptyParameterList,
   createFunctionBody,
@@ -118,9 +118,9 @@ class DeclarationExtractionTransformer extends HoistVariablesTransformer {
  * var a = b;
  * $__export('a', a);
  */
-class InsertBindingAssignmentTransformer extends ScopeTransformer {
+class InsertBindingAssignmentTransformer extends ParseTreeTransformer {
   constructor(exportName, bindingName) {
-    super(bindingName);
+    super();
     this.bindingName_ = bindingName;
     this.exportName_ = exportName;
   }

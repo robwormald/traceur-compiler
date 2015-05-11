@@ -46,24 +46,24 @@ class FilterFoundImports extends ScopeVisitor {
     return this.scope = this.scopeBuilder_.getScopeForTree(tree);
   }
 
-  checkTree_(tree) {
-    var name = tree.getStringValue();
-    if (!this.imports[name]) {
+  checkTree_(token) {
+    let {value} = token
+    if (!this.imports[value]) {
       return;
     }
 
-    var binding = this.scope.getBinding(tree);
+    let binding = this.scope.getBinding(token);
     if (!binding) {
-      delete this.imports[name];
+      delete this.imports[value];
     }
   }
 
   visitIdentifierExpression(tree) {
-    this.checkTree_(tree);
+    this.checkTree_(tree.identifierToken);
   }
 
   visitPropertyNameShorthand(tree) {
-    this.checkTree_(tree);
+    this.checkTree_(tree.name);
   }
 }
 
