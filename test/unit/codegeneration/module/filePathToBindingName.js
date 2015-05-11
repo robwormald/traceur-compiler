@@ -27,8 +27,9 @@ suite('filePathToBindingName.js', () => {
     assert.equal('_aaaBbb', filePathToBindingName('aaa\\bbb'));
     assert.equal('_aaaBbb', filePathToBindingName('aaa-bbb'));
     assert.equal('_aaaBbb', filePathToBindingName('aaa bbb'));
-    assert.equal('_', filePathToBindingName('_'));
+    assert.equal('_module', filePathToBindingName('_'));
     assert.equal('_a', filePathToBindingName('_a'));
+    assert.equal('_aaaBbbCcc', filePathToBindingName('aaa_bbb$ccc'));
     assert.equal('_module', filePathToBindingName('/'));
     assert.equal('_42', filePathToBindingName('42'));
   });

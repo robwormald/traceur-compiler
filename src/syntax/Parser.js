@@ -1004,10 +1004,6 @@ export class Parser {
   parseLiteralPropertyName_() {
     let start = this.getTreeStartLocation_();
     let token = nextToken();
-    if (token.isKeyword()) {
-      // Use IdentifierToken to simplify the rest of the code base.
-      token = new IdentifierToken(token.location, token.type);
-    }
     return new LiteralPropertyName(this.getTreeLocation_(start), token);
   }
 
@@ -2418,6 +2414,7 @@ export class Parser {
                                           nameLiteral, token, expr);
         }
 
+        nameLiteral = convertNameLiteralIfNeeded(nameLiteral);
         return new PropertyNameShorthand(this.getTreeLocation_(start),
                                          nameLiteral);
       }
@@ -3636,6 +3633,7 @@ export class Parser {
     if (this.strictMode_ && token.isStrictKeyword())
       this.reportReservedIdentifier_(token);
 
+    token = convertNameLiteralIfNeeded(token);
     if (useBinding) {
       let binding = new BindingIdentifier(name.location, token);
       let initializer = this.parseInitializerOpt_(ALLOW_IN);
@@ -4501,4 +4499,22 @@ export class Parser {
   reportReservedIdentifier_(token) {
     this.reportError_(token, `${token.type} is a reserved identifier`);
   }
+}
+// 
+//
+// function convertNameIfNeeded(tree) {
+//   if (tree.type === LITERAL_PROPERTY_NAME) {
+//     let literalToken = convertNameLiteralIfNeeded(tree.literalToken);
+//     if (literalToken !== tree.literalToken) {
+//       return new LiteralPropertyName(tree.location, literalToken);
+//     }
+//   }
+//   return tree;
+// }
+
+function convertNameLiteralIfNeeded(token) {
+  if (token.isKeyword()) {
+    return new IdentifierToken(token.location, token.type);
+  }
+  return token;
 }

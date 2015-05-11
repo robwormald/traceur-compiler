@@ -50,14 +50,14 @@ suite('InlineModuleTransformer.js', function() {
     test('without this', function() {
       transformer.moduleName = "test/module";
       assertEqualIgnoringWhiteSpaces(
-          'var $__test_47_module__ = (function(){"CODE";})();',
+          'var _testModule = (function(){"CODE";})();',
           writeArray(transformer.wrapModule([str('CODE')])));
     });
 
     test('with this', function() {
       transformer.moduleName = "test/module";
       assertEqualIgnoringWhiteSpaces(
-          "var $__test_47_module__ = (function(){ this }).call(Reflect.global);",
+          "var _testModule = (function(){ this }).call(Reflect.global);",
           writeArray(transformer.wrapModule([ParseTreeFactory.createThisExpression()])));
     });
   });

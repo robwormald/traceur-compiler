@@ -73,7 +73,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
   }
 
   visitFunctionDeclaration(tree) {
-    // Allow this to he the entry point.
+    // Allow this to be the entry point.
     if (this.scope) {
       if (this.scope.isVarScope) {
         this.declarationType_ = VAR;

@@ -31,40 +31,6 @@ import {
   LITERAL_PROPERTY_NAME,
 } from '../syntax/trees/ParseTreeType.js';
 
-/*
-
-Build scopes
-Keep a map from ParseTree to Scope
-Keep a map from ParseTree to temp identifiers used in the tree
-
-Transformer
-set scope when entering functions
-When entering functions
-
-*/
-
-class BuildScopes extends ScopeChainBuilderWithReferences {
-  // constructor(reporter) {
-  //   super(reporter);
-  // }
-  //
-  // visitIdentifierExpression(tree) {
-  //   if (tree.identifierToken.type === TEMP_IDENTIFIER) {
-  //     debugger;
-  //     console.log(tree.identifierToken.value);
-  //     return;
-  //   }
-  // }
-  //
-  // /**
-  //  * Override to report an error instead of adding the reference to the scope.
-  //  */
-  // referenceFound(tree, name) {
-  //   console.log(tree, name);
-  //   super.referenceFound(tree, name);
-  // }
-
-}
 
 class State {
   constructor(oldState) {
@@ -109,6 +75,8 @@ export class TestTempTransformer extends ParseTreeTransformer {
       }
       this.state_.renames[name] = varName;
       this.state_.usedNames[varName] = true;
+      let newToken = new IdentifierToken(token.location, varName);
+      scope.renameBinding(token, newToken, b.type, this.reporter);
 
     });
     return state;
@@ -124,7 +92,7 @@ export class TestTempTransformer extends ParseTreeTransformer {
 */
 
   transformScript(tree) {
-    let scopeBuilder = new BuildScopes(null);
+    let scopeBuilder = new ScopeChainBuilderWithReferences(null);
     scopeBuilder.visitAny(tree);
     this.scopeBuilder_ = scopeBuilder;
 
@@ -135,7 +103,7 @@ export class TestTempTransformer extends ParseTreeTransformer {
   }
 
   transformModules(tree) {
-    let scopeBuilder = new BuildScopes(null);
+    let scopeBuilder = new ScopeChainBuilderWithReferences(null);
     scopeBuilder.visitAny(tree);
     this.scopeBuilder_ = scopeBuilder;
 

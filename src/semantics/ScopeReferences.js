@@ -26,8 +26,13 @@ export class ScopeReferences extends Scope {
   }
 
   addReference(token) {
-    let name = token.value;
-    this.freeVars_.add(name);
+    let {value} = token;
+    if (!this.hasBindingName(value)) {
+      this.freeVars_.add(value);
+      if (this.parent) {
+        this.parent.addReference(token);
+      }
+    }
   }
 
   hasFreeVariable(name) {

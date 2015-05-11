@@ -1,6 +1,6 @@
 "use strict";
-var $__dep_46_js__;
-var q = ($__dep_46_js__ = require("./dep.js"), $__dep_46_js__ && $__dep_46_js__.__esModule && $__dep_46_js__ || {default: $__dep_46_js__}).q;
+var _dep;
+var q = (_dep = require("./dep.js"), _dep && _dep.__esModule && _dep || {default: _dep}).q;
 var p = 'module';
 Object.defineProperties(module.exports, {
   p: {get: function() {

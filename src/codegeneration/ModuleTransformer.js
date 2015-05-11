@@ -46,6 +46,7 @@ import {
   createUseStrictDirective,
   createVariableStatement,
 } from './ParseTreeFactory.js';
+import filePathToBindingName from './module/filePathToBindingName.js';
 import {
   parseExpression,
   parsePropertyDefinition,
@@ -71,9 +72,10 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   getTempVarNameForModuleName(moduleName) {
-    return '$__' + moduleName.replace(/[^a-zA-Z0-9$]/g, function(c) {
-      return '_' + c.charCodeAt(0) + '_';
-    }) + '__';
+    return filePathToBindingName(moduleName);
+    // return '$__' + moduleName.replace(/[^a-zA-Z0-9$]/g, function(c) {
+    //   return '_' + c.charCodeAt(0) + '_';
+    // }) + '__';
   }
 
   getModuleName(tree) {

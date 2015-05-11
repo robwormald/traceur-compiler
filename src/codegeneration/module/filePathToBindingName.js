@@ -15,7 +15,7 @@
 
 export default function filePathToBindingName(s) {
   s = s.replace(/\.js$/, '');
-  let parts = s.split(/[^_$a-zA-Z0-9]+/);
+  let parts = s.split(/[^a-zA-Z0-9]+/);
   let output = '';
   for (let i = 0; i < parts.length; i++) {
     let part = parts[i];

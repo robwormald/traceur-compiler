@@ -87,13 +87,19 @@ suite('BlockBindingTransformer.js', function() {
 
 
   makeTest('Let to Var In ForLoop with Fn using local var',
-      'for (let i = 0; i < 5; i++) {' +
-      '  function t(){alert(i); let i = 5;}' +
-      '}',
+      `for (let i = 0; i < 5; i++) {
+        function t() {
+          alert(i);
+          let i = 5;
+        }
+      }`,
       // =======
-      'for (var i = 0; i < 5; i++) {' +
-      '  var t = function() {alert(i); var i = 5;};' +
-      '}');
+      `for (var i = 0; i < 5; i++) {
+        var t = function() {
+          alert(i);
+          var i = 5;
+        };
+      }`);
 
   makeTest('Let to Var with name collisions',
      'if (true) { let x = 5; }'+

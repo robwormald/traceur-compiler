@@ -71,8 +71,8 @@ suite('PureES6Transformer.js', function() {
 
     var expected = [
       '"use strict";',
-      'const {TestA} = $__resources_47_test_95_a_46_js__;',
-      'const {TestB} = $__resources_47_test_95_b_46_js__;',
+      'const {TestA} = _resourcesTestA;',
+      'const {TestB} = _resourcesTestB;',
       'export class App {',
       '  constructor() {',
       '    this.name = "hello";',
