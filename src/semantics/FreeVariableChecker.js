@@ -97,7 +97,6 @@ class FreeVariableChecker extends ScopeVisitor {
       this.reporter.reportError(location.start, `${value} is not defined`);
     }
   }
-
 }
 
 /**

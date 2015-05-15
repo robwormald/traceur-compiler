@@ -22,20 +22,18 @@ export class ScopeReferences extends Scope {
    */
   constructor(parent, tree) {
     super(parent, tree);
-    this.freeVars_ = new StringSet();
+    this.referenceNames_ = new StringSet();
   }
 
   addReference(token) {
     let {value} = token;
-    if (!this.hasBindingName(value)) {
-      this.freeVars_.add(value);
-      if (this.parent) {
-        this.parent.addReference(token);
-      }
+    this.referenceNames_.add(value);
+    if (this.parent) {
+      this.parent.addReference(token);
     }
   }
 
   hasFreeVariable(name) {
-    return this.freeVars_.has(name);
+    return this.referenceNames_.has(name) && !this.getBindingByName(name);
   }
 }

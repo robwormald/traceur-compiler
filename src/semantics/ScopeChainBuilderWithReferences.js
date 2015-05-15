@@ -55,40 +55,18 @@ export class ScopeChainBuilderWithReferences extends ScopeChainBuilder {
   }
 
   visitIdentifierExpression(tree) {
-    if (this.inWithBlock) {
-      return;
-    }
-    let scope = this.scope;
+    this.candidateFound_(tree.identifierToken);
+  }
 
-    let token = tree.identifierToken;
-    let name = token.value;
-    if (name === 'arguments' && hasArgumentsInScope(scope)) {
-      return;
-    }
+  visitPropertyNameShorthand(tree) {
+    this.candidateFound_(tree.name);
+  }
 
-    if (name === '__moduleName' && inModuleScope(scope)) {
-      return;
-    }
-
+  candidateFound_(token) {
     this.referenceFound(token);
   }
-  //
-  // visitUnaryExpression(tree) {
-  //   // Allow typeof x to be a heuristic for allowing reading x later.
-  //   if (tree.operator.type === TYPEOF &&
-  //       tree.operand.type === IDENTIFIER_EXPRESSION) {
-  //     let scope = this.scope;
-  //     let binding = scope.getBinding(tree.operand);
-  //     if (!binding) {
-  //       scope.addVar(tree.operand, this.reporter);
-  //     }
-  //   } else {
-  //     super.visitUnaryExpression(tree);
-  //   }
-  // }
 
   referenceFound(token) {
-    // tree is used in subclass.
     this.scope.addReference(token);
   }
 }
