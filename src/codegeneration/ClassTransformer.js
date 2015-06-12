@@ -41,6 +41,7 @@ import {
   STRING
 } from '../syntax/TokenType.js';
 import {MakeStrictTransformer} from './MakeStrictTransformer.js';
+import {SuperConstructorTransformer} from './SuperConstructorTransformer.js';
 import {ParenTrait} from './ParenTrait.js';
 import {
   createIdentifierExpression as id,
@@ -237,6 +238,10 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
 
     if (!constructor) {
       constructor = this.getDefaultConstructor_(tree);
+    } else if (this.options.transformOptions.superConstruct){
+      let t = new SuperConstructorTransformer(this.identifierGenerator,
+                                              this.reporter, this.options);
+      constructor = t.transformAny(constructor);
     }
     let func = new FunctionExpression(tree.location, tree.name, null,
                                       constructor.parameterList, null,
