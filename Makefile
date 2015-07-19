@@ -191,6 +191,9 @@ initbench:
 bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
+runtime: src/runtime/modules/
+	./traceur --modules=commonjs --require-runtime --dir src/runtime/modules runtime/
+
 # Do not change the location of this file if at all possible, see
 # https://github.com/google/traceur-compiler/issues/828
 bin/traceur-runtime.js: $(RUNTIME_SRC) $(RUNTIME_MODULES) $(POLYFILL_SRC) bin/traceur.js
@@ -302,7 +305,7 @@ updateSemver: # unless the package.json has been manually edited.
 dist/commonjs: bin/traceur.js
 	./traceur --dir src/ dist/commonjs/ --modules=commonjs
 
-prepublish: bin/traceur.js bin/traceur-runtime.js
+prepublish: bin/traceur.js bin/traceur-runtime.js commonjs-modules
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js

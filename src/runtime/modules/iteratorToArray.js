@@ -12,5 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import spread from './modules/spread.js';
-$traceurRuntime.spread = spread;
+export default function iteratorToArray(iter) {
+  var rv = [];
+  var i = 0;
+  var tmp;
+  while (!(tmp = iter.next()).done) {
+    rv[i++] = tmp.value;
+  }
+  return rv;
+}

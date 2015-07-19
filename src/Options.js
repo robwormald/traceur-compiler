@@ -56,6 +56,7 @@ export const optionsV01 = enumerableOnlyObject({
   propertyNameShorthand: true,
   referrer: '',
   require: false,
+  requireRuntime: false,
   restParameters: true,
   script: false,
   sourceMaps: false,
@@ -153,6 +154,7 @@ addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('jsx', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
+addFeatureOption('requireRuntime', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
 let transformOptionsPrototype = {};

@@ -23,7 +23,9 @@ import {
   MEMBER_LOOKUP_EXPRESSION,
   SPREAD_EXPRESSION
 } from  '../syntax/trees/ParseTreeType.js';
+import {Script} from '../syntax/trees/ParseTrees.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
+import RequireRuntimeTrait from './RequireRuntimeTrait.js';
 import {
   createArgumentList,
   createArrayLiteral,
@@ -39,8 +41,10 @@ import {
   createVoid0
 } from './ParseTreeFactory.js';
 import {
-  parseExpression
+  parseExpression,
+  parseStatement,
 } from './PlaceholderParser.js';
+import {prependStatements} from './PrependStatements.js';
 
 function hasSpreadMember(trees) {
   return trees.some((tree) => tree && tree.type === SPREAD_EXPRESSION);
@@ -52,7 +56,7 @@ function hasSpreadMember(trees) {
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:spread">harmony:spread</a>
  */
-export class SpreadTransformer extends TempVarTransformer {
+export class SpreadTransformer extends RequireRuntimeTrait(TempVarTransformer) {
   /**
    * Creates an expression that results in an array where all the elements are
    * spread.
@@ -91,8 +95,8 @@ export class SpreadTransformer extends TempVarTransformer {
     if (lastArray)
       args.push(createArrayLiteral(lastArray));
 
-    return parseExpression
-        `$traceurRuntime.spread(${createArgumentList(args)})`;
+    let runtime = this.getRuntimeExpression('spread');
+    return parseExpression `${runtime}(${createArgumentList(args)})`;
   }
 
   desugarCallSpread_(tree) {
@@ -185,4 +189,20 @@ export class SpreadTransformer extends TempVarTransformer {
     }
     return super.transformNewExpression(tree);
   }
+  // 
+  // transformScript(tree) {
+  //   let scriptItemList = this.transformList(tree.scriptItemList);
+  //   if (scriptItemList === tree.scriptItemList) {
+  //     return tree;
+  //   }
+  //
+  //   if (this.options.requireRuntime) {
+  //     // TODO(arv): Use CONST if possible.
+  //     let require =
+  //         parseStatement `let _spread = require('traceur/runtime/spread')`;
+  //     scriptItemList = prependStatements(scriptItemList, require);
+  //   }
+  //
+  //   return new Script(tree.location, scriptItemList, tree.moduleName);
+  // }
 }

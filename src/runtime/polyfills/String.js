@@ -19,6 +19,7 @@ import {
   maybeAddIterator,
   registerPolyfill
 } from './utils.js';
+import checkObjectCoercible from '../modules/checkObjectCoercible.js';
 
 var $toString = Object.prototype.toString;
 var $indexOf = String.prototype.indexOf;
