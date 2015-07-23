@@ -12,12 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import createClass from './modules/createClass.js';
-import superConstructor from './modules/superConstructor.js';
-import superGet from './modules/superGet.js';
-import superSet from './modules/superSet.js';
+import superDescriptor from './superDescriptor.js';
 
-$traceurRuntime.createClass = createClass;
-$traceurRuntime.superConstructor = superConstructor;
-$traceurRuntime.superGet = superGet;
-$traceurRuntime.superSet = superSet;
+var $TypeError = TypeError;
+var {
+  getOwnPropertyDescriptor,
+  getPrototypeOf,
+} = Object;
+
+export default function superSet(self, homeObject, name, value) {
+  var descriptor = superDescriptor(homeObject, name);
+  if (descriptor && descriptor.set) {
+    descriptor.set.call(self, value);
+    return value;
+  }
+  throw $TypeError(`super has no setter '${name}'.`);
+}

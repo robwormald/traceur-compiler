@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import createClass from './modules/createClass.js';
-import superConstructor from './modules/superConstructor.js';
-import superGet from './modules/superGet.js';
-import superSet from './modules/superSet.js';
+import superDescriptor from './superDescriptor.js';
 
-$traceurRuntime.createClass = createClass;
-$traceurRuntime.superConstructor = superConstructor;
-$traceurRuntime.superGet = superGet;
-$traceurRuntime.superSet = superSet;
+export default function superGet(self, homeObject, name) {
+  var descriptor = superDescriptor(homeObject, name);
+  if (descriptor) {
+    let value = descriptor.value;
+    if (value) return value;
+    if (!descriptor.get) return value;
+    return descriptor.get.call(self);
+  }
+  return undefined;
+}
