@@ -50,15 +50,17 @@ export default function RequireRuntimeTrait(ParseTreeTransformerClass) {
     }
 
     transformScript(tree) {
-      let scriptItemList = this.transformList(tree.scriptItemList);
-      if (scriptItemList === tree.scriptItemList) {
+      let transformed = super.transformScript(tree);
+      if (tree === transformed) {
         return tree;
       }
+
+      let scriptItemList = transformed.scriptItemList;
 
       if (this.options.requireRuntime) {
         var requires = this.requiredNames_.valuesAsArray().map((name) => {
           let moduleId = createStringLiteral(`traceur/runtime/${name}`);
-          let require = parseExpression `require(${moduleId})`
+          let require = parseExpression `require(${moduleId}).default`;
           let declarationType = getDeclarationType(this.options);
           return createVariableStatement(
               declarationType, toTempName(name), require);

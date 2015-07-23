@@ -191,8 +191,8 @@ initbench:
 bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
-runtime: src/runtime/modules/
-	./traceur --modules=commonjs --require-runtime --dir src/runtime/modules runtime/
+runtime/: src/runtime/modules/
+	./traceur --modules=commonjs --require-runtime --dir $^ $@
 
 # Do not change the location of this file if at all possible, see
 # https://github.com/google/traceur-compiler/issues/828
