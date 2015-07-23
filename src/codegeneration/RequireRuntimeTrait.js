@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {CONST, VAR} from '../syntax/TokenType.js';
-import {Script} from '../syntax/trees/ParseTrees.js';
+import {Module, Script} from '../syntax/trees/ParseTrees.js';
 import {StringSet} from '../util/StringSet.js';
 import {
   createBindingIdentifier,
@@ -55,20 +55,37 @@ export default function RequireRuntimeTrait(ParseTreeTransformerClass) {
         return tree;
       }
 
-      let scriptItemList = transformed.scriptItemList;
-
-      if (this.options.requireRuntime) {
-        var requires = this.requiredNames_.valuesAsArray().map((name) => {
-          let moduleId = createStringLiteral(`traceur/runtime/${name}`);
-          let require = parseExpression `require(${moduleId}).default`;
-          let declarationType = getDeclarationType(this.options);
-          return createVariableStatement(
-              declarationType, toTempName(name), require);
-        });
-        scriptItemList = prependStatements(scriptItemList, ...requires);
+      if (!this.options.requireRuntime) {
+        return transformed;
       }
 
+      let scriptItemList = this.addRequires_(transformed.scriptItemList);
       return new Script(tree.location, scriptItemList, tree.moduleName);
+    }
+
+    transformModule(tree) {
+      let transformed = super.transformModule(tree);
+      if (tree === transformed) {
+        return tree;
+      }
+
+      if (!this.options.requireRuntime) {
+        return transformed;
+      }
+
+      let scriptItemList = this.addRequires_(transformed.scriptItemList);
+      return new Module(tree.location, scriptItemList, tree.moduleName);
+    }
+
+    addRequires_(scriptItemList) {
+      let requires = this.requiredNames_.valuesAsArray().map((name) => {
+        let moduleId = createStringLiteral(`traceur/runtime/${name}`);
+        let require = parseExpression `require(${moduleId}).default`;
+        let declarationType = getDeclarationType(this.options);
+        return createVariableStatement(
+            declarationType, toTempName(name), require);
+      });
+      return prependStatements(scriptItemList, ...requires);
     }
   }
 }

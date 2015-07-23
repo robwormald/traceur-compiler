@@ -82,16 +82,6 @@ import {
 //
 // The super property and super calls are transformed in the SuperTransformer.
 
-function classCall(func, protoObject, staticObject, superClass) {
-  let createClass = this.getRuntimeExpression('createClass');
-  if (superClass) {
-    return parseExpression
-        `(${createClass})(${func}, ${protoObject}, ${staticObject}, ${superClass})`;
-  }
-  return parseExpression
-      `(${createClass})(${func}, ${protoObject}, ${staticObject})`;
-}
-
 function methodNameFromTree(tree) {
   // COMPUTED_PROPERTY_NAME such as [Symbol.iterator]
   if (tree.type === COMPUTED_PROPERTY_NAME) {
@@ -279,8 +269,6 @@ export class ClassTransformer extends
         expression = parseExpression
             `(${createClass})(${func}, ${protoObject}, ${staticObject})`;
       }
-      //
-      // expression = classCall(func, protoObject, staticObject, superClass);
     }
 
     return this.makeStrict_(expression);

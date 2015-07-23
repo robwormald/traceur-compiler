@@ -305,7 +305,7 @@ updateSemver: # unless the package.json has been manually edited.
 dist/commonjs: bin/traceur.js
 	./traceur --dir src/ dist/commonjs/ --modules=commonjs
 
-prepublish: bin/traceur.js bin/traceur-runtime.js commonjs-modules
+prepublish: bin/traceur.js bin/traceur-runtime.js runtime/
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js

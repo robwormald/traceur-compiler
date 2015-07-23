@@ -189,20 +189,4 @@ export class SpreadTransformer extends RequireRuntimeTrait(TempVarTransformer) {
     }
     return super.transformNewExpression(tree);
   }
-  // 
-  // transformScript(tree) {
-  //   let scriptItemList = this.transformList(tree.scriptItemList);
-  //   if (scriptItemList === tree.scriptItemList) {
-  //     return tree;
-  //   }
-  //
-  //   if (this.options.requireRuntime) {
-  //     // TODO(arv): Use CONST if possible.
-  //     let require =
-  //         parseStatement `let _spread = require('traceur/runtime/spread')`;
-  //     scriptItemList = prependStatements(scriptItemList, require);
-  //   }
-  //
-  //   return new Script(tree.location, scriptItemList, tree.moduleName);
-  // }
 }
