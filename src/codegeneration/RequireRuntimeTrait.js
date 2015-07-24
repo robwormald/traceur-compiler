@@ -43,10 +43,18 @@ export default function RequireRuntimeTrait(ParseTreeTransformerClass) {
 
     getRuntimeExpression(name) {
       if (this.options.requireRuntime) {
-        this.requiredNames_.add(name);
+        this.addRequiredName(name);
         return createIdentifierExpression(toTempName(name));
       }
       return createMemberExpression('$traceurRuntime', name);
+    }
+
+    get requiredNames() {
+      return this.requiredNames_;
+    }
+
+    addRequiredName(name) {
+      this.requiredNames_.add(name);
     }
 
     transformScript(tree) {
