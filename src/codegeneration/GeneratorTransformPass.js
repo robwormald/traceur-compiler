@@ -152,8 +152,12 @@ export class GeneratorTransformPass extends
       });
 
     } else if (this.tranformOptions_.asyncFunctions && tree.isAsyncFunction()) {
-      body = AsyncTransformer.transformAsyncBody(
-          this.identifierGenerator, this.reporter, this.options, body);
+      let transformer = new AsyncTransformer(this.identifierGenerator,
+                                             this.reporter, this.options);
+      body = transformer.transformAsyncBody(body, nameExpression);
+      transformer.requiredNames.forEach((n) => {
+        this.addRequiredName(n);
+      });
     }
 
     // The generator has been transformed away.

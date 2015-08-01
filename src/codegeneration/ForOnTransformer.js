@@ -16,6 +16,7 @@ import {
   FOR_ON_STATEMENT,
   LABELLED_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
+import RequireRuntimeTrait from './RequireRuntimeTrait.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {InnerForOnTransformer} from './InnerForOnTransformer.js';
 
@@ -60,7 +61,7 @@ import {InnerForOnTransformer} from './InnerForOnTransformer.js';
 /**
  * Desugars for-on statement.
  */
-export class ForOnTransformer extends TempVarTransformer {
+export class ForOnTransformer extends RequireRuntimeTrait(TempVarTransformer) {
   /**
    * @param {ForOnStatement} original
    * @return {ParseTree}
