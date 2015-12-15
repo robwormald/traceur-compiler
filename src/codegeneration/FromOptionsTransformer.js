@@ -17,6 +17,7 @@ import {AnnotationsTransformer} from './AnnotationsTransformer.js';
 import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer.js';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer.js';
 import {AsyncGeneratorTransformPass} from './AsyncGeneratorTransformPass.js';
+import {AsyncToGeneratorTransformer} from './AsyncToGeneratorTransformer.js';
 import {BlockBindingTransformer} from './BlockBindingTransformer.js';
 import {ClassTransformer} from './ClassTransformer.js';
 import {ClosureModuleTransformer} from './ClosureModuleTransformer.js';
@@ -191,6 +192,11 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(AsyncGeneratorTransformPass);
     }
 
+    if (transformOptions.asyncFunctions === 'generator'
+        && !transformOptions.generators) {
+      append(AsyncToGeneratorTransformer);
+    }
+
     // for on must come before async functions
     if (transformOptions.forOn)
       append(ForOnTransformer);
@@ -224,7 +230,9 @@ export class FromOptionsTransformer extends MultiTransformer {
     }
 
     // generator must come after for of, for on and rest parameters
-    if (transformOptions.generators || transformOptions.asyncFunctions)
+    if (transformOptions.generators ||
+        transformOptions.asyncFunctions &&
+        transformOptions.asyncFunctions !== 'generator')
       append(GeneratorTransformPass);
 
     if (transformOptions.symbols)

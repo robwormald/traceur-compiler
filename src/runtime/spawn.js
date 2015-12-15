@@ -12,18 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @fileoverview import all runtime modules, eg for Traceur self-build.
- */
+function spawn(gen) {
+  return new Promise((resolve, reject) => {
+    gen = gen();  // this and arguments have been alpha renamed.
+    function step2(m, v) {
+      let res;
+      try {
+        res = gen[m](v);
+      } catch (ex) {
+        reject(ex);
+        return;
+      }
+      if (res.done) {
+        resolve(res.value);
+      } else {
+        Promise.resolve(v).then(
+            v => { step2('next', v); },
+            err => { step2('throw', err); });
+      }
+    }
+    step2('next', undefined);
+  });
+}
 
-import './symbols.js';
-import './classes.js';
-import './exportStar.js';
-import './properTailCalls.js';
-import './relativeRequire.js';
-import './spread.js';
-import './destructuring.js';
-import './async.js';
-import './generators.js';
-import './spawn.js';
-import './template.js';
+$traceurRuntime.spawn = spawn;
