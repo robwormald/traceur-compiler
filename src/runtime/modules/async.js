@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var {createPrivateName} = $traceurRuntime;
+import {createPrivateSymbol, getPrivate, setPrivate} from '../private.js';
+
 var {
   create,
   defineProperty,
 } = Object;
 
-var thisName = createPrivateName();
-var argsName = createPrivateName();
-var observeName = createPrivateName();
+var observeName = createPrivateSymbol();
 
 function AsyncGeneratorFunction() {}
 
@@ -35,9 +34,10 @@ defineProperty(AsyncGeneratorFunctionPrototype, 'constructor',
 
 class AsyncGeneratorContext {
   constructor(observer) {
-    this.decoratedObserver = createDecoratedGenerator(observer, () => {
-      this.done = true;
-    });
+    this.decoratedObserver =
+        $traceurRuntime.createDecoratedGenerator(observer, () => {
+          this.done = true;
+        });
     this.done = false;
     this.inReturn = false;
   }
@@ -70,7 +70,7 @@ class AsyncGeneratorContext {
   }
   yieldFor(observable) {
     var ctx = this;
-    return observeForEach(
+    return $traceurRuntime.observeForEach(
         observable[Symbol.observer].bind(observable),
         function (value) {
           if (ctx.done) {
@@ -97,9 +97,9 @@ class AsyncGeneratorContext {
 
 AsyncGeneratorFunctionPrototype.prototype[Symbol.observer] =
     function (observer) {
-      var observe = this[observeName];
+      var observe = getPrivate(this, observeName);
       var ctx = new AsyncGeneratorContext(observer);
-      schedule(() => observe(ctx)).then(value => {
+      $traceurRuntime.schedule(() => observe(ctx)).then(value => {
         if (!ctx.done) {
           ctx.decoratedObserver.return(value);
         }
@@ -123,9 +123,7 @@ export function initAsyncGeneratorFunction(functionObject) {
 
 export function createAsyncGeneratorInstance(observe, functionObject, ...args) {
   var object = create(functionObject.prototype);
-  object[thisName] = this;
-  object[argsName] = args;
-  object[observeName] = observe;
+  setPrivate(object, observeName, observe);
   return object;
 }
 

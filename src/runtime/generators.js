@@ -15,7 +15,7 @@
 import {
   asyncWrap,
   initGeneratorFunction,
-  createGeneratorInstance,
+  createGeneratorInstance
 } from './modules/generators.js';
 
 $traceurRuntime.asyncWrap = asyncWrap;

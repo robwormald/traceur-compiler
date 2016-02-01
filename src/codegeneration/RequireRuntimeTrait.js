@@ -87,7 +87,7 @@ export default function RequireRuntimeTrait(ParseTreeTransformerClass) {
 
     addRequires_(scriptItemList) {
       let requires = this.requiredNames_.valuesAsArray().map((name) => {
-        let moduleId = createStringLiteral(`traceur/runtime/${name}`);
+        let moduleId = createStringLiteral(`traceur/dist/commonjs/runtime/modules/${name}.js`);
         let require = parseExpression `require(${moduleId}).default`;
         let declarationType = getDeclarationType(this.options);
         return createVariableStatement(

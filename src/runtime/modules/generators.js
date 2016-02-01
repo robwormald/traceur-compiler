@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {createPrivateSymbol, getPrivate, setPrivate} from '../private.js';
+
 var $TypeError = TypeError;
-var {createPrivateName} = $traceurRuntime;
 var {
   create,
   defineProperties,
@@ -207,8 +208,8 @@ function nextOrThrow(ctx, moveNext, action, x) {
   }
 }
 
-var ctxName = createPrivateName();
-var moveNextName = createPrivateName();
+var ctxName = createPrivateSymbol();
+var moveNextName = createPrivateSymbol();
 
 function GeneratorFunction() {}
 
@@ -222,15 +223,16 @@ defineProperty(GeneratorFunctionPrototype, 'constructor',
 GeneratorFunctionPrototype.prototype = {
   constructor: GeneratorFunctionPrototype,
   next: function(v) {
-    return nextOrThrow(this[ctxName], this[moveNextName], 'next', v);
+    return nextOrThrow(getPrivate(this, ctxName), getPrivate(this, moveNextName), 'next', v);
   },
   throw: function(v) {
-    return nextOrThrow(this[ctxName], this[moveNextName], 'throw', v);
+    return nextOrThrow(getPrivate(this, ctxName), getPrivate(this, moveNextName), 'throw', v);
   },
   return: function (v) {
-    this[ctxName].oldReturnValue = this[ctxName].returnValue;
-    this[ctxName].returnValue = v;
-    return nextOrThrow(this[ctxName], this[moveNextName], 'throw', RETURN_SENTINEL);
+    let ctx = getPrivate(this, ctxName);
+    ctx.oldReturnValue = ctx.returnValue;
+    ctx.returnValue = v;
+    return nextOrThrow(ctx, getPrivate(this, moveNextName), 'throw', RETURN_SENTINEL);
   }
 };
 
@@ -252,8 +254,8 @@ export function createGeneratorInstance(innerFunction, functionObject, self) {
   var ctx = new GeneratorContext();
 
   var object = create(functionObject.prototype);
-  object[ctxName] = ctx;
-  object[moveNextName] = moveNext;
+  setPrivate(object, ctxName, ctx);
+  setPrivate(object, moveNextName, moveNext);
   return object;
 }
 

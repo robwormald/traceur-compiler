@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 var $Object = Object;
 var $TypeError = TypeError;
 
@@ -26,7 +27,9 @@ var {
 
 function forEachPropertyKey(object, f) {
   getOwnPropertyNames(object).forEach(f);
-  getOwnPropertySymbols(object).forEach(f);
+  if (getOwnPropertySymbols) {
+    getOwnPropertySymbols(object).forEach(f);
+  }
 }
 
 function getDescriptors(object) {
@@ -44,20 +47,6 @@ function makePropertiesNonEnumerable(object) {
   forEachPropertyKey(object, (key) => {
     defineProperty(object, key, nonEnum);
   });
-}
-
-function getProtoParent(superClass) {
-  if (typeof superClass === 'function') {
-    var prototype = superClass.prototype;
-    if ($Object(prototype) === prototype || prototype === null)
-      return superClass.prototype;
-    throw new $TypeError('super prototype must be an Object or null');
-  }
-  if (superClass === null)
-    return null;
-  throw new $TypeError(
-      `Super expression must either be null or a function, not ${
-          typeof superClass}.`);
 }
 
 export default function createClass(ctor, object, staticObject, superClass) {
@@ -79,4 +68,18 @@ export default function createClass(ctor, object, staticObject, superClass) {
   }
   defineProperty(ctor, 'prototype', {configurable: false, writable: false});
   return defineProperties(ctor, getDescriptors(staticObject));
+}
+
+function getProtoParent(superClass) {
+  if (typeof superClass === 'function') {
+    var prototype = superClass.prototype;
+    if ($Object(prototype) === prototype || prototype === null)
+      return superClass.prototype;
+    throw new $TypeError('super prototype must be an Object or null');
+  }
+  if (superClass === null)
+    return null;
+  throw new $TypeError(
+      `Super expression must either be null or a function, not ${
+          typeof superClass}.`);
 }

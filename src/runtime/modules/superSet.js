@@ -15,10 +15,6 @@
 import superDescriptor from './superDescriptor.js';
 
 var $TypeError = TypeError;
-var {
-  getOwnPropertyDescriptor,
-  getPrototypeOf,
-} = Object;
 
 export default function superSet(self, homeObject, name, value) {
   var descriptor = superDescriptor(homeObject, name);
