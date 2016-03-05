@@ -14,7 +14,8 @@
 
 import {
   BLOCK,
-  CATCH
+  CATCH,
+  FUNCTION_EXPRESSION,
 } from '../syntax/trees/ParseTreeType.js';
 import {StringMap} from '../util/StringMap.js';
 import {VAR} from '../syntax/TokenType.js';
@@ -56,7 +57,7 @@ export class Scope {
   addVar(tree, reporter) {
     // We add VAR bindings to blocks so that we can check for duplicates.
     let name = tree.getStringValue();
-    if (this.lexicalDeclarations_.has(name)) {
+    if (this.lexicalDeclarations_.has(name) && !this.isFunctionName(name)) {
       reportDuplicateVar(reporter, tree, name);
       return;
     }
@@ -69,8 +70,8 @@ export class Scope {
 
   addDeclaration(tree, type, reporter) {
     let name = tree.getStringValue();
-    if (this.lexicalDeclarations_.has(name) ||
-        this.variableDeclarations_.has(name)) {
+    if ((this.lexicalDeclarations_.has(name) ||
+         this.variableDeclarations_.has(name)) && !this.isFunctionName(name)) {
       reportDuplicateVar(reporter, tree, name);
       return;
     }
@@ -111,6 +112,13 @@ export class Scope {
       return this.parent.getVarScope();
     }
     return null;
+  }
+
+
+  isFunctionName(name) {
+    let varScope = this.getVarScope();
+    return varScope && varScope.tree.type === FUNCTION_EXPRESSION &&
+        varScope.tree.name.getStringValue() === name;
   }
 
   getBinding(tree) {
